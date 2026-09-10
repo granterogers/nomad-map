@@ -20,6 +20,25 @@ Weights live in `WEIGHTS` in `pipeline/step6_h3.py`, are shipped into the page,
 and are displayed in the UI so the interface always describes the model that
 produced the numbers on screen.
 
+## Two corrections applied before anything is scored
+
+**Mapping-density normalisation.** A raw count of coworking spaces mostly
+measures how thoroughly OpenStreetMap has been mapped in that region: France
+records 4.06 mapped coworking spaces per 100,000 people, Indonesia 0.06. Every
+infrastructure signal is therefore scored as a *share* of what OSM has mapped
+locally, using a baseline of deliberately nomad-irrelevant civic tags
+(pharmacies, fuel stations, supermarkets, banks, hairdressers, post boxes —
+2.27 million objects). The share is shrunk toward the global rate with an
+empirical-Bayes prior so a hamlet with one coworking space and two pharmacies
+cannot outrank a real ecosystem. 70% of each infrastructure metric comes from
+this share, 30% from absolute scale.
+
+**Specificity weighting.** Weight now follows how much a tag actually says about
+digital nomads, not how many of them OSM happens to contain. `sports_centre`
+(208,006 objects) is weighted 0.0 and is not evidence at all; `community_centre`
+(147,056 objects) is 0.05. Coworking, coliving and hackerspaces carry 2.0–3.0.
+Before this change those two tags alone carried 49% of all evidence weight.
+
 Every input passes through a saturating curve `1 − e^(−x/k)`. This is why a city
 ten times bigger does not score ten times higher: the curve is deliberately
 sub-linear, and per-capita terms sit alongside absolute terms throughout.
@@ -106,6 +125,25 @@ Computed per locality, shown before the numbers:
   walkable hub.
 - **NO CLEAR CONCENTRATED HOTSPOT** — scores well, but no contiguous cluster
   emerged.
+
+## The corroboration gate
+
+A locality enters the **ranking** only if it has evidence from two or more
+independent families, at least one of which is nomad-targeted:
+
+| Family | Sources |
+|---|---|
+| infrastructure | OpenStreetMap venues |
+| events | Meetup, Luma, coworking-space ICS/RSS feeds |
+| community | Reddit, Mastodon, Lemmy, Hacker News |
+| attention | Wikimedia pageview dumps |
+
+Infrastructure plus general pageviews is *not* evidence that nomads are there —
+it is evidence that a town exists and that people read about it. Places failing
+the gate still render on the map with all their evidence, and carry an explicit
+`NOT RANKED — INFRASTRUCTURE ONLY` warning, but they do not appear in the
+rankings. This is the difference between "we observed things here" and "this is
+a nomad destination".
 
 ## Region roll-ups
 

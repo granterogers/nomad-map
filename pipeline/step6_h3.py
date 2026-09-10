@@ -34,6 +34,34 @@ WEIGHTS = {
     "confidence": 0.05,
 }
 
+# Venue weight and family by NOMAD SPECIFICITY (validity audit fix #3).
+# The first model inherited OSM's volume: community centres (147k objects) and
+# sports centres (208k) together carried 49% of all evidence weight while
+# saying nothing whatsoever about digital nomads. Weight 0.0 means the tag is
+# not evidence at all and never creates a cell.
+KIND_SPEC = {
+    "coworking_space": (3.0, "coworking"),
+    "coworking":       (3.0, "coworking"),
+    "coliving":        (3.0, "coworking"),
+    "apartment":       (1.5, "coworking"),
+    "hackerspace":     (2.0, "community"),
+    "internet_cafe":   (1.0, "community"),
+    "language_school": (1.2, "international"),
+    "hostel":          (0.9, "international"),
+    "university":      (0.5, "international"),
+    "cafe":            (0.5, "coworking"),
+    "nightclub":       (0.30, "social"),
+    "arts_centre":     (0.25, "social"),
+    "community_centre":(0.05, "community"),
+    "sports_centre":   (0.0,  "social"),
+}
+
+# Evidence families that can corroborate one another. A place may only enter the
+# RANKING if it has two or more, at least one of which is nomad-targeted
+# (events or community). Infrastructure plus general pageviews is not evidence
+# that nomads are there (validity audit fix #6).
+NOMAD_TARGETED = {"events", "community"}
+
 NOMAD_CATEGORIES = {"digital nomad", "coworking", "expat / international",
                     "language exchange", "networking", "startup"}
 SOCIAL_CATEGORIES = {"social", "nightlife", "music / festival", "wellness",
@@ -96,7 +124,7 @@ def freshness_label(hours):
 
 # ---------------------------------------------------------------- evidence
 
-def build_evidence(gb, eco, evs, comm, att):
+def build_evidence(gb, eco, evs, comm, att, vfeeds=None):
     """Normalize every source into provenance-carrying evidence records (§32)."""
     ev_id = 0
     per_place = defaultdict(list)
@@ -104,13 +132,17 @@ def build_evidence(gb, eco, evs, comm, att):
 
     for gid, rec in eco.items():
         for v in rec["venues"]:
+            spec = KIND_SPEC.get(v["kind"])
+            if spec is None or spec[0] <= 0:
+                continue            # not evidence of anything nomad-related
+            weight, family = spec
             ev_id += 1
             per_place[gid].append({
-                "id": f"e{ev_id}", "source_id": "osm_overpass", "type": "venue",
-                "family": v["family"], "kind": v["kind"], "title": v["name"] or v["kind"],
+                "id": f"e{ev_id}", "source_id": "qlever_osm", "type": "venue",
+                "family": family, "kind": v["kind"], "title": v["name"] or v["kind"],
                 "lat": v["lat"], "lon": v["lon"], "precision": "point",
                 "h3": h3.latlng_to_cell(v["lat"], v["lon"], FINE_RES),
-                "weight": v["w"], "observed_at": rec["scanned_at"],
+                "weight": weight, "observed_at": rec["scanned_at"],
                 "age_hours": 0, "url": f'https://www.openstreetmap.org/{ {"n":"node","w":"way","r":"relation"}[v["id"][0]] }/{v["id"][1:]}',
             })
 
@@ -144,6 +176,32 @@ def build_evidence(gb, eco, evs, comm, att):
                 "weight": 1.0, "observed_at": rec["scanned_at"], "event_date": e["start"],
                 "age_hours": round(age, 1), "url": e["url"],
             })
+
+    # Coworking-space event feeds: nomad-specific AND point-precise, so unlike
+    # Meetup listings these land in an H3 cell rather than at city precision.
+    for gid, rec in (vfeeds or {}).items():
+        for v in rec["venues"]:
+            for e in v["events"]:
+                start = parse_dt(e.get("start"))
+                if start:
+                    dh = (start - now).total_seconds() / 3600.0
+                    if dh < -336 or dh > 2160:
+                        continue
+                    age = abs(dh)
+                else:
+                    age = 400
+                ev_id += 1
+                per_place[gid].append({
+                    "id": f"e{ev_id}", "source_id": "venue_feeds", "type": "event",
+                    "family": "event", "kind": e.get("category") or "other",
+                    "title": e["title"], "lat": v["lat"], "lon": v["lon"],
+                    "precision": "point",
+                    "h3": h3.latlng_to_cell(v["lat"], v["lon"], FINE_RES),
+                    "venue": v["venue"], "organizer": v["venue"],
+                    "weight": 1.2, "observed_at": rec.get("scanned_at", common.iso()),
+                    "event_date": e.get("start", ""), "age_hours": round(age, 1),
+                    "url": v["url"],
+                })
 
     for gid, rec in comm.items():
         for m in rec["samples"]:
@@ -361,7 +419,24 @@ def trim_clusters(clusters, cap=3000):
 
 # ---------------------------------------------------------------- localities
 
-def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, ev_rec):
+# Fitted in main() from the whole population of localities. Nomad infrastructure
+# is scored as a SHARE of what OSM has mapped locally rather than as a raw count,
+# because the raw count mostly measures how thoroughly a region has been mapped
+# (validity audit fix #1: France 4.06 mapped coworking spaces per 100k people,
+# Indonesia 0.06 - a 68x gap that reflects OSM volunteers, not reality).
+NORM = {"cw_rate": 0.02, "intl_rate": 0.05, "soc_rate": 0.03,
+        "cw_k": 0.05, "intl_k": 0.10, "soc_k": 0.06, "prior": 30.0}
+
+
+def mapping_share(weight, base_n, rate, prior):
+    """Empirical-Bayes share of local OSM richness that is nomad infrastructure.
+    Shrunk toward the global rate so a hamlet with one coworking space and two
+    pharmacies cannot outrank a real ecosystem."""
+    return (weight + prior * rate) / (base_n + prior)
+
+
+def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, ev_rec,
+                   base_n=0):
     """Locality-level metrics. All inputs are evidence; nothing is reputational."""
     now = now_utc()
     pop = max(place["pop"], 1)
@@ -383,31 +458,44 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
     nomad_events = [e for e in events if e["kind"] in NOMAD_CATEGORIES]
     per_week = len(upcoming) / 4.0
     org_conc = (1.0 - 1.0 / max(len(organizers), 1)) if organizers else 0.0
+    # Saturation constants are set so the metric still discriminates at the top:
+    # with the old values any city above ~15 events scored 100, which made a
+    # 92-event nomad hub indistinguishable from a 55-event provincial tech town.
+    # And the share of events that are actually nomad-oriented now carries real
+    # weight, because 26 organisers running yoga is not the same signal as 10
+    # running nomad meetups.
+    nomad_share = len(nomad_events) / max(len(upcoming), 1)
     event_activity = s100(
-        0.42 * sat(per_week, 2.2) + 0.22 * sat(len(organizers), 2.2)
-        + 0.14 * sat(len(venues_used), 3.0) + 0.12 * sat(len(cats), 3.0)
-        + 0.10 * sat(len(nomad_events), 1.5))
+        0.26 * sat(per_week, 7.0) + 0.20 * sat(len(organizers), 12.0)
+        + 0.12 * sat(len(venues_used), 10.0) + 0.08 * sat(len(cats), 5.0)
+        + 0.22 * sat(len(nomad_events), 4.0) + 0.12 * nomad_share)
 
     # ---- community velocity (§24)
     n_posts = comm_rec.get("mentions", 0)
     community_activity = s100(
-        0.45 * sat(n_posts, 2.5) + 0.25 * sat(comm_rec.get("unique_sources", 0), 1.2)
-        + 0.30 * sat(len(organizers) + 0.5 * len(nomad_events), 2.5))
+        0.42 * sat(n_posts, 2.5) + 0.22 * sat(comm_rec.get("unique_sources", 0), 1.2)
+        + 0.36 * sat(len(organizers) * 0.4 + len(nomad_events), 5.0))
 
-    # ---- infrastructure
-    coworking_infra = s100(0.6 * sat(fam["coworking"], 5.0)
-                           + 0.4 * sat(fam["coworking"] / max(pop100k, 0.35), 3.0))
+    # ---- infrastructure, normalised against local OSM mapping density
+    cw_share = mapping_share(fam["coworking"], base_n, NORM["cw_rate"], NORM["prior"])
+    intl_share = mapping_share(fam["international"], base_n, NORM["intl_rate"], NORM["prior"])
+    soc_share = mapping_share(fam["social"], base_n, NORM["soc_rate"], NORM["prior"])
+    # 70% "how nomad-dense is this place for how well it is mapped", 30% absolute
+    # scale, so a genuinely large ecosystem is not flattened by a small one.
+    coworking_infra = s100(0.70 * sat(cw_share, NORM["cw_k"])
+                           + 0.30 * sat(fam["coworking"], 7.0))
     international_social = s100(
-        0.45 * sat(fam["international"], 6.0) + 0.25 * sat(fam["social"], 8.0)
-        + 0.30 * sat(fam["international"] / max(pop100k, 0.35), 3.0))
+        0.50 * sat(intl_share, NORM["intl_k"]) + 0.20 * sat(soc_share, NORM["soc_k"])
+        + 0.30 * sat(fam["international"], 8.0))
 
     # ---- attention / presence
     daily = (att_rec or {}).get("daily_avg", 0.0)
     per_cap = daily / max(pop100k, 0.35)
     nomad_presence = s100(
-        0.34 * sat(per_cap, 22.0) + 0.20 * sat(daily / 400.0, 1.0)
-        + 0.28 * sat(fam["coworking"] * 1.4 + len(nomad_events) * 1.6, 6.0)
-        + 0.18 * sat(n_posts, 2.0))
+        0.22 * sat(per_cap, 22.0) + 0.12 * sat(daily / 400.0, 1.0)
+        + 0.30 * sat(cw_share, NORM["cw_k"])
+        + 0.20 * sat(len(nomad_events) * 1.6 + len(upcoming) * 0.4, 4.0)
+        + 0.16 * sat(n_posts, 2.0))
 
     # ---- Active Community Density (§21): concentration beats raw size
     top = clusters_here[0] if clusters_here else None
@@ -449,6 +537,17 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
     if (att_rec or {}).get("ambiguous_title"):
         confidence = int(confidence * 0.88)
 
+    families = set()
+    if fam["coworking"] or fam["international"] or fam["community"] or fam["social"]:
+        families.add("infrastructure")
+    if events:
+        families.add("events")
+    if n_posts:
+        families.add("community")
+    if daily > 0:
+        families.add("attention")
+    ranked = len(families) >= 2 and bool(families & NOMAD_TARGETED)
+
     parts = {
         "nomad_presence": nomad_presence, "event_activity": event_activity,
         "community_activity": community_activity, "coworking_infra": coworking_infra,
@@ -479,8 +578,17 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
         warn.append(("NO CLEAR CONCENTRATED HOTSPOT",
                      "Scores well overall, but no contiguous hotspot cluster emerged."))
 
+    if not ranked:
+        warn.insert(0, ("NOT RANKED - INFRASTRUCTURE ONLY",
+                        "No nomad-targeted evidence (events or community discussion) was "
+                        "found here, so this place is shown as observed infrastructure "
+                        "rather than ranked as a destination."))
+
     return {
         "live_score": live, "band": band(live), "parts": parts,
+        "ranked": ranked, "evidence_families": sorted(families),
+        "mapping_baseline": base_n,
+        "coworking_share": round(cw_share, 5),
         "presence": presence_band(nomad_presence),
         "active_community_density": acd, "concentration": round(concentration, 3),
         "momentum_ratio": mratio, "momentum": momentum_label(mratio), "trend": trend_icon(mratio),
@@ -544,12 +652,16 @@ def main():
     eco = (read_json("ecosystem.json", {}) or {}).get("places", {})
     evs = (read_json("events.json", {}) or {}).get("places", {})
     comm = (read_json("community.json", {}) or {}).get("places", {})
+    vfeeds = (read_json("venue_feeds.json", {}) or {}).get("places", {})
+    baseline = (read_json("mapping_baseline.json", {}) or {}).get("counts", {})
     place_by_gid = {str(p["gid"]): p for p in gb["places"]}
+    if not baseline:
+        print("  !! no mapping_baseline.json - scores will carry OSM completeness bias")
 
-    print(f"inputs: {len(eco)} ecosystem, {len(evs)} event, {len(comm)} community, "
-          f"{len(att)} attention records")
+    print(f"inputs: {len(eco)} ecosystem, {len(evs)} event, {len(vfeeds)} venue-feed, "
+          f"{len(comm)} community, {len(att)} attention records")
 
-    per_place = build_evidence(gb, eco, evs, comm, att)
+    per_place = build_evidence(gb, eco, evs, comm, att, vfeeds)
     cells = build_cells(per_place)
     print(f"evidence items: {sum(len(v) for v in per_place.values())}; "
           f"fine cells (res {FINE_RES}): {len(cells)}")
@@ -564,15 +676,45 @@ def main():
     for c in cells.values():
         cells_by_gid[c["gid"]].append(c)
 
+    # Fit the mapping-density normalisers from the population of localities
+    # themselves, so the "share of local mapping that is nomad infrastructure"
+    # scale is anchored to what actually occurs rather than a guessed constant.
+    fam_tot = defaultdict(float)
+    base_tot = 0.0
+    shares = defaultdict(list)
+    for gid, items in per_place.items():
+        b = baseline.get(gid, 0)
+        f = defaultdict(float)
+        for i in items:
+            if i["type"] == "venue":
+                f[i["family"]] += i["weight"]
+        for k in ("coworking", "international", "social"):
+            fam_tot[k] += f[k]
+        base_tot += b
+        if b >= 8:
+            for k in ("coworking", "international", "social"):
+                shares[k].append(f[k] / b)
+    if base_tot > 0:
+        NORM["cw_rate"] = fam_tot["coworking"] / base_tot
+        NORM["intl_rate"] = fam_tot["international"] / base_tot
+        NORM["soc_rate"] = fam_tot["social"] / base_tot
+    for k, key in (("coworking", "cw_k"), ("international", "intl_k"), ("social", "soc_k")):
+        v = sorted(x for x in shares[k] if x > 0)
+        if len(v) > 200:
+            NORM[key] = max(v[int(len(v) * 0.90)] / 2.2, 1e-4)
+    print("mapping normalisers:", {k: round(v, 5) for k, v in NORM.items()})
+    print(f"  baseline objects attached to {len(baseline):,} localities")
+
     localities = []
-    scanned = set(eco) | set(evs)
+    scanned = set(eco) | set(evs) | set(vfeeds)
     for gid in sorted(scanned, key=lambda g: -place_by_gid.get(g, {}).get("pop", 0)):
         p = place_by_gid.get(gid)
         if not p:
             continue
         m = score_locality(p, per_place.get(gid, []), cells_by_gid.get(gid, []),
                            clusters_by_gid.get(gid, []), att.get(gid, {}),
-                           comm.get(gid, {}), evs.get(gid, {}))
+                           comm.get(gid, {}), evs.get(gid, {}),
+                           base_n=baseline.get(gid, 0))
         a = att.get(gid) or {}
         m["att_series"] = [[d, v] for d, v in sorted((a.get("series") or {}).items())]
         m["att_recent_views"] = a.get("recent_views", 0)
@@ -582,8 +724,10 @@ def main():
                   "lat": p["lat"], "lon": p["lon"], "pop": p["pop"], "tz": p["tz"],
                   "wiki": p.get("wiki")})
         localities.append(m)
-    localities.sort(key=lambda l: -l["live_score"])
-    print(f"scored localities: {len(localities)}")
+    localities.sort(key=lambda l: (-int(l["ranked"]), -l["live_score"]))
+    nr = sum(1 for l in localities if l["ranked"])
+    print(f"scored localities: {len(localities)}  ({nr:,} ranked, "
+          f"{len(localities)-nr:,} infrastructure-only)")
 
     # cell scores + resolution levels
     levels = rollup(cells)
@@ -611,15 +755,16 @@ def main():
             c["_lab"] = j < LABEL_CAP
         print(f"  res {r}: {len(levels[r])} -> {len(shipped[r])} shipped")
 
-    countries = admin_rollup(localities, lambda l: l["cc"], lambda l: l["country"])
-    regions = admin_rollup(localities, lambda l: f'{l["cc"]}|{l["admin1"]}',
+    rankable = [l for l in localities if l["ranked"]] or localities
+    countries = admin_rollup(rankable, lambda l: l["cc"], lambda l: l["country"])
+    regions = admin_rollup(rankable, lambda l: f'{l["cc"]}|{l["admin1"]}',
                            lambda l: f'{l["admin1"]}, {l["country"]}' if l["admin1"] else l["country"])
 
     # Ship-time locality selection: a place with two sports centres and nothing
     # else is real data but not a destination. Keep places that carry a hotspot,
     # meaningful evidence, or a score worth looking at.
     keep_ids = {L["gid"] for L in localities
-                if L["n_clusters"] > 0 or L["evidence_count"] >= 20 or L["live_score"] >= 30}
+                if L["ranked"] or L["n_clusters"] > 0 or L["evidence_count"] >= 25}
     ship_loc = [L for L in localities if L["gid"] in keep_ids]
     top_ids = {L["gid"] for L in sorted(ship_loc, key=lambda x: -x["live_score"])[:1900]}
     for L in ship_loc:

@@ -33,6 +33,10 @@ def main():
     audit = read_json("source_audit.json", {"results": []})["results"]
     reg = read_json("source_registry.json", {})
     eco = read_json("ecosystem.json", {})
+    vfeeds = read_json("venue_feeds.json", {})
+    baseline = read_json("mapping_baseline.json", {})
+    locallang = read_json("locallang.json", {})
+    val = read_json("validation_result.json", {})
     att = read_json("attention.json", {})
     evs = read_json("events.json", {"places": {}})
     comm = read_json("community.json", {"places": {}})
@@ -67,8 +71,22 @@ def main():
     lines.append(f"- **Reddit / Mastodon / Lemmy / Hacker News** — "
                  f"{comm.get('posts_scanned',0):,} recent public posts scanned, attributed to "
                  f"{len(comm.get('places', {})):,} localities at city precision.")
-    lines.append("- **GeoNames + Wikidata** — the place universe and the "
-                 "GeoNames↔Wikipedia crosswalk that lets attention attach to places.")
+    nvf = sum(len(v["events"]) for r in vfeeds.get("places", {}).values() for v in r["venues"])
+    lines.append(f"- **Coworking-space event feeds** — {vfeeds.get('sites_with_feeds', 0):,} of "
+                 f"{vfeeds.get('sites_probed', 0):,} coworking websites recorded in OSM publish a "
+                 f"machine-readable calendar (iCalendar, RSS/Atom or schema.org). {nvf:,} events "
+                 f"across {len(vfeeds.get('places', {})):,} localities. Unlike Meetup listings "
+                 f"these carry the venue's exact coordinates, so they land in an H3 cell rather "
+                 f"than at city precision.")
+    lines.append(f"- **OSM mapping-density baseline** — "
+                 f"{sum(baseline.get('per_tag', {}).get(t, {}).get('objects', 0) for t in baseline.get('per_tag', {})):,} "
+                 f"deliberately nomad-irrelevant civic objects "
+                 f"({', '.join(baseline.get('tags', []))}) used to correct for how thoroughly "
+                 f"each region has been mapped. Not a signal; a normaliser.")
+    lines.append(f"- **GeoNames + Wikidata** — the place universe, the GeoNames↔Wikipedia "
+                 f"crosswalk, and local-language sitelinks for "
+                 f"{len(locallang.get('places', {})):,} places so attention is not measured on "
+                 f"English Wikipedia alone.")
 
     lines.append("\n## Full audit\n")
     by = defaultdict(list)
@@ -85,6 +103,23 @@ def main():
             lines.append(f'| {r["source"]} | {r["family"]} | {r.get("http") or "—"} | '
                          f'{"yes" if r["credential_required"] else "no"} | {r.get("notes","")} |')
 
+    if val:
+        lines.append(f"""
+## Does any of this actually measure digital nomads?
+
+Measured against a held-out reference set of {val.get('n_evaluated', 0)} hand-labelled places
+(including negative controls - large, well-mapped cities with no nomad reputation):
+
+| Metric | Value |
+|---|---|
+| Rank correlation with human labels | {val.get('spearman_tier_vs_score')} |
+| Hub vs negative-control separation (AUC) | {val.get('auc_hub_vs_control')} |
+| Precision @ top 30 | {val.get('precision_at_30')} |
+| Negative controls in the top 30 | {val.get('negative_controls_in_top_30')} |
+
+No weight, threshold or source selection is tuned against these numbers - see
+`validation/README.md`. Run `python3 validation/evaluate.py` to reproduce.
+""")
     lines.append("""
 ## Architecture changes forced by source testing
 

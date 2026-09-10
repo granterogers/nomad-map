@@ -144,11 +144,13 @@ LOC_SCHEMA = ["gid","name","cc","country","admin1","continent","px","py","pop","
               "organizer_concentration","community_posts","venues","daily_attention",
               "attention_per_100k","n_cells","n_clusters","elev","coastal",
               "parts","sources","event_categories","venue_families","warnings",
-              "att_series","att_recent_views","att_prior_views"]
+              "att_series","att_recent_views","att_prior_views",
+              "ranked","evidence_families","mapping_baseline","coworking_share"]
 PART_KEYS = ["nomad_presence","event_activity","community_activity","coworking_infra",
              "international_social","momentum","confidence"]
-SOURCE_KEYS = ["osm_overpass","qlever_osm","meetup_public","luma_public","reddit_rss",
+SOURCE_KEYS = ["qlever_osm","meetup_public","luma_public","venue_feeds","reddit_rss",
                "mastodon_public","lemmy_public","hn_algolia","wikimedia_pageview_dumps"]
+FAMILY_KEYS = ["infrastructure","events","community","attention"]
 EV_KEYS = {"t":"type","s":"source_id","k":"kind","n":"title","u":"url",
            "v":"venue","o":"organizer","a":"age_hours","d":"event_date","p":"point"}
 EV_SOURCES = ["qlever_osm","meetup_public","luma_public","reddit_rss",
@@ -156,7 +158,7 @@ EV_SOURCES = ["qlever_osm","meetup_public","luma_public","reddit_rss",
 EV_TYPES = ["venue","event","community_post"]
 URL_PREFIX = {"~o/":"https://www.openstreetmap.org/","~m/":"https://www.meetup.com/",
               "~l/":"https://luma.com/","~r/":"https://www.reddit.com/","~":"https://"}
-WARN_CODES = ["LOW DATA CONFIDENCE","HISTORICALLY POPULAR, CURRENTLY QUIET",
+WARN_CODES = ["NOT RANKED - INFRASTRUCTURE ONLY","LOW DATA CONFIDENCE","HISTORICALLY POPULAR, CURRENTLY QUIET",
               "STRONG INFRASTRUCTURE BUT WEAK COMMUNITY",
               "EVENT ACTIVITY DOMINATED BY ONE ORGANIZER","ACTIVITY RAPIDLY COOLING",
               "VERY ACTIVE BUT HIGHLY DISPERSED","NO CLEAR CONCENTRATED HOTSPOT"]
@@ -174,6 +176,14 @@ def encode_localities(locs):
                 m = 0
                 for i, s in enumerate(SOURCE_KEYS):
                     if s in (L.get("sources") or []):
+                        m |= 1 << i
+                v = m
+            elif k == "ranked":
+                v = 1 if L.get("ranked") else 0
+            elif k == "evidence_families":
+                m = 0
+                for i, f in enumerate(FAMILY_KEYS):
+                    if f in (L.get("evidence_families") or []):
                         m |= 1 << i
                 v = m
             elif k == "warnings":
@@ -232,6 +242,9 @@ def main():
 
     world = build_world_paths()
     audit = read_json("source_audit.json", {"results": []})
+    val = read_json("validation_result.json", {})
+    if val:
+        val = {k: v for k, v in val.items() if k != "rows"}
     registry = read_json("source_registry.json", {})
     att = read_json("attention.json", {})
 
@@ -242,6 +255,7 @@ def main():
             "universe_places": len(gb["places"]),
             "universe_countries": len({p["cc"] for p in gb["places"]}),
             "scanned_localities": len(sc["localities"]),
+            "ranked_localities": sum(1 for L in sc["localities"] if L.get("ranked")),
             "clusters": len(sc["clusters"]),
             "weights": sc["weights"], "fine_res": sc["fine_res"],
             "attention_window": {"start": att.get("window_start"), "end": att.get("window_end"),
@@ -254,12 +268,14 @@ def main():
         "ev_keys": EV_KEYS, "ev_sources": EV_SOURCES, "ev_types": EV_TYPES,
         "url_prefix": URL_PREFIX,
         "source_keys": SOURCE_KEYS, "warn_codes": WARN_CODES,
+        "family_keys": FAMILY_KEYS,
         "localities": encode_localities(sc["localities"]),
         "clusters": sc["clusters"],
         "country_rollup": sc["countries"],
         "region_rollup": sc["regions"],
         "evidence": ev,
         "sources": {"audit": audit["results"], "registry": registry},
+        "validation": val,
     }
     p = write_json("bundle.json", bundle)
     print(f"wrote {p} ({os.path.getsize(p)/1e6:.2f} MB)")

@@ -53,33 +53,53 @@ TikTok, WhatsApp, X, LinkedIn, InterNations, Couchsurfing, Nomads.com, AirDNA,
 Coworker.com. All listed in the audit and surfaced in the UI as contributing
 zero, per place.
 
-## Validity — read this before trusting a ranking
+## Validity — what is measured and how well
 
-A measured audit (`audit/`, report linked in `audit/README.md`) found the index
-is sound at the top and not a nomad ranking in the tail:
+The index is measured against a **held-out reference set** of 129 hand-labelled
+places (`validation/`), including 35 negative controls: large, thoroughly mapped
+cities with no nomad reputation. Run `python3 validation/evaluate.py` for current
+numbers; `validation/history.json` is the regression log.
 
-- **Trustworthy:** within-city hotspot geometry (every hexagon is named,
-  verifiable OSM objects) and the top ~300, where 100/100 of the top 100 carry
-  live event evidence and 97/100 carry community evidence.
-- **Not trustworthy:** the remaining ~4,500 localities. 93.4% rest on a single
-  source (OSM venue counts) with no nomad-specific evidence. None of them score
-  above 55, so the confidence model contains the damage — but they are still
-  listed under "hottest right now".
-- **The dominant confound is OSM mapping completeness**, not city size
-  (live_score vs population is only rho=+0.31). France records 4.06 mapped
-  coworking spaces per 100k people; Indonesia records 0.06. Bali is effectively
-  invisible for that reason alone.
-- **The discovery claim does not hold as built.** Event targets were chosen from
-  the OSM-derived score, so 53% were already top-400 before any event was
-  fetched. It confirms its own ranking rather than testing it.
-- Known concrete errors: 19.3% ambiguous Wikipedia titles, 39% name-guessed
-  rather than crosswalked, and a 5-character rule that silences 196 place names
-  including Ubud, Goa, Lima and Rome.
+**No weight or threshold is tuned against those numbers.** See
+`validation/README.md` — the moment the model is fitted to the reference set, the
+reference set stops measuring anything.
 
-Fixes, in priority order, are listed in the audit report. The first two —
-normalising OSM signals against a mapping-density baseline, and sampling event
-coverage randomly rather than by rank — are both low effort and would change
-the answer materially.
+### Corrections the model applies
+
+1. **Mapping-density normalisation.** Infrastructure is scored as a share of what
+   OSM has mapped locally, against 2.27M deliberately nomad-irrelevant civic
+   objects (pharmacies, fuel, supermarkets, banks, hairdressers, post boxes).
+   Without this the ranking mostly measured OSM completeness: France records 4.06
+   mapped coworking spaces per 100k people, Indonesia 0.06.
+2. **Specificity weighting.** `sports_centre` is weight 0 and not evidence at all;
+   `community_centre` is 0.05. Those two tags previously carried 49% of all
+   evidence weight while saying nothing about nomads.
+3. **Corroboration gate.** A place is *ranked* only with two or more independent
+   evidence families, at least one nomad-targeted (events or community).
+   Everything else renders on the map with its evidence and an explicit
+   `NOT RANKED — INFRASTRUCTURE ONLY` warning.
+4. **Half the event budget is a stratified random sample** over continent x
+   population band, independent of any score, so the event layer can contradict
+   the infrastructure layer instead of confirming it.
+5. **Coworking-space event feeds** (`step4b_venuefeeds.py`) — 1,011 of 4,139
+   coworking websites recorded in OSM publish a machine-readable calendar. This
+   is nomad-specific AND point-precise, so it lands in an H3 cell.
+6. **Title-anchored, quote-aware, country-qualified name matching** replaced the
+   5-character rule that silenced 196 place names including Ubud, Lima and Rome,
+   and produced errors like crediting a post about Goa to Las Vegas.
+
+### What is still true and worth knowing
+
+- **Nothing observes a digital nomad directly.** Every signal is a proxy. The
+  ranking is only as good as the proxies, and the honest ceiling is limited.
+- **The event layer inherits some OSM bias** through `step4b`, because it is
+  seeded from OSM `website` tags — well-mapped regions get more detectable feeds.
+- **Local-language attention is partial.** Five editions (fr, de, pt, id, th)
+  are covered; the public Wikidata endpoint times out on the largest ones. Places
+  in uncovered countries are still measured on English Wikipedia alone.
+- **Meetup throttles**, so the stratified random half of the event scan is
+  partially complete. Re-running `step4_events.py` resumes from cache and
+  extends coverage; `EVENT_BUDGET_S` bounds the run.
 
 ## Known limitations
 

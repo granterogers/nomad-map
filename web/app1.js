@@ -17,6 +17,11 @@ function decodeLocalities(){
     L.parts = {}; PK.forEach((k, i) => L.parts[k] = p[i] || 0);
     const mask = L.sources || 0;
     L.sources = SK.filter((_, i) => mask & (1 << i));
+    const fmask = L.evidence_families || 0;
+    L.evidence_families = (D.family_keys || []).filter((_, i) => fmask & (1 << i));
+    L.ranked = !!L.ranked;
+    L.mapping_baseline = L.mapping_baseline || 0;
+    L.coworking_share = L.coworking_share || 0;
     L.warnings = (L.warnings || []).map(([code, detail]) =>
       ({code: WC[code] || "NOTE", detail}));
     L.event_categories = L.event_categories || [];

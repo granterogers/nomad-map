@@ -1,0 +1,15 @@
+{
+  "_comment": "Regression log. Each entry is a measured build, appended by validation/evaluate.py. Keeps model changes accountable over time.",
+  "builds": [
+    {
+      "build": "2026-09-10T19:41Z",
+      "label": "pre-audit baseline",
+      "spearman_tier_vs_score": 0.251,
+      "auc_hub_vs_control": 0.698,
+      "precision_at_30": 0.700,
+      "negative_controls_in_top_30": 7,
+      "ranked_localities": null,
+      "notes": "Original model. No mapping-density normalisation, no specificity weighting, no corroboration gate; event targets chosen entirely by rank."
+    }
+  ]
+}

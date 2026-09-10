@@ -72,12 +72,24 @@ function renderLocality(L){
 
   drawer.querySelector(".dbody").innerHTML = `
   <div class="bigrow">
-    <div class="bigscore num" style="color:${heatCss(L.live_score,1)}">${L.live_score}</div>
+    <div class="bigscore num" style="color:${L.ranked ? heatCss(L.live_score,1) : "var(--muted)"}">${L.live_score}</div>
     <div class="bigmeta">
-      <div>Nomad Live Score</div>
+      <div>${L.ranked ? "Nomad Live Score" : "Observed activity · not ranked"}</div>
       <div>Confidence <b class="num">${L.confidence}%</b> · Freshness <b>${L.freshness}</b></div>
       <div>${pill(L.momentum, /RISING/.test(L.momentum) ? "rise" : /COOL/.test(L.momentum) ? "cool" : "")}</div>
     </div>
+  </div>
+  <div class="sec" style="padding-top:4px">
+    <h4>Corroboration</h4>
+    <div class="rsub" style="margin-bottom:6px">
+      ${["infrastructure","events","community","attention"].map(f => {
+        const on = L.evidence_families.includes(f);
+        return `<span class="chip"${on ? ` style="color:var(--rise);border-color:color-mix(in srgb,var(--rise) 45%,transparent)"` : ""}>${f}${on ? " ✓" : " —"}</span>`;
+      }).join("")}
+    </div>
+    <div class="tiny">${L.ranked
+      ? "Two or more independent evidence families, at least one of them nomad-targeted, so this place is ranked."
+      : "A place is only ranked with two or more independent evidence families, at least one nomad-targeted (events or community). Infrastructure plus general pageviews shows a town exists, not that nomads are there."}</div>
   </div>
 
   ${L.warnings.length ? `<div class="sec"><h4>Read this first</h4>
@@ -94,6 +106,10 @@ function renderLocality(L){
     ${metric("Active community density", L.active_community_density, "var(--accent)")}
     <div class="tiny" style="margin-top:7px">Weights: presence 25 · events 25 · community 20 ·
       coworking 10 · international 10 · momentum 5 · confidence 5.</div>
+    <div class="tiny" style="margin-top:7px">Infrastructure is scored as a share of what
+      OpenStreetMap has mapped here — <b>${L.mapping_baseline.toLocaleString()}</b> mundane
+      civic objects (pharmacies, fuel, supermarkets, banks) form the local baseline, so a
+      thoroughly-mapped region does not out-score a real ecosystem in a thinly-mapped one.</div>
   </div>
 
   <div class="sec"><h4>Where inside ${esc(L.name)} the activity is</h4>
@@ -160,11 +176,15 @@ function renderLocality(L){
 
   <div class="sec"><h4>Source coverage here</h4>
     <div class="srcgrid">
-      ${["osm_overpass","meetup_public","luma_public","reddit_rss","mastodon_public",
-         "hn_algolia","lemmy_public","wikimedia_pageview_dumps"].map(s => {
+      ${["qlever_osm","meetup_public","venue_feeds","luma_public","reddit_rss",
+         "mastodon_public","hn_algolia","lemmy_public","wikimedia_pageview_dumps"].map(s => {
         const on = L.sources.includes(s) || (s === "wikimedia_pageview_dumps" && L.daily_attention > 0);
+        const NM = {qlever_osm:"OpenStreetMap venues", meetup_public:"Meetup listings",
+          venue_feeds:"Coworking venue feeds", luma_public:"Luma listings",
+          reddit_rss:"Reddit", mastodon_public:"Mastodon", hn_algolia:"Hacker News",
+          lemmy_public:"Lemmy", wikimedia_pageview_dumps:"Wikipedia attention"};
         return `<div class="srcrow"><span class="dot" style="background:${on?"var(--rise)":"var(--line)"}"></span>
-          <span>${esc(s.replace(/_/g," "))}</span>
+          <span>${esc(NM[s]||s)}</span>
           <span class="tiny">${on ? "contributing" : "no signal here"}</span></div>`;
       }).join("")}
       <div class="srcrow"><span class="dot" style="background:var(--cool)"></span>

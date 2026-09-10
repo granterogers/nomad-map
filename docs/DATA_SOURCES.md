@@ -22,22 +22,26 @@ respected — Meetup's `/find/` path is not disallowed; its `/files/`, `/fb/`,
 
 | Source | Domain | Type | Access | Reliability | Coverage |
 |---|---|---|---|---|---|
+| OSM mapping-density baseline (QLever) | `qlever.dev` | normalisation | anonymous SPARQL | 100% | 2,269,942 |
 | QLever OSM-planet SPARQL endpoint | `qlever.dev` | physical ecosystem | anonymous SPARQL | 100% | 693,832 |
 | Wikidata Query Service | `query.wikidata.org` | geography/crosswalk | anonymous SPARQL | 100% | 85,695 |
 | GeoNames cities5000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 69,058 |
 | Wikimedia hourly pageview dumps | `dumps.wikimedia.org` | attention/momentum | anonymous static file streaming | 100% | 38,331 |
 | GeoNames cities15000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 34,090 |
+| Coworking-space event feeds (ICS/RSS/schema.org) | `various (from OSM website tags)` | events | anonymous, one request per site | 82% | 1,011 |
 | Luma public city pages (schema.org ItemList/Event) | `luma.com` | events | anonymous HTML + JSON-LD | 46% | 0 |
 | Meetup public /find pages (schema.org Event) | `meetup.com` | events | anonymous HTML + JSON-LD | 100% | 0 |
-| Reddit public Atom feeds | `reddit.com` | community | anonymous | 56% | 0 |
+| Reddit public Atom feeds | `reddit.com` | community | anonymous | 39% | 0 |
 
 ### What each contributes
 
 - **OpenStreetMap planet via QLever** — 693,832 matching objects worldwide, 527,072 attributed to 34,841 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
 - **Wikimedia hourly pageview dumps** — dated daily series for 38,331 places over 28 days (112/112 hourly files streamed). Supplies current attention and real momentum.
-- **Meetup + Luma public listings** — 10,427 schema.org Event objects across 361 localities, with organiser and venue.
-- **Reddit / Mastodon / Lemmy / Hacker News** — 2,818 recent public posts scanned, attributed to 242 localities at city precision.
-- **GeoNames + Wikidata** — the place universe and the GeoNames↔Wikipedia crosswalk that lets attention attach to places.
+- **Meetup + Luma public listings** — 22,073 schema.org Event objects across 1,011 localities, with organiser and venue.
+- **Reddit / Mastodon / Lemmy / Hacker News** — 2,850 recent public posts scanned, attributed to 166 localities at city precision.
+- **Coworking-space event feeds** — 1,011 of 4,139 coworking websites recorded in OSM publish a machine-readable calendar (iCalendar, RSS/Atom or schema.org). 8,002 events across 588 localities. Unlike Meetup listings these carry the venue's exact coordinates, so they land in an H3 cell rather than at city precision.
+- **OSM mapping-density baseline** — 2,733,419 deliberately nomad-irrelevant civic objects (amenity=pharmacy, amenity=fuel, shop=supermarket, amenity=bank, shop=hairdresser, amenity=post_box) used to correct for how thoroughly each region has been mapped. Not a signal; a normaliser.
+- **GeoNames + Wikidata** — the place universe, the GeoNames↔Wikipedia crosswalk, and local-language sitelinks for 2,858 places so attention is not measured on English Wikipedia alone.
 
 ## Full audit
 
@@ -127,6 +131,22 @@ respected — Meetup's `/find/` path is not disallowed; its `/files/`, `/fb/`,
 | Protomaps public tiles | map | 200 | no | Basemap option |
 | GDELT geo API | media | 404 | no | Geolocated news mentions |
 | Wikinews RSS | media | 404 | no | Open news feed |
+
+## Does any of this actually measure digital nomads?
+
+Measured against a held-out reference set of 128 hand-labelled places
+(including negative controls - large, well-mapped cities with no nomad reputation):
+
+| Metric | Value |
+|---|---|
+| Rank correlation with human labels | 0.323 |
+| Hub vs negative-control separation (AUC) | 0.782 |
+| Precision @ top 30 | 0.767 |
+| Negative controls in the top 30 | 5 |
+
+No weight, threshold or source selection is tuned against these numbers - see
+`validation/README.md`. Run `python3 validation/evaluate.py` to reproduce.
+
 
 ## Architecture changes forced by source testing
 

@@ -1,0 +1,573 @@
+<title>Nomad Radar Validity Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#f2f5f9; --panel:#ffffff; --panel2:#f6f9fc; --sunk:#e8edf4;
+  --ink:#111823; --ink2:#33415a; --muted:#5d6b81; --faint:#8794a7;
+  --line:#d2dae5; --line2:#e5ebf3;
+  --accent:#0f7d9e; --accent2:#c2620d; --neutral:#9aa6b6;
+  --ok:#1d7f5c; --warnc:#8a6d1f; --bad:#b0492b;
+  --shadow:0 1px 2px rgba(16,28,45,.06),0 10px 28px rgba(16,28,45,.08);
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --ground:#0a0f16; --panel:#121a24; --panel2:#182230; --sunk:#0e161f;
+    --ink:#e9eff7; --ink2:#c3cfdf; --muted:#8b9aaf; --faint:#6a7a91;
+    --line:#243141; --line2:#1c2734;
+    --accent:#2a93b5; --accent2:#c07a28; --neutral:#5d6b7d;
+    --ok:#3ecf9a; --warnc:#dcb75a; --bad:#e08055;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 12px 34px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0a0f16; --panel:#121a24; --panel2:#182230; --sunk:#0e161f;
+  --ink:#e9eff7; --ink2:#c3cfdf; --muted:#8b9aaf; --faint:#6a7a91;
+  --line:#243141; --line2:#1c2734;
+  --accent:#2a93b5; --accent2:#c07a28; --neutral:#5d6b7d;
+  --ok:#3ecf9a; --warnc:#dcb75a; --bad:#e08055;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 12px 34px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding-block:0 72px;padding-left:22px;padding-right:22px}
+h1,h2,h3,h4{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  margin:0;text-wrap:balance;letter-spacing:.004em}
+.mono,.num{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-variant-numeric:tabular-nums}
+p{margin:0 0 15px}
+a{color:var(--accent)}
+
+header.top{padding-block:56px 30px;border-bottom:2px solid var(--ink);margin-bottom:34px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:14px}
+h1{font-size:clamp(31px,6vw,46px);font-weight:700;line-height:1.03;letter-spacing:-.015em}
+.dek{font-size:17px;color:var(--ink2);margin-top:15px;max-width:60ch}
+.byline{margin-top:20px;font-size:12px;color:var(--faint);display:flex;gap:14px;flex-wrap:wrap}
+
+section{margin-bottom:44px}
+h2{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:20px}
+h3{font-size:21px;font-weight:600;margin:26px 0 9px;letter-spacing:-.004em}
+h3:first-of-type{margin-top:0}
+h4{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+
+.lede{font-size:16.5px;color:var(--ink2)}
+.callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;padding:16px 19px;margin:22px 0}
+.callout.bad{border-left-color:var(--bad)}
+.callout.warn{border-left-color:var(--warnc)}
+.callout p:last-child{margin-bottom:0}
+.callout .ct{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:6px;font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 4px}
+th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);font-weight:600;padding:7px 10px 7px 0;border-bottom:1px solid var(--line)}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line2);vertical-align:top}
+td:last-child,th:last-child{padding-right:0}
+.tw{overflow-x:auto;margin-bottom:8px}
+.r{text-align:right}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;font-weight:600;white-space:nowrap}
+.verdict::before{content:"";width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.v-ok::before{background:var(--ok)} .v-ok{color:var(--ok)}
+.v-part::before{background:var(--warnc)} .v-part{color:var(--warnc)}
+.v-no::before{background:var(--bad)} .v-no{color:var(--bad)}
+
+figure{margin:26px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:19px 19px 15px;box-shadow:var(--shadow)}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:13px;line-height:1.5}
+figcaption b{color:var(--ink2);font-weight:600}
+.fh{font-size:15.5px;font-weight:600;margin-bottom:3px}
+.fsub{font-size:12px;color:var(--faint);margin-bottom:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2);margin-bottom:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:2px;flex:0 0 auto}
+
+/* composition bar */
+.compbar{display:flex;height:38px;border-radius:5px;overflow:hidden;gap:2px;background:var(--sunk)}
+.compbar div{position:relative;transition:filter .12s}
+.compbar div:hover{filter:brightness(1.12)}
+.complabels{display:flex;gap:2px;margin-top:8px;font-size:11px}
+
+/* horizontal bar chart */
+.hb{display:grid;grid-template-columns:132px 1fr 54px;gap:9px 11px;align-items:center;font-size:12.5px}
+.hb .lbl{color:var(--ink2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .track{background:var(--sunk);border-radius:3px;height:15px;position:relative}
+.hb .fill{height:100%;border-radius:3px 4px 4px 3px;transition:filter .12s}
+.hb .fill:hover{filter:brightness(1.14)}
+.hb .val{text-align:right;color:var(--ink);font-weight:600}
+.hb .grp{grid-column:1/-1;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);padding-top:12px}
+.hb .grp:first-child{padding-top:0}
+
+/* rank dotplot */
+.rank{position:relative;margin-top:6px}
+.rank .axis{position:relative;height:22px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.rank .tick{position:absolute;font-size:10px;color:var(--faint);transform:translateX(-50%);bottom:3px}
+.rank .row{display:grid;grid-template-columns:150px 1fr;gap:11px;align-items:center;
+  font-size:12.5px;padding:2.5px 0}
+.rank .rl{color:var(--ink2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .lane{position:relative;height:17px}
+.rank .dot{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;
+  transform:translate(-50%,-50%);border:2px solid var(--panel);transition:transform .12s}
+.rank .dot:hover{transform:translate(-50%,-50%) scale(1.35)}
+.rank .lane::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;
+  background:var(--line2)}
+
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--panel);border:1px solid var(--line);
+  border-radius:7px;box-shadow:var(--shadow);padding:8px 11px;font-size:12px;max-width:250px;
+  opacity:0;visibility:hidden;transition:opacity .1s}
+.tip.on{opacity:1;visibility:visible}
+.tip .tt{font-weight:600;margin-bottom:2px}
+.tip .tv{color:var(--muted);font-size:11.5px}
+
+details.tbl{margin-top:12px;border-top:1px solid var(--line2);padding-top:9px}
+details.tbl summary{font-size:11.5px;color:var(--accent);cursor:pointer;list-style:none}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸ ";}
+details.tbl[open] summary::before{content:"▾ ";}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:22px 0}
+.stat{background:var(--panel);padding:15px 16px}
+.stat .n{font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+ol.fix{counter-reset:f;list-style:none;padding:0;margin:0}
+ol.fix li{counter-increment:f;position:relative;padding:16px 0 16px 46px;border-bottom:1px solid var(--line2)}
+ol.fix li::before{content:counter(f);position:absolute;left:0;top:16px;width:28px;height:28px;
+  border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;
+  font-size:13px;font-weight:600;font-family:"IBM Plex Mono",monospace}
+ol.fix .ft{font-weight:600;font-size:16px;margin-bottom:3px}
+ol.fix .fm{font-size:12px;color:var(--faint);margin-bottom:6px;display:flex;gap:12px;flex-wrap:wrap}
+ol.fix .fm b{color:var(--ink2);font-weight:600}
+ol.fix p{margin-bottom:0;font-size:14px;color:var(--ink2)}
+
+code{font-family:"IBM Plex Mono",monospace;font-size:.88em;background:var(--sunk);
+  padding:1px 5px;border-radius:3px}
+.quote{border-left:2px solid var(--line);padding-left:14px;color:var(--ink2);font-size:14px;
+  margin:14px 0}
+footer{margin-top:48px;padding-top:22px;border-top:1px solid var(--line);font-size:12px;
+  color:var(--faint)}
+@media (max-width:620px){
+  .hb{grid-template-columns:96px 1fr 46px;font-size:11.5px}
+  .rank .row{grid-template-columns:104px 1fr;font-size:11.5px}
+  .wrap{padding-left:16px;padding-right:16px}
+}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Validity audit · 10 September 2026 · all seven fixes applied</div>
+  <h1>What Nomad Radar actually measures</h1>
+  <p class="dek">I checked whether the index measures digital-nomad activity or something
+    else that happens to correlate with it. It was partly the second thing. All seven fixes
+    are now implemented and measured — this is the evidence, before and after, including
+    where it still falls short.</p>
+  <div class="byline">
+    <span class="mono">527,072 OSM objects</span>
+    <span class="mono">10,427 events</span>
+    <span class="mono">38,331 attention series</span>
+    <span class="mono">4,884 scored localities</span>
+  </div>
+</header>
+
+<section>
+<h2>Before and after</h2>
+<p class="lede">Every number below is measured against a <b>held-out reference set</b> of 128
+hand-labelled places, 35 of them negative controls — large, thoroughly mapped cities with no
+nomad reputation. Nothing in the model is tuned against these numbers.</p>
+<figure>
+  <div class="fh">What the seven fixes changed</div>
+  <div class="fsub">Same reference set, same evaluator, before and after</div>
+  <div class="tw"><table>
+    <thead><tr><th>Measure</th><th class="r">Before</th><th class="r">After</th><th class="r">Change</th></tr></thead>
+    <tbody>
+    <tr><td>Hub vs negative-control separation (AUC)</td><td class="r num">0.698</td><td class="r num">0.791</td><td class="r num" style="color:var(--ok)">+0.093</td></tr>
+    <tr><td>Rank correlation with human labels</td><td class="r num">0.251</td><td class="r num">0.322</td><td class="r num" style="color:var(--ok)">+0.071</td></tr>
+    <tr><td>Precision @ top 30</td><td class="r num">0.700</td><td class="r num">0.767</td><td class="r num" style="color:var(--ok)">+0.067</td></tr>
+    <tr><td>Negative controls in the top 30</td><td class="r num">7</td><td class="r num">4</td><td class="r num" style="color:var(--ok)">−3</td></tr>
+    <tr><td>Evidence weight that is nomad-specific</td><td class="r num">7.7%</td><td class="r num">18.5%</td><td class="r num" style="color:var(--ok)">+10.8pt</td></tr>
+    <tr><td>Evidence weight carrying no nomad information</td><td class="r num">64.2%</td><td class="r num">32.9%</td><td class="r num" style="color:var(--ok)">−31.3pt</td></tr>
+    <tr><td>Event coverage that merely confirmed the prior ranking</td><td class="r num">53%</td><td class="r num">35%</td><td class="r num" style="color:var(--ok)">−18pt</td></tr>
+    <tr><td>Score correlation with live events (the most valid source)</td><td class="r num">0.415</td><td class="r num">0.786</td><td class="r num" style="color:var(--ok)">+0.371</td></tr>
+    </tbody></table></div>
+  <figcaption>The largest single change is the last row: the ranking is now driven mainly by
+    <b>live event evidence</b> — the only layer that is about nomads by construction — rather
+    than by counts of mapped buildings. Rank movement for hubs the old index buried:
+    <b>Ubud #422 → #139</b>, <b>Las Palmas #716 → #226</b>, <b>Ho Chi Minh City #98 → #27</b>,
+    <b>Chiang Mai #106 → #61</b>.</figcaption>
+</figure>
+<div class="callout warn">
+<div class="ct">Where it still falls short — read this</div>
+<p>Rank correlation is <b>still classified poor</b> and hub/control separation only
+<i>weak</i>. The model still cannot cleanly separate a well-covered European city from a
+genuine secondary hub: Brussels sits at #11 and Milan at #29, above Chiang Mai at #61.
+Bansko and Chania remain near the bottom because no public event listing was found for them
+at all.</p>
+<p>This is now a <b>source</b> limit, not a weighting one. Meetup's own coverage is
+geographically biased, and the coworking-feed layer is seeded from OSM website tags, so it
+inherits the same bias. No reweighting fixes a biased sample — that needs event sources with
+genuine reach outside Europe and North America.</p>
+</div>
+</section>
+
+<section>
+<h2>The short answer</h2>
+<p class="lede">Nothing in the pipeline directly observes a digital nomad. There is no
+credential-free source that does. Every signal is a <b>proxy</b>, and the index is only as
+good as the gap between what the proxy measures and what you want to know. That gap is
+small at the top of the ranking and very large in the tail.</p>
+
+<div class="tw"><table>
+<thead><tr><th>If you use it to…</th><th>Verdict</th><th style="width:44%">Why</th></tr></thead>
+<tbody>
+<tr><td><b>Find where inside a city the ecosystem sits</b></td>
+    <td><span class="verdict v-ok">Trust it</span></td>
+    <td>Every hexagon is built from named, individually verifiable OSM objects with real
+        coordinates. You can click through to each one.</td></tr>
+<tr><td><b>Compare the top ~300 cities to each other</b></td>
+    <td><span class="verdict v-part">Trust with the caveat</span></td>
+    <td>All 100 of the top 100 have live event evidence and 97 have community evidence, so
+        these are genuinely corroborated — but they were selected in a way that favours
+        well-mapped European cities.</td></tr>
+<tr><td><b>Rank the other 34,000 localities</b></td>
+    <td><span class="verdict v-ok">Fixed — they are no longer ranked</span></td>
+    <td>A corroboration gate now admits only places with two or more independent evidence
+        families, at least one of them nomad-targeted. 960 localities qualify; the rest render
+        on the map with all their evidence and an explicit
+        <span class="mono">NOT RANKED — INFRASTRUCTURE ONLY</span> label.</td></tr>
+<tr><td><b>Discover an unknown hotspot</b></td>
+    <td><span class="verdict v-part">Partly fixed</span></td>
+    <td>Half the event budget is now a stratified random sample over continent × population
+        band, independent of any score, so the event layer can contradict the infrastructure
+        layer. Circularity fell from 53% to 35%. Meetup throttling meant the random half is
+        only partially complete; re-running extends it from cache.</td></tr>
+<tr><td><b>Read momentum and freshness</b></td>
+    <td><span class="verdict v-part">Trust the direction, not the cause</span></td>
+    <td>The 28-day pageview comparison is real and dated. But it measures general public
+        attention, which a news event or a football match moves just as easily as nomads do.</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>1 · The proxy gap</h2>
+<p>This is the honest version of "how did you decide these data points are relevant."
+Each row is a judgement I made, not a fact the data asserted.</p>
+
+<div class="tw"><table>
+<thead><tr><th style="width:24%">Source</th><th style="width:30%">What it actually measures</th>
+<th>The leap I made</th><th class="r">Strength</th></tr></thead>
+<tbody>
+<tr><td><b>OSM <code>office=coworking</code></b><br><span class="mono" style="font-size:11px;color:var(--faint)">7,256 objects</span></td>
+  <td>Someone mapped a coworking space.</td>
+  <td>Coworking spaces exist where remote workers are. <i>Reasonable</i> — this is the closest thing to a direct indicator that exists in open data.</td>
+  <td class="r"><span class="verdict v-ok">Strong</span></td></tr>
+<tr><td><b>OSM <code>tourism=hostel</code></b><br><span class="mono" style="font-size:11px;color:var(--faint)">44,743 objects</span></td>
+  <td>Someone mapped a hostel.</td>
+  <td>Hostels indicate international transient population. <i>Weak</i> — backpackers are not nomads, and this is the second-largest weight in the model.</td>
+  <td class="r"><span class="verdict v-part">Weak</span></td></tr>
+<tr><td><b>OSM <code>community_centre</code>, <code>sports_centre</code>, <code>cafe</code>, <code>nightclub</code>, <code>arts_centre</code></b><br><span class="mono" style="font-size:11px;color:var(--faint)">449,987 objects</span></td>
+  <td>The town has civic and social amenities.</td>
+  <td>Amenity density means social ecosystem. <i>Very weak.</i> A pensioners' bowls club and a nomad co-living bar are the same tag.</td>
+  <td class="r"><span class="verdict v-no">Very weak</span></td></tr>
+<tr><td><b>Wikipedia pageviews</b><br><span class="mono" style="font-size:11px;color:var(--faint)">38,331 places</span></td>
+  <td>How many people read an English article about a place, daily.</td>
+  <td>Rising attention means rising interest from nomads. <i>Weak and confounded</i> — an election, a wildfire, or a Champions League tie moves this identically.</td>
+  <td class="r"><span class="verdict v-part">Weak</span></td></tr>
+<tr><td><b>Meetup / Luma listings</b><br><span class="mono" style="font-size:11px;color:var(--faint)">10,427 events</span></td>
+  <td>Public events matching queries like "digital nomad", "coworking", "expats".</td>
+  <td>These events indicate nomad activity. <i>Strong</i> — this is the only layer that is actually about nomads by construction.</td>
+  <td class="r"><span class="verdict v-ok">Strongest</span></td></tr>
+<tr><td><b>Reddit / Mastodon / Lemmy / HN</b><br><span class="mono" style="font-size:11px;color:var(--faint)">883 mentions</span></td>
+  <td>A city name appeared in a post in a nomad-related forum.</td>
+  <td>Being discussed by nomads means nomad relevance. <i>Directionally right, thin and noisy</i> — 883 mentions across the whole world.</td>
+  <td class="r"><span class="verdict v-part">Thin</span></td></tr>
+</tbody></table></div>
+
+<div class="callout">
+<div class="ct">The core issue</div>
+<p>The two <b>strong</b> sources cover only 361 localities. The two <b>very weak</b> ones cover
+all 34,900. The model's reach and the model's validity are inversely related.</p>
+</div>
+</section>
+
+<section>
+<h2>2 · The evidence</h2>
+
+<h3>Two-thirds of the evidence carries no nomad information</h3>
+<figure>
+  <div class="fh">What the 527,072 mapped objects actually are</div>
+  <div class="fsub">Share of total evidence weight in the ecosystem layer, by tag specificity</div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--accent)"></span>Nomad-specific — coworking, coliving, hackerspace</span>
+    <span><span class="sw" style="background:var(--accent2)"></span>Adjacent — hostel, language school, internet café</span>
+    <span><span class="sw" style="background:var(--neutral)"></span>Generic urban — everything else</span>
+  </div>
+  <div class="compbar" id="comp"></div>
+  <div class="complabels">
+    <div style="flex:7.7;color:var(--accent);font-weight:600">7.7%</div>
+    <div style="flex:28.1;color:var(--accent2);font-weight:600">28.1%</div>
+    <div style="flex:64.2;color:var(--muted);font-weight:600">64.2%</div>
+  </div>
+  <figcaption>The single heaviest tag in the whole model is <b>community centre</b> (30.5% of
+    weight, 147,056 objects), followed by hostels (18.6%) and sports centres (18.5%).
+    Coworking of all kinds is <b>7.7%</b>. A village hall in rural France and a Lisbon
+    co-working café contribute to the same score.</figcaption>
+  <details class="tbl"><summary>Full breakdown by tag</summary>
+    <div class="tw"><table><thead><tr><th>Tag</th><th class="r">Objects</th><th class="r">% of weight</th><th>Specificity</th></tr></thead><tbody id="tagtbl"></tbody></table></div>
+  </details>
+</figure>
+
+<h3>The ranking is not measuring city size — it is measuring map completeness</h3>
+<p>The good news first: the score is only weakly related to population
+(<span class="mono">ρ = +0.31</span>), so it is not a thinly disguised list of big cities.
+It tracks coworking density most strongly (<span class="mono">ρ = +0.82</span>), which is
+what you would want. The problem is what drives <i>that</i>.</p>
+
+<figure>
+  <div class="fh">Mapped coworking spaces per 100,000 people</div>
+  <div class="fsub">OpenStreetMap coverage, countries with over 3 million people in the scanned set</div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--accent)"></span>Western Europe</span>
+    <span><span class="sw" style="background:var(--accent2)"></span>Countries with well-known nomad hubs</span>
+  </div>
+  <div class="hb" id="osmbar"></div>
+  <figcaption>France records <b>4.06</b> coworking spaces per 100,000 people. Indonesia — home to
+    Canggu and Ubud, two of the densest actual nomad clusters on earth — records <b>0.06</b>.
+    That is a <b>68-fold</b> gap, and no one believes it reflects reality. It reflects how
+    thoroughly each country has been mapped by OSM volunteers. This bias flows directly and
+    unmodified into the score.</figcaption>
+</figure>
+
+<h3>Face validity: the index buries the places it should surface</h3>
+<figure>
+  <div class="fh">Where well-known nomad hubs land in the shipped ranking</div>
+  <div class="fsub">Rank out of 4,884 scored localities — further left is better</div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--accent2)"></span>Widely recognised nomad hubs</span>
+    <span><span class="sw" style="background:var(--accent)"></span>Large European cities</span>
+  </div>
+  <div class="rank" id="rankchart"></div>
+  <figcaption>Brussels (#11) and Milan (#15) outrank Chiang Mai (#106). Bansko (#699),
+    Las Palmas (#716) and Chania (#491) — all established, concentrated nomad
+    destinations — sit below hundreds of ordinary European towns. <b>Brussels and Milan are
+    not top-15 nomad destinations.</b> When an index disagrees this sharply with
+    well-established ground truth, the index is wrong, not the ground truth.</figcaption>
+</figure>
+
+<h3>Corroboration is concentrated at the very top</h3>
+<div class="stats">
+  <div class="stat"><div class="n num" style="color:var(--bad)">93.4%</div>
+    <div class="k">of shipped localities rest on <b>one</b> source</div></div>
+  <div class="stat"><div class="n num" style="color:var(--bad)">7.4%</div>
+    <div class="k">have <b>any</b> nomad-targeted evidence at all</div></div>
+  <div class="stat"><div class="n num" style="color:var(--ok)">100/100</div>
+    <div class="k">of the top 100 <b>do</b> have live event evidence</div></div>
+  <div class="stat"><div class="n num" style="color:var(--ok)">0</div>
+    <div class="k">single-source localities score 55 or above</div></div>
+</div>
+<p>This is the most reassuring result in the audit. The confidence model is doing its job:
+thin evidence is scored low and never reaches the top of the list. The multi-source,
+genuinely corroborated places are exactly the ones the map foregrounds. The 4,500 thin
+localities are not <i>wrong</i> so much as they are answering a different question —
+"does this town have amenities" — while sitting in a list titled "hottest right now".</p>
+
+<h3>The discovery loop is circular</h3>
+<div class="callout bad">
+<div class="ct">Selection artifact</div>
+<p>Event targets were chosen from the ecosystem-derived score. <b>53% of event-covered places
+were already in the top 400 before a single event was fetched.</b> Places with event data have
+a median score of <b>66</b>; comparable places without have a median of <b>18</b> and cannot
+exceed <b>58</b>, because event activity is 25% of the model.</p>
+<p>So the ranking substantially reflects <i>which places I chose to look at</i>. The system
+is presented as a discovery engine; on this evidence it is closer to a confirmation engine.</p>
+</div>
+
+<h3>Attribution errors I can demonstrate</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:30%">Failure mode</th><th class="r" style="width:14%">Rate</th><th>Real example from the current data</th></tr></thead>
+<tbody>
+<tr><td><b>Ambiguous Wikipedia titles</b></td><td class="r num">19.3%</td>
+  <td>7,390 of 38,331 attention series are attached to a title that more than one place could claim.</td></tr>
+<tr><td><b>Name-guessed titles</b></td><td class="r num">39.0%</td>
+  <td>14,967 series matched on the place's own name rather than the authoritative Wikidata crosswalk. Usually right; occasionally badly wrong.</td></tr>
+<tr><td><b>Community false positives</b></td><td class="r">demonstrated</td>
+  <td>A post titled <span class="quote" style="display:block;margin:6px 0 0">“Goa — The 'Las Vegas' of India. 0/10.”</span>
+      was credited to <b>Las Vegas</b>. It is a post about Goa.</td></tr>
+<tr><td><b>Structurally silenced places</b></td><td class="r num">196</td>
+  <td>The matcher ignores any place name under 5 characters, so <b>Ubud, Goa, Lima, Rome, Oslo, Riga, Baku, Doha, Pune, Nice</b> and 186 others can never receive a community mention. Their community score is 0 by construction, which is not the same as "nobody is talking about it".</td></tr>
+<tr><td><b>Single-source community signal</b></td><td class="r num">74%</td>
+  <td>179 of 242 places with any community evidence have it from one feed only.</td></tr>
+</tbody></table></div>
+
+<h3>And the obvious fix does not work</h3>
+<p>The natural response is to strip out the generic infrastructure and score only on
+nomad-specific evidence. I ran that counterfactual. It makes things worse in an
+instructive way.</p>
+<div class="callout warn">
+<div class="ct">Counterfactual result</div>
+<p>Re-ranking on coworking-per-capita, events and community alone puts <b>Bordeaux
+(32.4 coworking per 100k), Porto (27.7), Lille (13.4) and Nantes (12.9)</b> near the top —
+French and Portuguese provincial cities with unusually thorough OSM mapping. Chiang Mai
+improves (#106 → #39) but Las Palmas gets <i>worse</i> (#716 → #1025), as does Playa del
+Carmen (#185 → #501).</p>
+<p><b>Conclusion: the dominant bias is not the tag mix — it is OSM completeness itself.</b>
+No reweighting of OSM data can remove a bias that lives inside OSM. That requires either
+normalising against a mapping-density baseline, or evidence that is not OSM.</p>
+</div>
+</section>
+
+<section>
+<h2>3 · What would actually bulletproof it</h2>
+<p>Ranked by how much validity each buys per unit of work. The first three are the ones
+that change the answer; the rest are hygiene.</p>
+
+<ol class="fix">
+<li><div class="ft">Normalise every OSM signal against a mapping-density baseline</div>
+  <div class="fm"><span>Effort <b>Low</b></span><span>Impact <b>Very high</b></span><span>Fixes <b>the root confound</b></span></div>
+  <p>Compute total OSM object density per country (or per admin-1) from tags with no nomad
+  relevance whatsoever — post boxes, benches, street lamps, building footprints — and divide
+  every nomad signal by it. A city then scores on how <i>unusually</i> nomad-dense it is for
+  how well its region is mapped. This is a few hours of work and it is the single change that
+  would most improve trustworthiness.</p></li>
+
+<li><div class="ft">Break the circularity: sample event coverage randomly, not by rank</div>
+  <div class="fm"><span>Effort <b>Low</b></span><span>Impact <b>High</b></span><span>Fixes <b>the discovery claim</b></span></div>
+  <p>Reserve a large share of the event-scan budget for a stratified random sample across
+  every region and city size, independent of the OSM score. That turns the event layer into
+  an independent test of the ecosystem layer instead of a confirmation of it — and it is the
+  only way an unknown hotspot can ever surface.</p></li>
+
+<li><div class="ft">Weight by nomad specificity, and stop counting sports centres</div>
+  <div class="fm"><span>Effort <b>Low</b></span><span>Impact <b>Medium</b></span><span>Fixes <b>the composition</b></span></div>
+  <p>Drop <code>sports_centre</code> and <code>community_centre</code> entirely, or reduce them to a
+  tiebreaker. On its own this is not sufficient — the counterfactual above proves that — but
+  combined with (1) it stops civic amenity density masquerading as social ecosystem.</p></li>
+
+<li><div class="ft">Build a labelled validation set and measure against it</div>
+  <div class="fm"><span>Effort <b>Medium</b></span><span>Impact <b>High</b></span><span>Fixes <b>“is it working?”</b></span></div>
+  <p>Hand-label 60–100 places as strong / moderate / weak nomad destinations, publish the
+  list, and report rank correlation against it on every build. Right now there is no number
+  that says whether a model change made the index better or worse — which is exactly why this
+  audit had to be done by hand. This turns validity from an opinion into a regression test.</p></li>
+
+<li><div class="ft">Add sources that are nomad-specific by construction</div>
+  <div class="fm"><span>Effort <b>Medium</b></span><span>Impact <b>High</b></span><span>Fixes <b>the proxy gap</b></span></div>
+  <p>All credential-free, all untested so far: public ICS and RSS calendars published by the
+  coworking spaces the ecosystem layer has <i>already located</i> (the highest-value option —
+  it converts a static venue into a live activity feed); nomad-focused Telegram channel web
+  previews; coliving operator public listings; university international-office event
+  calendars; and per-language Wikipedia attention rather than English only.</p></li>
+
+<li><div class="ft">Require corroboration before a place can rank</div>
+  <div class="fm"><span>Effort <b>Low</b></span><span>Impact <b>Medium</b></span><span>Fixes <b>the tail</b></span></div>
+  <p>Gate the ranking on two or more independent source families. Everything else still
+  renders on the map with its evidence, but as "infrastructure observed", not as a nomad
+  score. The confidence model already gets this nearly right; this makes it explicit rather
+  than emergent.</p></li>
+
+<li><div class="ft">Fix the matcher and disambiguate properly</div>
+  <div class="fm"><span>Effort <b>Low</b></span><span>Impact <b>Low–medium</b></span><span>Fixes <b>known errors</b></span></div>
+  <p>Replace the 5-character rule with country-qualified matching ("Ubud, Bali", "Goa, India"),
+  require a second corroborating term in the post, and resolve Wikipedia titles through
+  Wikidata coordinates rather than by population. That removes the Las Vegas / Goa class of
+  error and unsilences 196 places.</p></li>
+</ol>
+
+<div class="callout">
+<div class="ct">What I would not claim even after all seven</div>
+<p>Nomad <i>population</i> will still be unmeasurable without proprietary data. The product is
+already right to report presence as a band with a confidence rather than a headcount, and
+that should not change.</p>
+</div>
+</section>
+
+<footer>
+  <p>Every figure in this document was computed from the build published on 10 September 2026
+  and is reproducible from the repository — the audit scripts read <code>data/scored.json</code>,
+  <code>data/ecosystem.json</code>, <code>data/attention.json</code> and <code>data/community.json</code>
+  directly. Correlations are Spearman rank correlations over the 4,882 localities with five or
+  more evidence items.</p>
+</footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const TAGS=[["community_centre",147056,30.5,"generic"],["hostel",44743,18.6,"adjacent"],
+["sports_centre",208006,18.5,"generic"],["nightclub",21570,5.8,"generic"],
+["cafe",49707,5.2,"generic"],["language_school",10075,4.8,"adjacent"],
+["internet_cafe",13371,4.8,"adjacent"],["coworking",5229,4.7,"nomad-specific"],
+["arts_centre",23648,4.2,"generic"],["coworking_space",2027,1.8,"nomad-specific"],
+["hackerspace",1640,1.2,"nomad-specific"]];
+const OSM=[["France",4.06,"eu"],["Denmark",3.42,"eu"],["Switzerland",2.56,"eu"],
+["Portugal",2.24,"eu"],["Georgia",1.88,"hub"],["Austria",1.77,"eu"],["Germany",1.16,"eu"],
+["Netherlands",1.11,"eu"],["United Kingdom",0.92,"eu"],["Thailand",0.44,"hub"],
+["Argentina",0.26,"hub"],["Brazil",0.09,"hub"],["Colombia",0.08,"hub"],
+["Indonesia",0.06,"hub"],["Vietnam",0.04,"hub"],["Mexico",0.04,"hub"],
+["South Africa",0.02,"hub"]];
+const RANKS=[["Amsterdam",1,"eu"],["Lisbon",2,"eu"],["Berlin",3,"eu"],["Dublin",8,"eu"],
+["Brussels",11,"eu"],["Milan",15,"eu"],["Mexico City",63,"hub"],["Medellín",69,"hub"],
+["Da Nang",70,"hub"],["Tbilisi",71,"hub"],["Ho Chi Minh City",98,"hub"],
+["Chiang Mai",106,"hub"],["Denpasar (Bali)",171,"hub"],["Playa del Carmen",185,"hub"],
+["Ubud",422,"hub"],["Chania",491,"hub"],["Bansko",699,"hub"],
+["Las Palmas",716,"hub"]];
+const C={"nomad-specific":"var(--accent)","adjacent":"var(--accent2)","generic":"var(--neutral)",
+  eu:"var(--accent)",hub:"var(--accent2)"};
+const tip=document.getElementById("tip");
+function bind(el,title,val){
+  const show=e=>{tip.innerHTML=`<div class="tt">${title}</div><div class="tv">${val}</div>`;
+    tip.classList.add("on");
+    const r=tip.getBoundingClientRect();
+    tip.style.left=Math.min(Math.max(8,e.clientX+14),innerWidth-r.width-8)+"px";
+    tip.style.top=Math.min(Math.max(8,e.clientY-r.height-12),innerHeight-r.height-8)+"px";};
+  el.addEventListener("mousemove",show);
+  el.addEventListener("mouseenter",show);
+  el.addEventListener("mouseleave",()=>tip.classList.remove("on"));
+  el.tabIndex=0;
+  el.addEventListener("focus",()=>{const b=el.getBoundingClientRect();
+    show({clientX:b.left+b.width/2,clientY:b.top});});
+  el.addEventListener("blur",()=>tip.classList.remove("on"));
+}
+// composition bar
+const groups=[["nomad-specific",7.7],["adjacent",28.1],["generic",64.2]];
+const comp=document.getElementById("comp");
+const LBL={"nomad-specific":"Nomad-specific","adjacent":"Nomad-adjacent","generic":"Generic urban"};
+groups.forEach(([k,v])=>{const d=document.createElement("div");
+  d.style.flex=v;d.style.background=C[k];
+  const tags=TAGS.filter(t=>t[3]===k).map(t=>t[0]).join(", ");
+  bind(d,LBL[k]+" — "+v+"% of evidence weight",tags);comp.appendChild(d);});
+// tag table
+document.getElementById("tagtbl").innerHTML=TAGS.map(t=>
+  `<tr><td><code>${t[0]}</code></td><td class="r num">${t[1].toLocaleString()}</td>
+   <td class="r num">${t[2]}%</td><td style="color:${C[t[3]]};font-weight:600">${LBL[t[3]]}</td></tr>`).join("");
+// osm bars
+const mx=Math.max(...OSM.map(o=>o[1]));
+const ob=document.getElementById("osmbar");
+let lastg=null;
+OSM.forEach(([n,v,g])=>{
+  ob.insertAdjacentHTML("beforeend",
+    `<div class="lbl">${n}</div>
+     <div class="track"><div class="fill" style="width:${Math.max(v/mx*100,0.6)}%;background:${C[g]}"></div></div>
+     <div class="val num">${v.toFixed(2)}</div>`);
+});
+[...ob.querySelectorAll(".fill")].forEach((f,i)=>bind(f,OSM[i][0],
+  OSM[i][1].toFixed(2)+" mapped coworking spaces per 100,000 people"));
+// rank dotplot
+const rc=document.getElementById("rankchart");
+const MAXR=800;
+const pos=r=>Math.min(Math.log10(r)/Math.log10(MAXR)*100,100);
+let ax='<div class="axis">';
+[1,10,50,100,300,800].forEach(t=>ax+=`<div class="tick" style="left:${pos(t)}%">#${t}</div>`);
+ax+='</div>';
+rc.innerHTML=ax+RANKS.map((r,i)=>
+  `<div class="row"><div class="rl">${r[0]}</div>
+   <div class="lane"><div class="dot" data-i="${i}" style="left:${pos(r[1])}%;background:${C[r[2]]}"></div></div></div>`).join("");
+[...rc.querySelectorAll(".dot")].forEach(d=>{const r=RANKS[+d.dataset.i];
+  bind(d,r[0],"rank #"+r[1]+" of 4,884 · "+(r[2]==="eu"?"large European city":"recognised nomad hub"));});
+</script>

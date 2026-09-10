@@ -1,0 +1,1299 @@
+{
+ "n_evaluated": 128,
+ "n_missing": 1,
+ "missing": [
+  "Kuta(ID)"
+ ],
+ "spearman_tier_vs_score": 0.323,
+ "auc_hub_vs_control": 0.782,
+ "precision_at_30": 0.767,
+ "negative_controls_in_top_30": 5,
+ "median_score_by_tier": {
+  "0": 48,
+  "1": 36,
+  "2": 48,
+  "3": 69
+ },
+ "rows": [
+  {
+   "name": "Lisbon",
+   "cc": "PT",
+   "tier": 3,
+   "score": 85,
+   "rank": 4,
+   "conf": 86,
+   "ev": 586,
+   "srcs": 5
+  },
+  {
+   "name": "Chiang Mai",
+   "cc": "TH",
+   "tier": 3,
+   "score": 67,
+   "rank": 56,
+   "conf": 83,
+   "ev": 610,
+   "srcs": 3
+  },
+  {
+   "name": "Bangkok",
+   "cc": "TH",
+   "tier": 3,
+   "score": 81,
+   "rank": 8,
+   "conf": 86,
+   "ev": 1022,
+   "srcs": 5
+  },
+  {
+   "name": "Denpasar",
+   "cc": "ID",
+   "tier": 3,
+   "score": 55,
+   "rank": 142,
+   "conf": 80,
+   "ev": 478,
+   "srcs": 2
+  },
+  {
+   "name": "Medell\u00edn",
+   "cc": "CO",
+   "tier": 3,
+   "score": 65,
+   "rank": 64,
+   "conf": 98,
+   "ev": 457,
+   "srcs": 5
+  },
+  {
+   "name": "Mexico City",
+   "cc": "MX",
+   "tier": 3,
+   "score": 59,
+   "rank": 115,
+   "conf": 85,
+   "ev": 969,
+   "srcs": 4
+  },
+  {
+   "name": "Barcelona",
+   "cc": "ES",
+   "tier": 3,
+   "score": 85,
+   "rank": 2,
+   "conf": 86,
+   "ev": 1545,
+   "srcs": 6
+  },
+  {
+   "name": "Buenos Aires",
+   "cc": "AR",
+   "tier": 3,
+   "score": 72,
+   "rank": 31,
+   "conf": 86,
+   "ev": 1188,
+   "srcs": 5
+  },
+  {
+   "name": "Tbilisi",
+   "cc": "GE",
+   "tier": 3,
+   "score": 63,
+   "rank": 83,
+   "conf": 80,
+   "ev": 435,
+   "srcs": 2
+  },
+  {
+   "name": "Ho Chi Minh City",
+   "cc": "VN",
+   "tier": 3,
+   "score": 73,
+   "rank": 26,
+   "conf": 86,
+   "ev": 673,
+   "srcs": 5
+  },
+  {
+   "name": "Da Nang",
+   "cc": "VN",
+   "tier": 3,
+   "score": 69,
+   "rank": 43,
+   "conf": 95,
+   "ev": 287,
+   "srcs": 3
+  },
+  {
+   "name": "Cape Town",
+   "cc": "ZA",
+   "tier": 3,
+   "score": 66,
+   "rank": 58,
+   "conf": 85,
+   "ev": 257,
+   "srcs": 4
+  },
+  {
+   "name": "Budapest",
+   "cc": "HU",
+   "tier": 3,
+   "score": 61,
+   "rank": 99,
+   "conf": 83,
+   "ev": 680,
+   "srcs": 3
+  },
+  {
+   "name": "Prague",
+   "cc": "CZ",
+   "tier": 3,
+   "score": 83,
+   "rank": 6,
+   "conf": 86,
+   "ev": 642,
+   "srcs": 6
+  },
+  {
+   "name": "Porto",
+   "cc": "PT",
+   "tier": 3,
+   "score": 74,
+   "rank": 25,
+   "conf": 95,
+   "ev": 421,
+   "srcs": 3
+  },
+  {
+   "name": "Valencia",
+   "cc": "ES",
+   "tier": 3,
+   "score": 50,
+   "rank": 194,
+   "conf": 78,
+   "ev": 326,
+   "srcs": 2
+  },
+  {
+   "name": "Las Palmas de Gran Canaria",
+   "cc": "ES",
+   "tier": 3,
+   "score": 45,
+   "rank": 267,
+   "conf": 91,
+   "ev": 98,
+   "srcs": 2
+  },
+  {
+   "name": "Playa del Carmen",
+   "cc": "MX",
+   "tier": 3,
+   "score": 46,
+   "rank": 258,
+   "conf": 79,
+   "ev": 58,
+   "srcs": 2
+  },
+  {
+   "name": "Bansko",
+   "cc": "BG",
+   "tier": 3,
+   "score": 29,
+   "rank": 679,
+   "conf": 63,
+   "ev": 18,
+   "srcs": 1
+  },
+  {
+   "name": "Belgrade",
+   "cc": "RS",
+   "tier": 3,
+   "score": 69,
+   "rank": 44,
+   "conf": 83,
+   "ev": 352,
+   "srcs": 3
+  },
+  {
+   "name": "Tallinn",
+   "cc": "EE",
+   "tier": 3,
+   "score": 69,
+   "rank": 46,
+   "conf": 85,
+   "ev": 181,
+   "srcs": 4
+  },
+  {
+   "name": "Kuala Lumpur",
+   "cc": "MY",
+   "tier": 3,
+   "score": 75,
+   "rank": 19,
+   "conf": 86,
+   "ev": 469,
+   "srcs": 6
+  },
+  {
+   "name": "Funchal",
+   "cc": "PT",
+   "tier": 3,
+   "score": 32,
+   "rank": 529,
+   "conf": 70,
+   "ev": 54,
+   "srcs": 1
+  },
+  {
+   "name": "Split",
+   "cc": "HR",
+   "tier": 3,
+   "score": 30,
+   "rank": 621,
+   "conf": 72,
+   "ev": 89,
+   "srcs": 1
+  },
+  {
+   "name": "Athens",
+   "cc": "GR",
+   "tier": 3,
+   "score": 73,
+   "rank": 29,
+   "conf": 86,
+   "ev": 692,
+   "srcs": 5
+  },
+  {
+   "name": "Berlin",
+   "cc": "DE",
+   "tier": 3,
+   "score": 84,
+   "rank": 5,
+   "conf": 86,
+   "ev": 2100,
+   "srcs": 6
+  },
+  {
+   "name": "Ubud",
+   "cc": "ID",
+   "tier": 2,
+   "score": 40,
+   "rank": 345,
+   "conf": 91,
+   "ev": 128,
+   "srcs": 2
+  },
+  {
+   "name": "Sofia",
+   "cc": "BG",
+   "tier": 2,
+   "score": 40,
+   "rank": 333,
+   "conf": 80,
+   "ev": 383,
+   "srcs": 2
+  },
+  {
+   "name": "Krak\u00f3w",
+   "cc": "PL",
+   "tier": 2,
+   "score": 56,
+   "rank": 136,
+   "conf": 80,
+   "ev": 377,
+   "srcs": 2
+  },
+  {
+   "name": "Bucharest",
+   "cc": "RO",
+   "tier": 2,
+   "score": 30,
+   "rank": 585,
+   "conf": 80,
+   "ev": 225,
+   "srcs": 2
+  },
+  {
+   "name": "Yerevan",
+   "cc": "AM",
+   "tier": 2,
+   "score": 40,
+   "rank": 334,
+   "conf": 95,
+   "ev": 313,
+   "srcs": 3
+  },
+  {
+   "name": "Almaty",
+   "cc": "KZ",
+   "tier": 2,
+   "score": 48,
+   "rank": 227,
+   "conf": 80,
+   "ev": 247,
+   "srcs": 2
+  },
+  {
+   "name": "Istanbul",
+   "cc": "TR",
+   "tier": 2,
+   "score": 65,
+   "rank": 63,
+   "conf": 86,
+   "ev": 779,
+   "srcs": 5
+  },
+  {
+   "name": "Antalya",
+   "cc": "TR",
+   "tier": 2,
+   "score": 46,
+   "rank": 253,
+   "conf": 83,
+   "ev": 95,
+   "srcs": 3
+  },
+  {
+   "name": "Nairobi",
+   "cc": "KE",
+   "tier": 2,
+   "score": 55,
+   "rank": 140,
+   "conf": 85,
+   "ev": 437,
+   "srcs": 4
+  },
+  {
+   "name": "Marrakesh",
+   "cc": "MA",
+   "tier": 2,
+   "score": 40,
+   "rank": 335,
+   "conf": 80,
+   "ev": 119,
+   "srcs": 2
+  },
+  {
+   "name": "Tangier",
+   "cc": "MA",
+   "tier": 2,
+   "score": 17,
+   "rank": 1721,
+   "conf": 68,
+   "ev": 37,
+   "srcs": 1
+  },
+  {
+   "name": "Lima",
+   "cc": "PE",
+   "tier": 2,
+   "score": 20,
+   "rank": 1367,
+   "conf": 63,
+   "ev": 1054,
+   "srcs": 1
+  },
+  {
+   "name": "Cusco",
+   "cc": "PE",
+   "tier": 2,
+   "score": 41,
+   "rank": 319,
+   "conf": 69,
+   "ev": 238,
+   "srcs": 2
+  },
+  {
+   "name": "Santiago",
+   "cc": "CL",
+   "tier": 2,
+   "score": 58,
+   "rank": 120,
+   "conf": 85,
+   "ev": 587,
+   "srcs": 4
+  },
+  {
+   "name": "Montevideo",
+   "cc": "UY",
+   "tier": 2,
+   "score": 56,
+   "rank": 135,
+   "conf": 85,
+   "ev": 148,
+   "srcs": 4
+  },
+  {
+   "name": "Florian\u00f3polis",
+   "cc": "BR",
+   "tier": 2,
+   "score": 51,
+   "rank": 182,
+   "conf": 95,
+   "ev": 122,
+   "srcs": 3
+  },
+  {
+   "name": "Rio de Janeiro",
+   "cc": "BR",
+   "tier": 2,
+   "score": 52,
+   "rank": 170,
+   "conf": 97,
+   "ev": 417,
+   "srcs": 4
+  },
+  {
+   "name": "S\u00e3o Paulo",
+   "cc": "BR",
+   "tier": 2,
+   "score": 37,
+   "rank": 376,
+   "conf": 92,
+   "ev": 588,
+   "srcs": 2
+  },
+  {
+   "name": "Bogot\u00e1",
+   "cc": "CO",
+   "tier": 2,
+   "score": 18,
+   "rank": 1596,
+   "conf": 63,
+   "ev": 1066,
+   "srcs": 1
+  },
+  {
+   "name": "Cartagena",
+   "cc": "CO",
+   "tier": 2,
+   "score": 49,
+   "rank": 216,
+   "conf": 84,
+   "ev": 141,
+   "srcs": 4
+  },
+  {
+   "name": "Guadalajara",
+   "cc": "MX",
+   "tier": 2,
+   "score": 17,
+   "rank": 1718,
+   "conf": 63,
+   "ev": 93,
+   "srcs": 1
+  },
+  {
+   "name": "Oaxaca",
+   "cc": "MX",
+   "tier": 2,
+   "score": 50,
+   "rank": 200,
+   "conf": 92,
+   "ev": 258,
+   "srcs": 2
+  },
+  {
+   "name": "Puerto Vallarta",
+   "cc": "MX",
+   "tier": 2,
+   "score": 43,
+   "rank": 296,
+   "conf": 77,
+   "ev": 28,
+   "srcs": 3
+  },
+  {
+   "name": "San Jos\u00e9",
+   "cc": "CR",
+   "tier": 2,
+   "score": 39,
+   "rank": 358,
+   "conf": 80,
+   "ev": 316,
+   "srcs": 2
+  },
+  {
+   "name": "Panama City",
+   "cc": "PA",
+   "tier": 2,
+   "score": 32,
+   "rank": 503,
+   "conf": 80,
+   "ev": 97,
+   "srcs": 2
+  },
+  {
+   "name": "Hanoi",
+   "cc": "VN",
+   "tier": 2,
+   "score": 60,
+   "rank": 106,
+   "conf": 85,
+   "ev": 1095,
+   "srcs": 4
+  },
+  {
+   "name": "George Town",
+   "cc": "MY",
+   "tier": 2,
+   "score": 34,
+   "rank": 452,
+   "conf": 74,
+   "ev": 127,
+   "srcs": 2
+  },
+  {
+   "name": "Cebu City",
+   "cc": "PH",
+   "tier": 2,
+   "score": 31,
+   "rank": 538,
+   "conf": 92,
+   "ev": 217,
+   "srcs": 2
+  },
+  {
+   "name": "Phnom Penh",
+   "cc": "KH",
+   "tier": 2,
+   "score": 54,
+   "rank": 153,
+   "conf": 85,
+   "ev": 310,
+   "srcs": 4
+  },
+  {
+   "name": "Colombo",
+   "cc": "LK",
+   "tier": 2,
+   "score": 24,
+   "rank": 972,
+   "conf": 80,
+   "ev": 111,
+   "srcs": 2
+  },
+  {
+   "name": "Kathmandu",
+   "cc": "NP",
+   "tier": 2,
+   "score": 49,
+   "rank": 215,
+   "conf": 80,
+   "ev": 819,
+   "srcs": 2
+  },
+  {
+   "name": "Bengaluru",
+   "cc": "IN",
+   "tier": 2,
+   "score": 67,
+   "rank": 49,
+   "conf": 85,
+   "ev": 1044,
+   "srcs": 4
+  },
+  {
+   "name": "Taipei",
+   "cc": "TW",
+   "tier": 2,
+   "score": 67,
+   "rank": 50,
+   "conf": 86,
+   "ev": 955,
+   "srcs": 5
+  },
+  {
+   "name": "Tokyo",
+   "cc": "JP",
+   "tier": 2,
+   "score": 77,
+   "rank": 14,
+   "conf": 86,
+   "ev": 2826,
+   "srcs": 5
+  },
+  {
+   "name": "Zagreb",
+   "cc": "HR",
+   "tier": 2,
+   "score": 55,
+   "rank": 143,
+   "conf": 83,
+   "ev": 291,
+   "srcs": 3
+  },
+  {
+   "name": "Ljubljana",
+   "cc": "SI",
+   "tier": 2,
+   "score": 71,
+   "rank": 36,
+   "conf": 83,
+   "ev": 166,
+   "srcs": 3
+  },
+  {
+   "name": "Thessalon\u00edki",
+   "cc": "GR",
+   "tier": 2,
+   "score": 44,
+   "rank": 282,
+   "conf": 79,
+   "ev": 220,
+   "srcs": 2
+  },
+  {
+   "name": "Chani\u00e1",
+   "cc": "GR",
+   "tier": 2,
+   "score": 29,
+   "rank": 671,
+   "conf": 58,
+   "ev": 31,
+   "srcs": 1
+  },
+  {
+   "name": "M\u00e1laga",
+   "cc": "ES",
+   "tier": 2,
+   "score": 74,
+   "rank": 24,
+   "conf": 97,
+   "ev": 285,
+   "srcs": 4
+  },
+  {
+   "name": "Sevilla",
+   "cc": "ES",
+   "tier": 2,
+   "score": 30,
+   "rank": 587,
+   "conf": 80,
+   "ev": 266,
+   "srcs": 2
+  },
+  {
+   "name": "Amsterdam",
+   "cc": "NL",
+   "tier": 2,
+   "score": 85,
+   "rank": 3,
+   "conf": 86,
+   "ev": 597,
+   "srcs": 6
+  },
+  {
+   "name": "London",
+   "cc": "GB",
+   "tier": 2,
+   "score": 80,
+   "rank": 11,
+   "conf": 86,
+   "ev": 2605,
+   "srcs": 6
+  },
+  {
+   "name": "Madrid",
+   "cc": "ES",
+   "tier": 2,
+   "score": 52,
+   "rank": 171,
+   "conf": 80,
+   "ev": 1048,
+   "srcs": 2
+  },
+  {
+   "name": "Santa Cruz de Tenerife",
+   "cc": "ES",
+   "tier": 2,
+   "score": 32,
+   "rank": 508,
+   "conf": 89,
+   "ev": 52,
+   "srcs": 2
+  },
+  {
+   "name": "Vilnius",
+   "cc": "LT",
+   "tier": 1,
+   "score": 31,
+   "rank": 567,
+   "conf": 63,
+   "ev": 163,
+   "srcs": 1
+  },
+  {
+   "name": "Riga",
+   "cc": "LV",
+   "tier": 1,
+   "score": 27,
+   "rank": 776,
+   "conf": 63,
+   "ev": 161,
+   "srcs": 1
+  },
+  {
+   "name": "Wroc\u0142aw",
+   "cc": "PL",
+   "tier": 1,
+   "score": 27,
+   "rank": 777,
+   "conf": 63,
+   "ev": 292,
+   "srcs": 1
+  },
+  {
+   "name": "Gda\u0144sk",
+   "cc": "PL",
+   "tier": 1,
+   "score": 32,
+   "rank": 527,
+   "conf": 63,
+   "ev": 169,
+   "srcs": 1
+  },
+  {
+   "name": "Brno",
+   "cc": "CZ",
+   "tier": 1,
+   "score": 45,
+   "rank": 268,
+   "conf": 80,
+   "ev": 224,
+   "srcs": 2
+  },
+  {
+   "name": "Sarajevo",
+   "cc": "BA",
+   "tier": 1,
+   "score": 50,
+   "rank": 196,
+   "conf": 80,
+   "ev": 167,
+   "srcs": 2
+  },
+  {
+   "name": "Skopje",
+   "cc": "MK",
+   "tier": 1,
+   "score": 34,
+   "rank": 450,
+   "conf": 80,
+   "ev": 93,
+   "srcs": 2
+  },
+  {
+   "name": "Tirana",
+   "cc": "AL",
+   "tier": 1,
+   "score": 63,
+   "rank": 85,
+   "conf": 85,
+   "ev": 261,
+   "srcs": 4
+  },
+  {
+   "name": "Batumi",
+   "cc": "GE",
+   "tier": 1,
+   "score": 37,
+   "rank": 384,
+   "conf": 80,
+   "ev": 159,
+   "srcs": 2
+  },
+  {
+   "name": "Baku",
+   "cc": "AZ",
+   "tier": 1,
+   "score": 46,
+   "rank": 252,
+   "conf": 92,
+   "ev": 502,
+   "srcs": 2
+  },
+  {
+   "name": "Dubai",
+   "cc": "AE",
+   "tier": 1,
+   "score": 77,
+   "rank": 15,
+   "conf": 86,
+   "ev": 232,
+   "srcs": 5
+  },
+  {
+   "name": "Amman",
+   "cc": "JO",
+   "tier": 1,
+   "score": 24,
+   "rank": 996,
+   "conf": 63,
+   "ev": 102,
+   "srcs": 1
+  },
+  {
+   "name": "Tel Aviv",
+   "cc": "IL",
+   "tier": 1,
+   "score": 67,
+   "rank": 52,
+   "conf": 85,
+   "ev": 191,
+   "srcs": 4
+  },
+  {
+   "name": "Accra",
+   "cc": "GH",
+   "tier": 1,
+   "score": 17,
+   "rank": 1714,
+   "conf": 63,
+   "ev": 146,
+   "srcs": 1
+  },
+  {
+   "name": "Dakar",
+   "cc": "SN",
+   "tier": 1,
+   "score": 18,
+   "rank": 1599,
+   "conf": 63,
+   "ev": 102,
+   "srcs": 1
+  },
+  {
+   "name": "Hoi An",
+   "cc": "VN",
+   "tier": 1,
+   "score": 51,
+   "rank": 188,
+   "conf": 79,
+   "ev": 41,
+   "srcs": 2
+  },
+  {
+   "name": "Vientiane",
+   "cc": "LA",
+   "tier": 1,
+   "score": 34,
+   "rank": 447,
+   "conf": 80,
+   "ev": 147,
+   "srcs": 2
+  },
+  {
+   "name": "Phuket",
+   "cc": "TH",
+   "tier": 1,
+   "score": 36,
+   "rank": 416,
+   "conf": 72,
+   "ev": 101,
+   "srcs": 1
+  },
+  {
+   "name": "Manila",
+   "cc": "PH",
+   "tier": 1,
+   "score": 57,
+   "rank": 126,
+   "conf": 78,
+   "ev": 32,
+   "srcs": 4
+  },
+  {
+   "name": "Cairo",
+   "cc": "EG",
+   "tier": 1,
+   "score": 24,
+   "rank": 991,
+   "conf": 63,
+   "ev": 158,
+   "srcs": 1
+  },
+  {
+   "name": "Nice",
+   "cc": "FR",
+   "tier": 1,
+   "score": 52,
+   "rank": 176,
+   "conf": 83,
+   "ev": 95,
+   "srcs": 3
+  },
+  {
+   "name": "Palermo",
+   "cc": "IT",
+   "tier": 1,
+   "score": 19,
+   "rank": 1494,
+   "conf": 61,
+   "ev": 57,
+   "srcs": 1
+  },
+  {
+   "name": "Naples",
+   "cc": "IT",
+   "tier": 1,
+   "score": 36,
+   "rank": 394,
+   "conf": 83,
+   "ev": 107,
+   "srcs": 3
+  },
+  {
+   "name": "Brussels",
+   "cc": "BE",
+   "tier": 0,
+   "score": 81,
+   "rank": 10,
+   "conf": 98,
+   "ev": 752,
+   "srcs": 5
+  },
+  {
+   "name": "Milan",
+   "cc": "IT",
+   "tier": 0,
+   "score": 73,
+   "rank": 28,
+   "conf": 86,
+   "ev": 641,
+   "srcs": 6
+  },
+  {
+   "name": "Frankfurt am Main",
+   "cc": "DE",
+   "tier": 0,
+   "score": 31,
+   "rank": 540,
+   "conf": 92,
+   "ev": 462,
+   "srcs": 2
+  },
+  {
+   "name": "Birmingham",
+   "cc": "GB",
+   "tier": 0,
+   "score": 62,
+   "rank": 91,
+   "conf": 85,
+   "ev": 429,
+   "srcs": 4
+  },
+  {
+   "name": "Leeds",
+   "cc": "GB",
+   "tier": 0,
+   "score": 55,
+   "rank": 144,
+   "conf": 83,
+   "ev": 256,
+   "srcs": 3
+  },
+  {
+   "name": "Sheffield",
+   "cc": "GB",
+   "tier": 0,
+   "score": 26,
+   "rank": 828,
+   "conf": 80,
+   "ev": 206,
+   "srcs": 2
+  },
+  {
+   "name": "Rotterdam",
+   "cc": "NL",
+   "tier": 0,
+   "score": 57,
+   "rank": 128,
+   "conf": 83,
+   "ev": 354,
+   "srcs": 3
+  },
+  {
+   "name": "The Hague",
+   "cc": "NL",
+   "tier": 0,
+   "score": 66,
+   "rank": 60,
+   "conf": 83,
+   "ev": 302,
+   "srcs": 3
+  },
+  {
+   "name": "Antwerp",
+   "cc": "BE",
+   "tier": 0,
+   "score": 61,
+   "rank": 100,
+   "conf": 95,
+   "ev": 211,
+   "srcs": 3
+  },
+  {
+   "name": "Z\u00fcrich",
+   "cc": "CH",
+   "tier": 0,
+   "score": 61,
+   "rank": 101,
+   "conf": 97,
+   "ev": 393,
+   "srcs": 4
+  },
+  {
+   "name": "Geneva",
+   "cc": "CH",
+   "tier": 0,
+   "score": 69,
+   "rank": 47,
+   "conf": 86,
+   "ev": 322,
+   "srcs": 5
+  },
+  {
+   "name": "Lille",
+   "cc": "FR",
+   "tier": 0,
+   "score": 65,
+   "rank": 68,
+   "conf": 85,
+   "ev": 261,
+   "srcs": 4
+  },
+  {
+   "name": "Nantes",
+   "cc": "FR",
+   "tier": 0,
+   "score": 63,
+   "rank": 86,
+   "conf": 85,
+   "ev": 295,
+   "srcs": 4
+  },
+  {
+   "name": "Toulouse",
+   "cc": "FR",
+   "tier": 0,
+   "score": 70,
+   "rank": 40,
+   "conf": 85,
+   "ev": 398,
+   "srcs": 4
+  },
+  {
+   "name": "Nagoya",
+   "cc": "JP",
+   "tier": 0,
+   "score": 20,
+   "rank": 1370,
+   "conf": 63,
+   "ev": 587,
+   "srcs": 1
+  },
+  {
+   "name": "Turin",
+   "cc": "IT",
+   "tier": 0,
+   "score": 49,
+   "rank": 217,
+   "conf": 92,
+   "ev": 242,
+   "srcs": 2
+  },
+  {
+   "name": "Bologna",
+   "cc": "IT",
+   "tier": 0,
+   "score": 54,
+   "rank": 155,
+   "conf": 95,
+   "ev": 172,
+   "srcs": 3
+  },
+  {
+   "name": "Hannover",
+   "cc": "DE",
+   "tier": 0,
+   "score": 34,
+   "rank": 449,
+   "conf": 90,
+   "ev": 292,
+   "srcs": 2
+  },
+  {
+   "name": "Essen",
+   "cc": "DE",
+   "tier": 0,
+   "score": 51,
+   "rank": 181,
+   "conf": 92,
+   "ev": 175,
+   "srcs": 2
+  },
+  {
+   "name": "Dortmund",
+   "cc": "DE",
+   "tier": 0,
+   "score": 22,
+   "rank": 1187,
+   "conf": 72,
+   "ev": 156,
+   "srcs": 1
+  },
+  {
+   "name": "Stuttgart",
+   "cc": "DE",
+   "tier": 0,
+   "score": 48,
+   "rank": 232,
+   "conf": 95,
+   "ev": 480,
+   "srcs": 3
+  },
+  {
+   "name": "D\u00fcsseldorf",
+   "cc": "DE",
+   "tier": 0,
+   "score": 35,
+   "rank": 424,
+   "conf": 80,
+   "ev": 283,
+   "srcs": 2
+  },
+  {
+   "name": "Gothenburg",
+   "cc": "SE",
+   "tier": 0,
+   "score": 34,
+   "rank": 448,
+   "conf": 80,
+   "ev": 230,
+   "srcs": 2
+  },
+  {
+   "name": "Odense",
+   "cc": "DK",
+   "tier": 0,
+   "score": 28,
+   "rank": 719,
+   "conf": 63,
+   "ev": 83,
+   "srcs": 1
+  },
+  {
+   "name": "Bergen",
+   "cc": "NO",
+   "tier": 0,
+   "score": 29,
+   "rank": 637,
+   "conf": 79,
+   "ev": 70,
+   "srcs": 2
+  },
+  {
+   "name": "Espoo",
+   "cc": "FI",
+   "tier": 0,
+   "score": 29,
+   "rank": 636,
+   "conf": 88,
+   "ev": 48,
+   "srcs": 2
+  },
+  {
+   "name": "Katowice",
+   "cc": "PL",
+   "tier": 0,
+   "score": 47,
+   "rank": 241,
+   "conf": 83,
+   "ev": 102,
+   "srcs": 3
+  },
+  {
+   "name": "\u0141\u00f3d\u017a",
+   "cc": "PL",
+   "tier": 0,
+   "score": 18,
+   "rank": 1619,
+   "conf": 63,
+   "ev": 115,
+   "srcs": 1
+  },
+  {
+   "name": "Ostrava",
+   "cc": "CZ",
+   "tier": 0,
+   "score": 29,
+   "rank": 638,
+   "conf": 80,
+   "ev": 95,
+   "srcs": 2
+  },
+  {
+   "name": "Linz",
+   "cc": "AT",
+   "tier": 0,
+   "score": 40,
+   "rank": 339,
+   "conf": 80,
+   "ev": 155,
+   "srcs": 2
+  },
+  {
+   "name": "Graz",
+   "cc": "AT",
+   "tier": 0,
+   "score": 51,
+   "rank": 183,
+   "conf": 92,
+   "ev": 203,
+   "srcs": 2
+  },
+  {
+   "name": "Charleroi",
+   "cc": "BE",
+   "tier": 0,
+   "score": 19,
+   "rank": 1530,
+   "conf": 69,
+   "ev": 42,
+   "srcs": 1
+  },
+  {
+   "name": "Bradford",
+   "cc": "GB",
+   "tier": 0,
+   "score": 23,
+   "rank": 1060,
+   "conf": 79,
+   "ev": 90,
+   "srcs": 2
+  },
+  {
+   "name": "Wolverhampton",
+   "cc": "GB",
+   "tier": 0,
+   "score": 15,
+   "rank": 1980,
+   "conf": 59,
+   "ev": 37,
+   "srcs": 1
+  },
+  {
+   "name": "Utrecht",
+   "cc": "NL",
+   "tier": 0,
+   "score": 62,
+   "rank": 92,
+   "conf": 95,
+   "ev": 255,
+   "srcs": 3
+  }
+ ]
+}

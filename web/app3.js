@@ -3,10 +3,10 @@
 const TABS = [
   ["hot","Hot now"],["rising","Rising"],["hoods","Neighbourhoods"],
   ["density","Social density"],["small","Small cities"],["coast","Coast & peaks"],
-  ["regions","Regions"],["sources","Sources"],
+  ["regions","Regions"],["sources","Sources"],["method","Method"],
 ];
 const TAB_NOTE = {
-  hot:"Ranked by Nomad Live Score from current evidence only. Reputation contributes nothing.",
+  hot:"Ranked by Nomad Live Score from current evidence only. Only places with two or more independent evidence families, one of them nomad-targeted, can appear here.",
   rising:"Attention in the last 14 days against the previous 14, from Wikipedia pageview dumps.",
   hoods:"Contiguous clusters of hot H3 cells — where inside a city the evidence actually concentrates.",
   density:"Active Community Density: how easy it looks to enter a real social ecosystem alone.",
@@ -14,6 +14,7 @@ const TAB_NOTE = {
   coast:"Coastal places and places above 700 m, classified from open geographic data.",
   regions:"Administrative roll-ups keep the maximum, not just the mean, so a hot city is never averaged away.",
   sources:"Every source tested, and what it currently contributes. Missing data is shown, not hidden.",
+  method:"How the score is built, what it corrects for, and how it scores against a held-out reference set.",
 };
 
 function trendChip(L){
@@ -93,12 +94,55 @@ function renderRail(){
         <span class="score num" style="color:${heatCss(r.max,1)}">${r.max}</span></button>`).join("");
   } else if (S.tab === "sources"){
     html = head("Source health", D.sources.audit.length) + sourceHTML();
+  } else if (S.tab === "method"){
+    html = head("Method & validity", "") + methodHTML();
   }
   body.innerHTML = html;
   body.querySelectorAll("[data-gid]").forEach(b =>
     b.onclick = () => selectLocality(Number(b.dataset.gid)));
   body.querySelectorAll("[data-cluster]").forEach(b =>
     b.onclick = () => selectCluster(b.dataset.cluster));
+}
+
+function methodHTML(){
+  const v = D.validation || {};
+  const m = D.meta || {};
+  const bar = (label, val, good, fmt) => `<div class="metric" style="padding:5px 0">
+    <span class="lb">${label}</span><span class="vl num">${fmt ? fmt(val) : val}</span>
+    <span class="track"><span class="fill" style="width:${Math.max(2,Math.min(100,val*100))}%;
+      background:${val >= good ? "var(--rise)" : "var(--warn)"}"></span></span></div>`;
+  return `<div class="fgrid" style="gap:10px;padding-bottom:14px">
+    <div class="tiny">Nothing in the pipeline observes a digital nomad directly — no
+      credential-free source does. Every signal is a proxy, so the index is measured against a
+      <b style="color:var(--ink)">held-out reference set</b> of ${v.n_evaluated || 0} hand-labelled
+      places, including negative controls: large, well-mapped cities with no nomad reputation.
+      No weight or threshold is tuned to these numbers.</div>
+    ${v.spearman_tier_vs_score !== undefined ? `
+    ${bar("Rank correlation with human labels", v.spearman_tier_vs_score, 0.55)}
+    ${bar("Hub vs negative-control separation", v.auc_hub_vs_control, 0.85)}
+    ${bar("Precision @ top 30", v.precision_at_30, 0.8)}
+    <div class="tiny">Negative controls appearing in the top 30:
+      <b style="color:${(v.negative_controls_in_top_30||0) <= 2 ? "var(--rise)" : "var(--warn)"}">
+      ${v.negative_controls_in_top_30}</b> — lower is better.</div>` :
+    `<div class="tiny">No validation result was shipped with this build.</div>`}
+    <div class="tiny" style="border-top:1px solid var(--line2);padding-top:10px">
+      <b style="color:var(--ink)">Two corrections applied before scoring</b><br><br>
+      <b style="color:var(--ink)">Mapping-density normalisation.</b> A raw count of coworking
+      spaces mostly measures how thoroughly OpenStreetMap has been mapped. Infrastructure is
+      scored as a share of local OSM richness, against a baseline of deliberately
+      nomad-irrelevant civic tags.<br><br>
+      <b style="color:var(--ink)">Specificity weighting.</b> Sports centres carry zero weight and
+      community centres almost none. Before this, those two tags alone carried 49% of all
+      evidence weight while saying nothing about nomads.<br><br>
+      <b style="color:var(--ink)">The corroboration gate.</b> ${(m.ranked_localities||0).toLocaleString()}
+      of ${(m.scanned_localities||0).toLocaleString()} scanned localities clear it. The rest are
+      drawn on the map with all their evidence but are not ranked — that is the difference between
+      "we observed things here" and "this is a nomad destination".<br><br>
+      <b style="color:var(--ink)">Event coverage is half random.</b> Half the event scan is a
+      stratified random sample independent of any score, so the event layer can contradict the
+      infrastructure layer instead of merely confirming it.
+    </div>
+  </div>`;
 }
 
 const STATUS_COLOR = {ACTIVE:"var(--rise)", OPTIONAL:"var(--warn)", BLOCKED:"var(--cool)", REJECTED:"var(--faint)"};

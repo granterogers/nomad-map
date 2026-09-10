@@ -10,6 +10,7 @@ function filtered(){
   if (key === filterKey && filterCache) return filterCache;
   filterKey = key; rankedCache = null;
   filterCache = LOC.filter(L => {
+    if (!L.ranked) return false;
     if (f.continent && L.continent !== f.continent) return false;
     if (f.minConf && L.confidence < f.minConf) return false;
     if (f.trend && L.trend !== f.trend) return false;
@@ -22,6 +23,13 @@ function filtered(){
     return true;
   });
   return filterCache;
+}
+/* Everything observed, ranked or not - the map still shows infrastructure-only
+   places, the rankings do not. */
+let allCache = null;
+function allLocalities(){
+  if (!allCache) allCache = LOC.slice().sort((a,b) => b.live_score - a.live_score);
+  return allCache;
 }
 /* pins are drawn strongest-first so the cap keeps the most useful ones */
 function rankedLocalities(){

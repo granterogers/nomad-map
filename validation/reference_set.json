@@ -1,0 +1,47 @@
+{
+  "_comment": "Hand-labelled reference set for evaluating Nomad Radar. These labels are HUMAN JUDGEMENT about how established each place is as a digital-nomad destination, made independently of anything the pipeline computed. They are a HELD-OUT evaluation set: no model weight, threshold or source selection may be tuned to maximise the score against them, or the measurement becomes worthless. Tier 0 entries are negative controls - large, thoroughly mapped cities that are NOT notable nomad destinations. If those rank highly, the index is measuring urban infrastructure rather than nomad activity.",
+  "_tiers": {
+    "3": "Established major hub - appears consistently in nomad community discourse, has dedicated coworking/coliving ecosystem and visible year-round international remote-worker population",
+    "2": "Solid secondary hub - real and recognised nomad presence, smaller or more seasonal",
+    "1": "Modest or emerging presence",
+    "0": "NEGATIVE CONTROL - major, well-mapped city with no particular nomad reputation"
+  },
+  "_labelled": "2026-09-10",
+  "places": [
+    ["Lisbon","PT",3], ["Chiang Mai","TH",3], ["Bangkok","TH",3], ["Denpasar","ID",3],
+    ["Medellín","CO",3], ["Mexico City","MX",3], ["Barcelona","ES",3], ["Buenos Aires","AR",3],
+    ["Tbilisi","GE",3], ["Ho Chi Minh City","VN",3], ["Da Nang","VN",3], ["Cape Town","ZA",3],
+    ["Budapest","HU",3], ["Prague","CZ",3], ["Porto","PT",3], ["Valencia","ES",3],
+    ["Las Palmas de Gran Canaria","ES",3], ["Playa del Carmen","MX",3], ["Bansko","BG",3],
+    ["Belgrade","RS",3], ["Tallinn","EE",3], ["Kuala Lumpur","MY",3], ["Funchal","PT",3],
+    ["Split","HR",3], ["Athens","GR",3], ["Berlin","DE",3], ["Kuta","ID",3],
+
+    ["Ubud","ID",2], ["Sofia","BG",2], ["Kraków","PL",2], ["Bucharest","RO",2],
+    ["Yerevan","AM",2], ["Almaty","KZ",2], ["Istanbul","TR",2], ["Antalya","TR",2],
+    ["Nairobi","KE",2], ["Marrakesh","MA",2], ["Tangier","MA",2], ["Lima","PE",2],
+    ["Cusco","PE",2], ["Santiago","CL",2], ["Montevideo","UY",2], ["Florianópolis","BR",2],
+    ["Rio de Janeiro","BR",2], ["São Paulo","BR",2], ["Bogotá","CO",2], ["Cartagena","CO",2],
+    ["Guadalajara","MX",2], ["Oaxaca","MX",2], ["Puerto Vallarta","MX",2], ["San José","CR",2],
+    ["Panama City","PA",2], ["Hanoi","VN",2], ["George Town","MY",2], ["Cebu City","PH",2],
+    ["Phnom Penh","KH",2], ["Colombo","LK",2], ["Kathmandu","NP",2], ["Bengaluru","IN",2],
+    ["Taipei","TW",2], ["Tokyo","JP",2], ["Zagreb","HR",2], ["Ljubljana","SI",2],
+    ["Thessaloníki","GR",2], ["Chaniá","GR",2], ["Málaga","ES",2], ["Sevilla","ES",2],
+    ["Amsterdam","NL",2], ["London","GB",2], ["Madrid","ES",2], ["Santa Cruz de Tenerife","ES",2],
+
+    ["Vilnius","LT",1], ["Riga","LV",1], ["Wrocław","PL",1], ["Gdańsk","PL",1],
+    ["Brno","CZ",1], ["Sarajevo","BA",1], ["Skopje","MK",1], ["Tirana","AL",1],
+    ["Batumi","GE",1], ["Baku","AZ",1], ["Dubai","AE",1], ["Amman","JO",1],
+    ["Tel Aviv","IL",1], ["Accra","GH",1], ["Dakar","SN",1], ["Hoi An","VN",1], ["Vientiane","LA",1], ["Phuket","TH",1], ["Manila","PH",1],
+    ["Cairo","EG",1], ["Nice","FR",1], ["Palermo","IT",1], ["Naples","IT",1],
+
+    ["Brussels","BE",0], ["Milan","IT",0], ["Frankfurt am Main","DE",0],
+    ["Birmingham","GB",0], ["Leeds","GB",0], ["Sheffield","GB",0], ["Rotterdam","NL",0],
+    ["The Hague","NL",0], ["Antwerp","BE",0], ["Zürich","CH",0], ["Geneva","CH",0],
+    ["Lille","FR",0], ["Nantes","FR",0], ["Toulouse","FR",0], ["Nagoya","JP",0],
+    ["Turin","IT",0], ["Bologna","IT",0], ["Hannover","DE",0], ["Essen","DE",0],
+    ["Dortmund","DE",0], ["Stuttgart","DE",0], ["Düsseldorf","DE",0], ["Gothenburg","SE",0],
+    ["Odense","DK",0], ["Bergen","NO",0], ["Espoo","FI",0], ["Katowice","PL",0],
+    ["Łódź","PL",0], ["Ostrava","CZ",0], ["Linz","AT",0], ["Graz","AT",0],
+    ["Charleroi","BE",0], ["Bradford","GB",0], ["Wolverhampton","GB",0], ["Utrecht","NL",0]
+  ]
+}

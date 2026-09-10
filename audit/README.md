@@ -14,7 +14,22 @@ python3 audit/audit4.py   # short-name matcher bug, specificity-only counterfact
 Report of the 2026-09-10 run:
 https://claude.ai/code/artifact/71d9916d-1cd5-4a55-a791-8629ac0941fd
 
-## Headline findings
+## Status: all seven fixes implemented
+
+| # | Fix | Where |
+|---|---|---|
+| 1 | Mapping-density normalisation against nomad-irrelevant OSM tags | `pipeline/step3b_baseline.py`, `NORM` in `step6_h3.py` |
+| 2 | Event coverage half stratified-random, independent of any score | `pipeline/step4_events.py` |
+| 3 | Specificity weighting; `sports_centre` dropped to zero | `KIND_SPEC` in `step6_h3.py` |
+| 4 | Held-out labelled reference set + regression log | `validation/` |
+| 5 | Coworking-space ICS/RSS/schema.org event feeds | `pipeline/step4b_venuefeeds.py` |
+| 6 | Corroboration gate: two families, one nomad-targeted, or not ranked | `NOMAD_TARGETED` in `step6_h3.py` |
+| 7 | Country-qualified, quote-aware, title-anchored name matching | `pipeline/step5_community.py` |
+
+Run `python3 validation/evaluate.py` for the current numbers and
+`validation/history.json` for the regression log across builds.
+
+## Headline findings (original audit, 2026-09-10)
 
 | Finding | Measure |
 |---|---|

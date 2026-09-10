@@ -1,8 +1,11 @@
 """Validity audit: does Nomad Radar measure digital-nomad activity,
 or is it measuring something else that correlates with it?"""
-import json, math, os
+import json, math, os, sys
 from collections import Counter, defaultdict
-D = "/home/user/nomad-map/data"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+from step6_h3 import KIND_SPEC          # the weights the model ACTUALLY uses
+D = os.path.join(ROOT, "data")
 L = json.load(open(f"{D}/scored.json"))["localities"]
 eco = json.load(open(f"{D}/ecosystem.json"))["places"]
 att = json.load(open(f"{D}/attention.json"))["places"]
@@ -28,16 +31,17 @@ def spearman(xs, ys):
     return num/den if den else 0.0
 
 # ---------- 1. what is the evidence actually made of ----------
-NOMAD_SPECIFIC = {"coworking_space","coworking","coliving","hackerspace"}
+NOMAD_SPECIFIC = {"coworking_space","coworking","coliving","hackerspace","apartment"}
 NOMAD_ADJACENT = {"hostel","language_school","internet_cafe"}
 GENERIC_URBAN  = {"cafe","community_centre","nightclub","bar","sports_centre","arts_centre","university"}
 
 kind_w, kind_n = Counter(), Counter()
 for rec in eco.values():
     for v in rec["venues"]:
-        kind_w[v["kind"]] += v["w"]; kind_n[v["kind"]] += 1
+        w = KIND_SPEC.get(v["kind"], (0.0, "social"))[0]
+        kind_w[v["kind"]] += w; kind_n[v["kind"]] += 1
 total_w = sum(kind_w.values())
-print("=== 1. COMPOSITION OF THE ECOSYSTEM LAYER (527k objects) ===")
+print("=== 1. COMPOSITION OF THE ECOSYSTEM LAYER (effective weights) ===")
 print(f"{'tag':20} {'objects':>9} {'weight':>10} {'% of weight':>11}  specificity")
 for k, w in kind_w.most_common():
     tier = "NOMAD-SPECIFIC" if k in NOMAD_SPECIFIC else "adjacent" if k in NOMAD_ADJACENT else "generic urban"
@@ -51,7 +55,8 @@ print(f"  generic-urban weight  : {100*gu/total_w:5.1f}%   <-- carries no nomad 
 
 # ---------- 2. confound tests ----------
 print("\n=== 2. IS THE SCORE JUST MEASURING CITY SIZE? (Spearman rank corr) ===")
-sub = [x for x in L if x["evidence_count"] >= 5]
+sub = [x for x in L if x.get("ranked")] or [x for x in L if x["evidence_count"] >= 5]
+print(f"  (evaluated over {len(sub):,} RANKED localities)")
 pairs = {
   "live_score vs population":        ([x["live_score"] for x in sub], [x["pop"] for x in sub]),
   "live_score vs total venues":      ([x["live_score"] for x in sub], [x["venues"] for x in sub]),

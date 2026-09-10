@@ -22,10 +22,12 @@ import common
 from common import fetch, read_json, write_json, RateLimiter, CircuitBreaker, register
 
 BROWSER_UA = "Mozilla/5.0 (compatible; NomadRadar/1.0; +https://github.com/granterogers/nomad-map)"
-MU_LIMIT, LU_LIMIT = RateLimiter(0.9), RateLimiter(0.9)
+MU_LIMIT, LU_LIMIT = RateLimiter(0.4), RateLimiter(0.9)
 MU_BREAK, LU_BREAK = CircuitBreaker(30, 90), CircuitBreaker(20, 120)
 
 CONCEPTS = ["digital nomad", "coworking", "expats international"]
+MERIT_BUDGET, RANDOM_BUDGET = 420, 620
+
 LOCALIZED = {
     "es": "nómadas digitales", "pt": "nômades digitais", "fr": "nomades numériques",
     "de": "digitale nomaden", "it": "nomadi digitali", "nl": "digitale nomaden",
@@ -130,11 +132,14 @@ def norm_event(e, source, place):
     }
 
 
-def meetup_urls(place, lang):
+def meetup_urls(place, lang, deep=True):
     city = urllib.parse.quote(place["name"])
     cc = place["cc"].lower()
-    kws = list(CONCEPTS)
-    if lang in LOCALIZED:
+    # The random-sample half is a wide net, not a deep probe: two concepts are
+    # enough to detect whether an ecosystem exists at all, and the saved budget
+    # buys far more places, which is the whole point of sampling randomly.
+    kws = list(CONCEPTS) if deep else CONCEPTS[:2]
+    if deep and lang in LOCALIZED:
         kws.append(LOCALIZED[lang])
     return [(f"https://www.meetup.com/find/?keywords={urllib.parse.quote(k)}"
              f"&location={cc}--{city}&source=EVENTS", k) for k in kws]
@@ -143,8 +148,9 @@ def meetup_urls(place, lang):
 def scan_place(target, langs, sink, lock, prog):
     place = target["place"]
     lang = (langs.get(place["cc"], "") or "").split(",")[0].split("-")[0]
+    deep = target.get("selected_for") == "merit"
     events, queries = {}, []
-    for url, kw in meetup_urls(place, lang):
+    for url, kw in meetup_urls(place, lang, deep):
         page = fetch(url, source_id="meetup_public", headers={"User-Agent": BROWSER_UA},
                      timeout=40, retries=2, backoff=2.0, limiter=MU_LIMIT, breaker=MU_BREAK,
                      cache_ttl=2 * 86400)
@@ -155,7 +161,7 @@ def scan_place(target, langs, sink, lock, prog):
             ev = norm_event(raw, "meetup_public", place)
             if ev:
                 events[ev["url"]] = ev
-    if target["tier"] >= 2:
+    if deep and target["tier"] >= 2:
         slug = slugify(place["name"])
         page = fetch(f"https://luma.com/{slug}", source_id="luma_public",
                      headers={"User-Agent": BROWSER_UA}, timeout=35, retries=1,
@@ -173,6 +179,7 @@ def scan_place(target, langs, sink, lock, prog):
     with lock:
         sink[str(place["gid"])] = {"gid": place["gid"], "name": place["name"], "cc": place["cc"],
                                    "scanned_at": common.iso(), "queries": queries,
+                                   "selected_for": target.get("selected_for", "merit"),
                                    "events": list(events.values())}
         prog[0] += 1
         if prog[0] % 15 == 0:
@@ -183,40 +190,74 @@ def scan_place(target, langs, sink, lock, prog):
 def main():
     gb = read_json("geobase.json")
     langs = {cc: c.get("languages", "") for cc, c in gb["countries"].items()}
-    # Event targets are chosen from *measured* ecosystem evidence, not from the
-    # coarse Tier-0 guess: the places that already show a real ecosystem are the
-    # ones where a live event feed will tell us something. Continent quotas keep
-    # the event layer from collapsing onto Europe (spec §60).
+    # Event coverage is split in two on purpose (validity audit fix #2).
+    #
+    # The first implementation chose every event target from the OSM-derived
+    # score, which made the event layer confirm the ranking instead of testing
+    # it: 53% of covered places were already top-400 before a single event was
+    # fetched, and a genuine hotspot with a thin OSM footprint could never earn
+    # event points. That is a selection artifact, not discovery.
+    #
+    # MERIT half   - places the ecosystem layer thinks are interesting.
+    # RANDOM half  - a stratified random sample over continent x population
+    #                band, drawn with a fixed seed and completely independent of
+    #                any score. This is the half that can surprise the model,
+    #                and the half that makes the ranked set representative.
+    import random
+    rng = random.Random(20260910)
     sc = read_json("scored.json")
+    gb_places = {p["gid"]: p for p in gb["places"]}
+    picked, seen = [], set()
+
+    def add(p, why, tier):
+        if p["gid"] in seen:
+            return False
+        seen.add(p["gid"])
+        picked.append({"place": p, "tier": tier, "selected_for": why})
+        return True
+
     if sc:
         ranked = sorted(sc["localities"], key=lambda L: -L["live_score"])
-        picked, per_cont = [], defaultdict(int)
-        gb_places = {p["gid"]: p for p in gb["places"]}
+        per_cont = defaultdict(int)
         for L in ranked:
-            if len(picked) >= 340:
+            if len(picked) >= MERIT_BUDGET:
                 break
-            if per_cont[L["continent"]] >= 90:
+            if per_cont[L["continent"]] >= MERIT_BUDGET * 0.42:
                 continue
             p = gb_places.get(L["gid"])
-            if not p:
-                continue
-            per_cont[L["continent"]] += 1
-            picked.append({"place": p, "tier": 3 if len(picked) < 160 else 2})
-        for cont in ("SA", "AF", "OC", "AS", "NA"):
-            have = sum(1 for x in picked if x["place"]["continent"] == cont)
-            if have < 28:
-                for L in ranked:
-                    if have >= 28:
-                        break
-                    if L["continent"] != cont:
-                        continue
-                    p = gb_places.get(L["gid"])
-                    if not p or any(x["place"]["gid"] == p["gid"] for x in picked):
-                        continue
-                    picked.append({"place": p, "tier": 2}); have += 1
-        targets = picked
-    else:
-        targets = [t for t in read_json("scan_targets.json")["targets"] if t["tier"] >= 2]
+            if p:
+                per_cont[L["continent"]] += 1
+                add(p, "merit", 3 if len(picked) < 170 else 2)
+
+    # stratified random draw
+    def band(pop):
+        return 0 if pop < 25000 else 1 if pop < 100000 else 2 if pop < 400000 else \
+               3 if pop < 1500000 else 4
+    strata = defaultdict(list)
+    for p in gb["places"]:
+        if p["pop"] >= 12000:
+            strata[(p["continent"], band(p["pop"]))].append(p)
+    keys = sorted(strata)
+    total = sum(len(strata[k]) for k in keys)
+    for k in keys:
+        # proportional to stratum size, softened so small continents are not erased
+        share = (len(strata[k]) / total) ** 0.62
+        n = max(2, int(RANDOM_BUDGET * share))
+        pool = strata[k][:]
+        rng.shuffle(pool)
+        got = 0
+        for p in pool:
+            if got >= n:
+                break
+            if add(p, "random", 2):
+                got += 1
+    print(f"targets: {sum(1 for t in picked if t['selected_for']=='merit')} merit + "
+          f"{sum(1 for t in picked if t['selected_for']=='random')} stratified random "
+          f"= {len(picked)}")
+    from collections import Counter as _C
+    print("  by continent:", dict(_C(t["place"]["continent"] for t in picked)))
+    targets = picked
+
     sink = (read_json("events.json", {}) or {}).get("places", {})
     todo = [t for t in targets if str(t["place"]["gid"]) not in sink]
     print(f"event scan: {len(todo)} places ({len(sink)} cached)")
@@ -228,9 +269,31 @@ def main():
         except Exception as e:
             print(f"  !! {t['place']['name']}: {type(e).__name__}: {e}", flush=True)
 
+    # Save periodically and honour a wall-clock budget. HTTP responses are
+    # cached, so a run that stops early and is resumed later replays what it
+    # already fetched almost instantly and carries on. Merit targets are
+    # processed first so the deep probes are never the ones dropped.
     t0 = time.time()
-    with ThreadPoolExecutor(max_workers=4) as ex:
-        list(ex.map(run, todo))
+    budget = float(os.environ.get("EVENT_BUDGET_S", 2100))
+    stop, last_saved = threading.Event(), [0]
+
+    def run_budgeted(t):
+        if stop.is_set():
+            return
+        run(t)
+        with lock:
+            # threshold, not modulo: with several workers the exact multiple is
+            # skipped between a thread's own increment and its check
+            if prog[0] - last_saved[0] >= 50:
+                last_saved[0] = prog[0]
+                write_json("events.json", {"generated_at": common.iso(), "places": sink})
+            if time.time() - t0 > budget and not stop.is_set():
+                stop.set()
+                print(f"  budget reached at {prog[0]}/{prog[1]} - saving and stopping", flush=True)
+
+    todo.sort(key=lambda t: 0 if t.get("selected_for") == "merit" else 1)
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        list(ex.map(run_budgeted, todo))
     write_json("events.json", {"generated_at": common.iso(), "places": sink})
     for sid, name, dom in [("meetup_public", "Meetup public /find pages (schema.org Event)", "meetup.com"),
                            ("luma_public", "Luma public city pages (schema.org ItemList/Event)", "luma.com")]:
