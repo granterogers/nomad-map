@@ -145,7 +145,8 @@ LOC_SCHEMA = ["gid","name","cc","country","admin1","continent","px","py","pop","
               "attention_per_100k","n_cells","n_clusters","elev","coastal",
               "parts","sources","event_categories","venue_families","warnings",
               "att_series","att_recent_views","att_prior_views",
-              "ranked","evidence_families","mapping_baseline","coworking_share"]
+              "ranked","evidence_families","mapping_baseline","coworking_share",
+              "live_score_pc","parts_pc"]
 PART_KEYS = ["nomad_presence","event_activity","community_activity","coworking_infra",
              "international_social","momentum","confidence"]
 SOURCE_KEYS = ["qlever_osm","meetup_public","luma_public","venue_feeds","reddit_rss",
@@ -172,6 +173,8 @@ def encode_localities(locs):
             v = L.get(k)
             if k == "parts":
                 v = [L["parts"][x] for x in PART_KEYS]
+            elif k == "parts_pc":
+                v = [L.get("parts_pc", {}).get(x, 0) for x in PART_KEYS]
             elif k == "sources":
                 m = 0
                 for i, s in enumerate(SOURCE_KEYS):

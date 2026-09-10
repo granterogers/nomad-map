@@ -126,6 +126,35 @@ Computed per locality, shown before the numbers:
 - **NO CLEAR CONCENTRATED HOTSPOT** — scores well, but no contiguous cluster
   emerged.
 
+## Two scales
+
+The same model is computed twice and the app toggles between them.
+
+**Absolute** (default). Counts are raw, so a city with more events scores higher.
+Large cities are favoured by construction — that is a true statement about
+volume, and it is the better-validated of the two scales.
+
+**Per capita.** Every count-based term is divided by population, shrunk by a
+prior of 60,000 residents (`POP_PRIOR`) so a village with three events cannot
+outrank a real ecosystem. Saturation constants are fitted from the 90th
+percentile of the actual per-head distribution across ranked localities. The
+scale-free components — momentum, confidence, and the mapping-density shares —
+are identical in both views; only the count-based ones change.
+
+**An honest caveat, measured rather than assumed.** Per capita scores *worse*
+against the reference set (Spearman 0.09 vs 0.32, AUC 0.63 vs 0.79, 11 negative
+controls in the top 30 vs 4). Dividing out population removes one bias but
+amplifies another: mid-sized Western European cities show high detected events
+per head largely because Meetup's own coverage is strongest there, and the
+absolute scale was partly masking that with megacity volume. The per-capita view
+is a genuinely useful exploratory lens — it surfaces places like Sliema and
+Herceg Novi that absolute volume buries — but it is not a better ranking, and
+the app says so in its Method tab.
+
+H3 cell colouring does not change between scales: a cell measures the
+concentration of evidence inside it, and there is no population figure at cell
+resolution to divide by.
+
 ## The corroboration gate
 
 A locality enters the **ranking** only if it has evidence from two or more

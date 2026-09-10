@@ -15,6 +15,10 @@ function decodeLocalities(){
     for (let i = 0; i < S.length; i++) L[S[i]] = row[i] === undefined ? null : row[i];
     const p = L.parts || [];
     L.parts = {}; PK.forEach((k, i) => L.parts[k] = p[i] || 0);
+    const ppc = L.parts_pc || [];
+    L.parts_pc = {}; PK.forEach((k, i) => L.parts_pc[k] = ppc[i] || 0);
+    L.live_score_pc = L.live_score_pc || 0;
+    L.band_pc = bandOf(L.live_score_pc);
     const mask = L.sources || 0;
     L.sources = SK.filter((_, i) => mask & (1 << i));
     const fmask = L.evidence_families || 0;
@@ -174,7 +178,15 @@ function buildLand(){
 buildLand();
 
 /* ---------- state ---------- */
+/* Absolute counts favour big cities by construction. The per-capita view
+   divides every count-based term by population (shrunk, so a village with three
+   events cannot beat Lisbon) and leaves the scale-free terms alone. */
+const scoreOf = L => S.scale === "pc" ? L.live_score_pc : L.live_score;
+const partsOf = L => S.scale === "pc" ? L.parts_pc : L.parts;
+const bandLabel = L => bandOf(scoreOf(L));
+
 const S = {
+  scale: "abs",
   layer: "live",             // live | events | community | coworking | international | social | momentum | confidence
   tab: "hot",
   sel: null,                 // {kind:'locality'|'cluster'|'cell', ...}
@@ -284,7 +296,7 @@ function render(){
     const X = toScreenX(L.px), Y = toScreenY(L.py);
     const r = z < 4 ? 3.4 : z < 6 ? 4.4 : 5.4;
     ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832);
-    ctx.fillStyle = heatCss(L.live_score, 0.98); ctx.fill();
+    ctx.fillStyle = heatCss(scoreOf(L), 0.98); ctx.fill();
     ctx.lineWidth = 1.4; ctx.strokeStyle = panel; ctx.stroke();
     const selected = S.sel && S.sel.gid === L.gid;
     if (z >= 4.2 || selected){
@@ -292,7 +304,7 @@ function render(){
       if (selected || fits(X, ly, w, 13)){
         ctx.lineWidth = 3; ctx.strokeStyle = panel;
         ctx.strokeText(L.name, X, ly);
-        ctx.fillStyle = selected ? heatCss(L.live_score, 1) : inkc;
+        ctx.fillStyle = selected ? heatCss(scoreOf(L), 1) : inkc;
         ctx.fillText(L.name, X, ly);
       }
     }
@@ -312,7 +324,7 @@ function visiblePins(z, x0, x1, y0, y1){
   const floor = z < 3 ? 46 : z < 4.5 ? 40 : z < 6 ? 32 : 0;
   for (const L of list){
     if (L.px < x0 || L.px > x1 || L.py < y0 || L.py > y1) continue;
-    if (L.live_score < floor && !(S.sel && S.sel.gid === L.gid)) continue;
+    if (scoreOf(L) < floor && !(S.sel && S.sel.gid === L.gid)) continue;
     out.push(L);
     if (out.length >= cap) break;
   }

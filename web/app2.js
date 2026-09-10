@@ -4,9 +4,10 @@ const LOC = decodeLocalities();
 const byGid = new Map(LOC.map(L => [L.gid, L]));
 const CLUSTERS = D.clusters;
 let filterCache = null, filterKey = "", rankedCache = null;
+function invalidateScale(){ filterCache = null; filterKey = ""; rankedCache = null; allCache = null; }
 function filtered(){
   const f = S.filters;
-  const key = JSON.stringify(f);
+  const key = JSON.stringify(f) + S.scale;
   if (key === filterKey && filterCache) return filterCache;
   filterKey = key; rankedCache = null;
   filterCache = LOC.filter(L => {
@@ -28,12 +29,12 @@ function filtered(){
    places, the rankings do not. */
 let allCache = null;
 function allLocalities(){
-  if (!allCache) allCache = LOC.slice().sort((a,b) => b.live_score - a.live_score);
+  if (!allCache) allCache = LOC.slice().sort((a,b) => scoreOf(b) - scoreOf(a));
   return allCache;
 }
 /* pins are drawn strongest-first so the cap keeps the most useful ones */
 function rankedLocalities(){
-  if (!rankedCache) rankedCache = filtered().slice().sort((a,b) => b.live_score - a.live_score);
+  if (!rankedCache) rankedCache = filtered().slice().sort((a,b) => scoreOf(b) - scoreOf(a));
   return rankedCache;
 }
 
@@ -155,7 +156,7 @@ function hoverAt(e){
   const pin = pickPin(sx, sy);
   if (pin){
     showTip(sx, sy, `<div class="tt">${esc(pin.name)}<span class="muted"> ${esc(pin.country)}</span></div>
-      <div class="tr"><span>Live score</span><b>${pin.live_score}</b></div>
+      <div class="tr"><span>${S.scale === "pc" ? "Per-capita score" : "Live score"}</span><b>${scoreOf(pin)}</b></div>
       <div class="tr"><span>Confidence</span><b>${pin.confidence}%</b></div>
       <div class="tr"><span>Trend</span><b>${pin.momentum}</b></div>
       <div class="tr muted" style="margin-top:3px">Click for evidence</div>`);

@@ -427,6 +427,11 @@ def trim_clusters(clusters, cap=3000):
 NORM = {"cw_rate": 0.02, "intl_rate": 0.05, "soc_rate": 0.03,
         "cw_k": 0.05, "intl_k": 0.10, "soc_k": 0.06, "prior": 30.0}
 
+# Population prior for the per-capita view, in units of 100k people. Effectively
+# "every place is treated as if it had 60,000 more residents", which damps the
+# small-denominator blow-ups without erasing genuinely dense small towns.
+POP_PRIOR = 0.6
+
 
 def mapping_share(weight, base_n, rate, prior):
     """Empirical-Bayes share of local OSM richness that is nomad infrastructure.
@@ -548,6 +553,26 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
         families.add("attention")
     ranked = len(families) >= 2 and bool(families & NOMAD_TARGETED)
 
+    # Raw per-capita quantities, kept so a population-normalised variant of the
+    # whole score can be fitted across the population of localities and offered
+    # as a view. Large cities win on absolute counts by construction; that is
+    # true but it is not the only question worth asking of the data.
+    # Shrunk per-100k rates. A raw count/population ratio is dominated by the
+    # denominator: a village of 7,000 with three events outranks Lisbon. The
+    # prior (POP_PRIOR in units of 100k people) means a small place has to show
+    # proportionally MORE evidence to claim a high rate, which is the honest
+    # reading of a small sample.
+    pc = pop100k + POP_PRIOR
+    pc_raw = {
+        "events": round(len(upcoming) / pc, 4),
+        "organizers": round(len(organizers) / pc, 4),
+        "nomad_events": round(len(nomad_events) / pc, 4),
+        "posts": round(n_posts / pc, 4),
+        "coworking": round(fam["coworking"] / pc, 4),
+        "international": round(fam["international"] / pc, 4),
+        "pop100k": round(pop100k, 3),
+    }
+
     parts = {
         "nomad_presence": nomad_presence, "event_activity": event_activity,
         "community_activity": community_activity, "coworking_infra": coworking_infra,
@@ -587,6 +612,7 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
     return {
         "live_score": live, "band": band(live), "parts": parts,
         "ranked": ranked, "evidence_families": sorted(families),
+        "pc_raw": pc_raw, "nomad_share_events": round(nomad_share, 3),
         "mapping_baseline": base_n,
         "coworking_share": round(cw_share, 5),
         "presence": presence_band(nomad_presence),
@@ -607,6 +633,58 @@ def score_locality(place, items, cells_here, clusters_here, att_rec, comm_rec, e
 
 
 # ---------------------------------------------------------------- admin roll-up
+
+PC_NORM = {}
+
+
+def fit_per_capita(localities):
+    """Second score: the same model, but every absolute-scale term replaced by a
+    per-100k-population rate.
+
+    Saturation constants are fitted from the actual distribution across ranked
+    localities (90th percentile / 2.2), exactly as the mapping-density and cell
+    normalisers are, so "high per capita" means high relative to what really
+    occurs rather than to a guessed constant.
+
+    Scale-free components - momentum, confidence, and the mapping-density
+    shares - are identical in both views; only the count-based ones change.
+    """
+    ranked = [L for L in localities if L["ranked"]] or localities
+    for key in ("events", "organizers", "nomad_events", "posts",
+                "coworking", "international"):
+        pass
+    for key in ("events", "organizers", "nomad_events", "posts",
+                "coworking", "international"):
+        vals = sorted(L["pc_raw"][key] for L in ranked if L["pc_raw"][key] > 0)
+        PC_NORM[key] = max(vals[int(len(vals) * 0.90)] / 2.2, 1e-3) if len(vals) > 30 else 1.0
+    print("per-capita normalisers:", {k: round(v, 3) for k, v in PC_NORM.items()})
+
+    for L in localities:
+        r = L["pc_raw"]
+        p = L["parts"]
+        ev = s100(0.34 * sat(r["events"], PC_NORM["events"])
+                  + 0.24 * sat(r["organizers"], PC_NORM["organizers"])
+                  + 0.30 * sat(r["nomad_events"], PC_NORM["nomad_events"])
+                  + 0.12 * L.get("nomad_share_events", 0.0))
+        com = s100(0.55 * sat(r["posts"], PC_NORM["posts"])
+                   + 0.45 * sat(r["nomad_events"] + 0.4 * r["organizers"],
+                                PC_NORM["nomad_events"] * 1.4))
+        cw = s100(0.55 * sat(L.get("coworking_share", 0.0), NORM["cw_k"])
+                  + 0.45 * sat(r["coworking"], PC_NORM["coworking"]))
+        intl = s100(0.45 * sat(L.get("coworking_share", 0.0), NORM["cw_k"])
+                    + 0.55 * sat(r["international"], PC_NORM["international"]))
+        pres = s100(0.26 * min(L.get("attention_per_100k", 0.0) / 22.0, 1.0)
+                    + 0.30 * sat(r["coworking"], PC_NORM["coworking"])
+                    + 0.26 * sat(r["nomad_events"], PC_NORM["nomad_events"])
+                    + 0.18 * sat(r["posts"], PC_NORM["posts"]))
+        parts_pc = {"nomad_presence": pres, "event_activity": ev,
+                    "community_activity": com, "coworking_infra": cw,
+                    "international_social": intl,
+                    "momentum": p["momentum"], "confidence": p["confidence"]}
+        L["parts_pc"] = parts_pc
+        L["live_score_pc"] = int(round(sum(parts_pc[k] * w for k, w in WEIGHTS.items())))
+        L["band_pc"] = band(L["live_score_pc"])
+
 
 def admin_rollup(localities, key_fn, label_fn):
     """Region aggregate that preserves the maximum and the concentration,
@@ -756,6 +834,7 @@ def main():
         print(f"  res {r}: {len(levels[r])} -> {len(shipped[r])} shipped")
 
     rankable = [l for l in localities if l["ranked"]] or localities
+    fit_per_capita(localities)
     countries = admin_rollup(rankable, lambda l: l["cc"], lambda l: l["country"])
     regions = admin_rollup(rankable, lambda l: f'{l["cc"]}|{l["admin1"]}',
                            lambda l: f'{l["admin1"]}, {l["country"]}' if l["admin1"] else l["country"])
@@ -774,6 +853,7 @@ def main():
             days = L["att_series"]
             L["att_series"] = [days[0][0], [v for _, v in days]]
         L["venue_families"] = {k: round(v, 1) for k, v in L["venue_families"].items()}
+        L.pop("pc_raw", None)              # build-time only; the fitted score ships
         for k in ("warnings", "event_categories", "sources"):
             if not L.get(k):
                 L.pop(k, None)

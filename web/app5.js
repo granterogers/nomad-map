@@ -44,6 +44,20 @@ layerbar.querySelectorAll("button").forEach(b => b.onclick = () => {
   draw();
 });
 
+const scalebar = document.getElementById("scalebar");
+scalebar.querySelectorAll("button").forEach(b => b.onclick = () => {
+  if (S.scale === b.dataset.scale) return;
+  S.scale = b.dataset.scale;
+  scalebar.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  invalidateScale();
+  document.getElementById("ramplabel").textContent = labelFor(S.layer);
+  document.getElementById("scalenote").textContent = S.scale === "pc"
+    ? "· rankings and pins per head; hexes unchanged (they measure concentration, not population)"
+    : "";
+  if (S.sel && S.sel.kind === "locality") selectLocality(S.sel.gid);
+  renderRail(); draw();
+});
+
 const tabsEl = document.getElementById("tabs");
 tabsEl.innerHTML = TABS.map(([k,l]) =>
   `<button role="tab" data-tab="${k}" aria-selected="${k===S.tab}">${l}</button>`).join("");

@@ -43,14 +43,15 @@ def auc(pos, neg):
     return wins / (len(pos) * len(neg))
 
 
-def evaluate(scored_path=None, quiet=False):
+def evaluate(scored_path=None, quiet=False, scale="abs"):
     ref = json.load(open(os.path.join(ROOT, "validation", "reference_set.json")))
     sc = json.load(open(scored_path or os.path.join(ROOT, "data", "scored.json")))
     L = sc["localities"]
     by = {}
     for x in L:
         by.setdefault((x["name"], x["cc"]), x)
-    ranked = sorted(L, key=lambda z: -z["live_score"])
+    key = "live_score_pc" if scale == "pc" else "live_score"
+    ranked = sorted(L, key=lambda z: -z.get(key, 0))
     rank_of = {(x["name"], x["cc"]): i + 1 for i, x in enumerate(ranked)}
 
     rows, missing = [], []
@@ -60,7 +61,7 @@ def evaluate(scored_path=None, quiet=False):
             missing.append(f"{name}({cc})")
             continue
         rows.append({"name": name, "cc": cc, "tier": tier,
-                     "score": x["live_score"], "rank": rank_of[(name, cc)],
+                     "score": x.get(key, 0), "rank": rank_of[(name, cc)],
                      "conf": x["confidence"], "ev": x["evidence_count"],
                      "srcs": x["unique_sources"]})
 
@@ -134,8 +135,19 @@ def append_history(res, label=""):
 
 
 if __name__ == "__main__":
+    if "--pc" in sys.argv:
+        print("=== PER-CAPITA SCALE ===")
+        evaluate(scale="pc")
+        sys.exit(0)
     label = sys.argv[1] if len(sys.argv) > 1 else ""
     r = evaluate()
+    pc = evaluate(scale="pc", quiet=True)
+    r["per_capita"] = {k: pc[k] for k in
+                       ("spearman_tier_vs_score", "auc_hub_vs_control",
+                        "precision_at_30", "negative_controls_in_top_30")}
+    print(f"\n  per-capita scale: Spearman {pc['spearman_tier_vs_score']:+.3f}, "
+          f"AUC {pc['auc_hub_vs_control']:.3f}, "
+          f"{pc['negative_controls_in_top_30']} controls in top 30")
     json.dump(r, open(os.path.join(ROOT, "data", "validation_result.json"), "w"), indent=1)
     if label:
         append_history(r, label)

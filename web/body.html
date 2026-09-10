@@ -8,6 +8,10 @@
       <div id="results" role="listbox" style="display:none"></div>
     </div>
     <div class="spacer"></div>
+    <div class="layerbar" id="scalebar" role="group" aria-label="Score scale">
+      <button data-scale="abs" aria-pressed="true" title="Absolute activity">Absolute</button>
+      <button data-scale="pc" aria-pressed="false" title="Activity per head of population">Per capita</button>
+    </div>
     <div class="layerbar" id="layerbar" role="group" aria-label="Heat map layer"></div>
     <button class="iconbtn" id="mrail" title="Rankings" aria-label="Show rankings">☰</button>
     <button class="iconbtn" id="theme" title="Theme: follow system" aria-pressed="false"
@@ -61,6 +65,7 @@
       <span id="ramplabel" class="mono">Live score</span>
       <div><div class="bar"></div><div class="lab mono"><span>0</span><span>55</span><span>80</span><span>100</span></div></div>
     </div>
+    <span id="scalenote"></span>
     <span id="stamp" class="mono"></span>
     <span class="spacer"></span>
     <span>Venues © OpenStreetMap contributors (ODbL) · attention from Wikimedia dumps (CC0) ·

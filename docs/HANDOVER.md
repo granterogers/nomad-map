@@ -88,6 +88,15 @@ reference set stops measuring anything.
    5-character rule that silenced 196 place names including Ubud, Lima and Rome,
    and produced errors like crediting a post about Goa to Las Vegas.
 
+### Two scales
+
+The app toggles between an **absolute** score and a **per-capita** score
+(`fit_per_capita` in `step6_h3.py`). Per capita answers the "big cities win by
+construction" objection, and it does surface small dense places the absolute
+view buries. It also scores materially worse against the reference set, because
+dividing out population amplifies the event-detection bias it cannot see. Both
+sets of numbers ship into the page and are shown per scale in the Method tab.
+
 ### What is still true and worth knowing
 
 - **Nothing observes a digital nomad directly.** Every signal is a proxy. The

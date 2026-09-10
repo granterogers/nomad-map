@@ -6,10 +6,10 @@ const TABS = [
   ["regions","Regions"],["sources","Sources"],["method","Method"],
 ];
 const TAB_NOTE = {
-  hot:"Ranked by Nomad Live Score from current evidence only. Only places with two or more independent evidence families, one of them nomad-targeted, can appear here.",
+  hot:"Ranked from current evidence only. Only places with two or more independent evidence families, one of them nomad-targeted, can appear here.",
   rising:"Attention in the last 14 days against the previous 14, from Wikipedia pageview dumps.",
-  hoods:"Contiguous clusters of hot H3 cells — where inside a city the evidence actually concentrates.",
-  density:"Active Community Density: how easy it looks to enter a real social ecosystem alone.",
+  hoods:"Contiguous clusters of hot H3 cells — where inside a city the evidence actually concentrates. Cell colour measures concentration of evidence, not population, so it is the same in both scales.",
+  density:"Active Community Density: how easy it looks to enter a real social ecosystem alone. This one is already concentration-based, so it changes little between scales.",
   small:"Places under 250,000 people that still show real ecosystem evidence.",
   coast:"Coastal places and places above 700 m, classified from open geographic data.",
   regions:"Administrative roll-ups keep the maximum, not just the mean, so a hot city is never averaged away.",
@@ -36,21 +36,24 @@ function renderRail(){
     <div class="listnote">${note}</div>`;
 
   if (S.tab === "hot"){
-    const rows = list.slice().sort((a,b) => b.live_score-a.live_score).slice(0,120);
-    html = head("Hottest right now", rows.length) + rows.map((L,i) =>
-      rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span>${trendChip(L)}<span>${L.confidence}% conf</span>`,
-              L.live_score, L.gid, S.sel && S.sel.gid===L.gid ? "active":"")).join("");
+    const rows = list.slice().sort((a,b) => scoreOf(b)-scoreOf(a)).slice(0,120);
+    html = head(S.scale === "pc" ? "Hottest per head" : "Hottest right now", rows.length)
+      + rows.map((L,i) => rowHTML(i+1, L.name,
+          `<span class="chip">${esc(L.cc)}</span>${trendChip(L)}` +
+          (S.scale === "pc" ? `<span>${(L.pop/1000).toFixed(0)}k people</span>`
+                            : `<span>${L.confidence}% conf</span>`),
+          scoreOf(L), L.gid, S.sel && S.sel.gid===L.gid ? "active":"")).join("");
   } else if (S.tab === "rising"){
     const rows = list.filter(L => L.momentum_ratio != null && L.evidence_count >= 4)
       .sort((a,b) => b.momentum_ratio-a.momentum_ratio).slice(0,90);
     html = head("Fastest rising", rows.length) + rows.map((L,i) =>
       rowHTML(i+1, L.name,
         `<span class="chip">${esc(L.cc)}</span><span class="chip rise">×${L.momentum_ratio.toFixed(2)} attention</span><span>${L.confidence}% conf</span>`,
-        L.live_score, L.gid)).join("");
+        scoreOf(L), L.gid)).join("");
     const cooling = list.filter(L => L.momentum_ratio != null && L.momentum_ratio < 0.85 && L.evidence_count >= 6)
       .sort((a,b) => a.momentum_ratio-b.momentum_ratio).slice(0,25);
     if (cooling.length) html += `<div class="listhead"><h3>Fastest cooling</h3><span class="n num">${cooling.length}</span></div>` +
-      cooling.map((L,i) => rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span class="chip cool">×${L.momentum_ratio.toFixed(2)}</span>`, L.live_score, L.gid)).join("");
+      cooling.map((L,i) => rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span class="chip cool">×${L.momentum_ratio.toFixed(2)}</span>`, scoreOf(L), L.gid)).join("");
   } else if (S.tab === "hoods"){
     const allow = new Set(list.map(L => L.gid));
     const rows = CLUSTERS.filter(c => allow.has(Number(c.gid))).slice(0,110);
@@ -66,17 +69,17 @@ function renderRail(){
       rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${L.organizers} organisers · ${L.events_upcoming} events</span>`,
               L.active_community_density, L.gid)).join("");
   } else if (S.tab === "small"){
-    const rows = list.filter(L => L.pop < 250000).sort((a,b) => b.live_score-a.live_score).slice(0,90);
+    const rows = list.filter(L => L.pop < 250000).sort((a,b) => scoreOf(b)-scoreOf(a)).slice(0,90);
     html = head("Best small cities", rows.length) + rows.map((L,i) =>
       rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${(L.pop/1000).toFixed(0)}k people</span>${trendChip(L)}`,
-              L.live_score, L.gid)).join("");
+              scoreOf(L), L.gid)).join("");
   } else if (S.tab === "coast"){
-    const beach = list.filter(L => L.coastal).sort((a,b) => b.live_score-a.live_score).slice(0,55);
-    const mtn = list.filter(L => (L.elev||0) >= 700).sort((a,b) => b.live_score-a.live_score).slice(0,45);
+    const beach = list.filter(L => L.coastal).sort((a,b) => scoreOf(b)-scoreOf(a)).slice(0,55);
+    const mtn = list.filter(L => (L.elev||0) >= 700).sort((a,b) => scoreOf(b)-scoreOf(a)).slice(0,45);
     html = head("Best coastal", beach.length) + beach.map((L,i) =>
-      rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${L.elev} m</span>`, L.live_score, L.gid)).join("")
+      rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${L.elev} m</span>`, scoreOf(L), L.gid)).join("")
       + `<div class="listhead"><h3>Best high-altitude</h3><span class="n num">${mtn.length}</span></div>`
-      + mtn.map((L,i) => rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${L.elev} m</span>`, L.live_score, L.gid)).join("");
+      + mtn.map((L,i) => rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span>${L.elev} m</span>`, scoreOf(L), L.gid)).join("");
   } else if (S.tab === "regions"){
     const cs = D.country_rollup.slice(0,70);
     html = head("Countries by hottest locality", cs.length) + cs.map((r,i) =>
@@ -105,7 +108,8 @@ function renderRail(){
 }
 
 function methodHTML(){
-  const v = D.validation || {};
+  const base = D.validation || {};
+  const v = S.scale === "pc" ? Object.assign({}, base, base.per_capita || {}) : base;
   const m = D.meta || {};
   const bar = (label, val, good, fmt) => `<div class="metric" style="padding:5px 0">
     <span class="lb">${label}</span><span class="vl num">${fmt ? fmt(val) : val}</span>
@@ -126,6 +130,19 @@ function methodHTML(){
       ${v.negative_controls_in_top_30}</b> — lower is better.</div>` :
     `<div class="tiny">No validation result was shipped with this build.</div>`}
     <div class="tiny" style="border-top:1px solid var(--line2);padding-top:10px">
+      <b style="color:var(--ink)">About the ${S.scale === "pc" ? "per-capita" : "absolute"} scale.</b>
+      ${S.scale === "pc"
+        ? "Every count-based term is divided by population, shrunk by 60,000 residents so a "
+          + "village with three events cannot outrank a city. It removes the advantage large "
+          + "cities have by construction — but it scores <b style='color:var(--warn)'>worse</b> "
+          + "against the reference set, because dividing out population amplifies the other "
+          + "bias: mid-sized Western European cities have high detected events per head largely "
+          + "because Meetup's own coverage is strongest there. Treat this as an exploratory "
+          + "lens, not a better ranking."
+        : "Counts are absolute, so larger cities score higher by construction. This is the "
+          + "better-validated of the two scales, but it is also the one that lets a megacity "
+          + "outrank a small place with a denser scene."}
+      <br><br>
       <b style="color:var(--ink)">Two corrections applied before scoring</b><br><br>
       <b style="color:var(--ink)">Mapping-density normalisation.</b> A raw count of coworking
       spaces mostly measures how thoroughly OpenStreetMap has been mapped. Infrastructure is

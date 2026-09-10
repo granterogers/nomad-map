@@ -56,7 +56,10 @@ function selectLocality(gid){
 }
 
 function renderLocality(L){
-  const P = L.parts;
+  const P = partsOf(L);
+  const other = S.scale === "pc"
+    ? {label: "absolute", val: L.live_score}
+    : {label: "per capita", val: L.live_score_pc};
   const clusters = CLUSTERS.filter(c => Number(c.gid) === L.gid).slice(0,6);
   const ev = decodeEvidence(D.evidence[String(L.gid)]);
   const events = ev.filter(e => e.type === "event").sort((a,b) => (a.age_hours??999)-(b.age_hours??999));
@@ -72,9 +75,12 @@ function renderLocality(L){
 
   drawer.querySelector(".dbody").innerHTML = `
   <div class="bigrow">
-    <div class="bigscore num" style="color:${L.ranked ? heatCss(L.live_score,1) : "var(--muted)"}">${L.live_score}</div>
+    <div class="bigscore num" style="color:${L.ranked ? heatCss(scoreOf(L),1) : "var(--muted)"}">${scoreOf(L)}</div>
     <div class="bigmeta">
-      <div>${L.ranked ? "Nomad Live Score" : "Observed activity · not ranked"}</div>
+      <div>${L.ranked ? (S.scale === "pc" ? "Per-capita score" : "Nomad Live Score")
+                      : "Observed activity · not ranked"}</div>
+      <div>${esc(other.label)} score <b class="num">${other.val}</b> ·
+        ${(L.pop/1000).toFixed(0)}k people</div>
       <div>Confidence <b class="num">${L.confidence}%</b> · Freshness <b>${L.freshness}</b></div>
       <div>${pill(L.momentum, /RISING/.test(L.momentum) ? "rise" : /COOL/.test(L.momentum) ? "cool" : "")}</div>
     </div>
@@ -105,7 +111,12 @@ function renderLocality(L){
     ${metric("Momentum", P.momentum)}
     ${metric("Active community density", L.active_community_density, "var(--accent)")}
     <div class="tiny" style="margin-top:7px">Weights: presence 25 · events 25 · community 20 ·
-      coworking 10 · international 10 · momentum 5 · confidence 5.</div>
+      coworking 10 · international 10 · momentum 5 · confidence 5.
+      ${S.scale === "pc" ? "Every count-based term is divided by population (shrunk by 60k so a "
+        + "village with three events cannot outrank a city); momentum and confidence are "
+        + "scale-free and identical in both views."
+        : "Counts are absolute, so larger cities score higher by construction — switch to "
+        + "per capita to remove that."}</div>
     <div class="tiny" style="margin-top:7px">Infrastructure is scored as a share of what
       OpenStreetMap has mapped here — <b>${L.mapping_baseline.toLocaleString()}</b> mundane
       civic objects (pharmacies, fuel, supermarkets, banks) form the local baseline, so a
