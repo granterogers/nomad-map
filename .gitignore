@@ -1,5 +1,18 @@
+# Regenerable pipeline artifacts. Every one of these is rebuilt by the steps in
+# README.md from cached or re-fetchable sources; only the small, human-readable
+# outputs (the source audit and the source registry) are tracked.
 data/cache/
 data/raw/
+data/ecosystem.json
+data/geobase.json
+data/attention.json
+data/scored.json
+data/bundle.json
+data/events.json
+data/evidence.json
+data/scan_targets.json
+data/community.json
+
 dist/
 node_modules/
 __pycache__/
