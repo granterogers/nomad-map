@@ -22,15 +22,21 @@ respected — Meetup's `/find/` path is not disallowed; its `/files/`, `/fb/`,
 
 | Source | Domain | Type | Access | Reliability | Coverage |
 |---|---|---|---|---|---|
+| QLever OSM-planet SPARQL endpoint | `qlever.dev` | physical ecosystem | anonymous SPARQL | 100% | 693,832 |
 | Wikidata Query Service | `query.wikidata.org` | geography/crosswalk | anonymous SPARQL | 100% | 85,695 |
-| Wikimedia hourly pageview dumps | `dumps.wikimedia.org` | attention/momentum | anonymous static file streaming | 100% | 16,871 |
+| GeoNames cities5000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 69,058 |
+| Wikimedia hourly pageview dumps | `dumps.wikimedia.org` | attention/momentum | anonymous static file streaming | 100% | 38,331 |
+| GeoNames cities15000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 34,090 |
+| Luma public city pages (schema.org ItemList/Event) | `luma.com` | events | anonymous HTML + JSON-LD | 46% | 0 |
+| Meetup public /find pages (schema.org Event) | `meetup.com` | events | anonymous HTML + JSON-LD | 100% | 0 |
+| Reddit public Atom feeds | `reddit.com` | community | anonymous | 56% | 0 |
 
 ### What each contributes
 
-- **OpenStreetMap planet via QLever** — 693,832 matching objects worldwide, 456,020 attributed to 25,308 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
-- **Wikimedia hourly pageview dumps** — dated daily series for 16,871 places over 28 days (111/112 hourly files streamed). Supplies current attention and real momentum.
-- **Meetup + Luma public listings** — 0 schema.org Event objects across 0 localities, with organiser and venue.
-- **Reddit / Mastodon / Lemmy / Hacker News** — 2,687 recent public posts scanned, attributed to 238 localities at city precision.
+- **OpenStreetMap planet via QLever** — 693,832 matching objects worldwide, 527,072 attributed to 34,841 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
+- **Wikimedia hourly pageview dumps** — dated daily series for 38,331 places over 28 days (112/112 hourly files streamed). Supplies current attention and real momentum.
+- **Meetup + Luma public listings** — 10,427 schema.org Event objects across 361 localities, with organiser and venue.
+- **Reddit / Mastodon / Lemmy / Hacker News** — 2,818 recent public posts scanned, attributed to 242 localities at city precision.
 - **GeoNames + Wikidata** — the place universe and the GeoNames↔Wikipedia crosswalk that lets attention attach to places.
 
 ## Full audit

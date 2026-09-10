@@ -48,7 +48,7 @@ function selectLocality(gid){
   app.classList.remove("rail-open");
   drawer.scrollTop = 0;
   const z = zoomLevel();
-  if (z < 10.2) flyTo(L.px, L.py, Math.max(view.k, 256*Math.pow(2,10.4)/WORLD_W));
+  if (z < 9.6) flyTo(L.px, L.py, Math.max(view.k, 256*Math.pow(2,9.9)/WORLD_W));
   else draw();
   renderLocality(L);
   renderRail();
@@ -181,7 +181,7 @@ function selectCluster(id){
   if (!c) return;
   S.sel = {kind:"cluster", gid: Number(c.gid), id};
   app.classList.add("drawer-open"); app.classList.remove("rail-open");
-  flyTo(c.px, c.py, 256*Math.pow(2,11.6)/WORLD_W);
+  flyTo(c.px, c.py, 256*Math.pow(2,11.8)/WORLD_W);
   drawer.scrollTop = 0;
   const L = byGid.get(Number(c.gid));
   document.querySelector(".dhead .eyebrow").textContent = "H3 HOTSPOT CLUSTER";

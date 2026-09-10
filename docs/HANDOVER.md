@@ -3,6 +3,13 @@
 > Regenerate the numbers in this file with `python3 pipeline/gen_docs.py`
 > after any rebuild. Everything below reflects the current build.
 
+## Live URL
+
+**https://claude.ai/code/artifact/dac9fc4c-ac07-4b44-bcbc-da2fe2efaf5c**
+
+Published as a Claude Artifact (private to the owner until shared from the
+page's share menu). Republishing `dist/nomad-radar.html` updates the same URL.
+
 ## Status
 
 Working and deployed. The world map, H3 heat layers, zoom-driven resolution

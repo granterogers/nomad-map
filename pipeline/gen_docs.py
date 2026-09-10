@@ -43,11 +43,11 @@ def main():
     lines.append("| Source | Domain | Type | Access | Reliability | Coverage |")
     lines.append("|---|---|---|---|---|---|")
     for r in sorted(reg.values(), key=lambda x: -(x.get("coverage") or 0)):
-        if not r.get("success_count"):
+        if not (r.get("success_count") or r.get("coverage")):
             continue
         lines.append(f'| {r.get("source_name", r["source_id"])} | `{r.get("domain","")}` | '
                      f'{r.get("source_type","")} | {r.get("access_method","")} | '
-                     f'{round((r.get("reliability") or 0)*100)}% | '
+                     f'{round(r["reliability"]*100) if r.get("reliability") is not None else 100}% | '
                      f'{(r.get("coverage") or 0):,} |')
 
     lines.append("\n### What each contributes\n")

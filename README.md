@@ -12,6 +12,8 @@ supports that precision, and no finer.
 It runs on zero credentials. There is no API key, no login, no database to
 provision, and no ongoing cost.
 
+**Live:** https://claude.ai/code/artifact/dac9fc4c-ac07-4b44-bcbc-da2fe2efaf5c
+
 ## What it answers
 
 - *Where on Earth is active right now?* — the world map, on open.

@@ -240,9 +240,17 @@ button{cursor:pointer;background:none;border:none;padding:0}
   #foot{font-size:9.5px;gap:9px}
   .ramp .bar,.ramp .lab{width:120px}
 }
+@media (max-width:960px){
+  #resbadge{right:48px;font-size:9.5px;padding:4px 7px;max-width:calc(100% - 60px);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 @media (max-width:520px){
   #bar{height:auto;padding:7px 10px;flex-wrap:wrap;gap:8px}
-  .layerbar{order:5;width:100%;overflow-x:auto}
-  .layerbar button{flex:1 0 auto}
+  .brand b{font-size:16px}
+  .layerbar{order:5;width:100%;flex-wrap:wrap}
+  .layerbar button{flex:1 1 auto;text-align:center;padding:6px 4px;font-size:10.5px;
+    border-bottom:1px solid var(--line)}
+  #foot{padding:5px 10px}
+  #foot>span:last-child{display:none}
 }
 </style>

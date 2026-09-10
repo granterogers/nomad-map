@@ -78,7 +78,7 @@ cv.addEventListener("touchend", () => { pinch = null; });
 
 function zoomAbout(sx, sy, factor){
   const wx = toWorldX(sx), wy = toWorldY(sy);
-  view.k = Math.max(minK*0.85, Math.min(view.k * factor, 0.9));
+  view.k = Math.max(minK*0.85, Math.min(view.k * factor, MAX_K));
   view.cx = wx - (sx - VW/2)/view.k;
   view.cy = wy - (sy - VH/2)/view.k;
   clampView(); draw();

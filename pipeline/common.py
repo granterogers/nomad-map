@@ -36,6 +36,7 @@ def iso(ts: float | None = None) -> str:
 
 def register(source_id: str, **fields):
     """Update the persistent source registry (spec §31)."""
+    fields.setdefault("adapter_version", "1.0")
     with _lock:
         rec = _registry.setdefault(source_id, {
             "source_id": source_id, "success_count": 0, "failure_count": 0,
@@ -64,8 +65,29 @@ def note_result(source_id: str, ok: bool, detail: str = ""):
 
 
 def save_registry():
+    """Merge-then-write. Pipeline steps run concurrently and each holds its own
+    in-memory copy, so a plain overwrite loses whatever another step registered
+    while this one was running."""
     with _lock:
-        json.dump(_registry, open(REGISTRY_PATH, "w"), indent=1, sort_keys=True)
+        merged = {}
+        if os.path.exists(REGISTRY_PATH):
+            try:
+                merged = json.load(open(REGISTRY_PATH))
+            except Exception:
+                merged = {}
+        for k, v in _registry.items():
+            cur = merged.get(k, {})
+            cur.update({kk: vv for kk, vv in v.items() if vv is not None})
+            if v.get("success_count", 0) or v.get("failure_count", 0):
+                cur["success_count"] = max(cur.get("success_count", 0), v.get("success_count", 0))
+                cur["failure_count"] = max(cur.get("failure_count", 0), v.get("failure_count", 0))
+                tot = cur["success_count"] + cur["failure_count"]
+                cur["reliability"] = round(cur["success_count"] / tot, 3) if tot else 0.0
+            merged[k] = cur
+        tmp = REGISTRY_PATH + ".tmp"
+        json.dump(merged, open(tmp, "w"), indent=1, sort_keys=True)
+        os.replace(tmp, REGISTRY_PATH)
+        _registry.update(merged)
 
 
 def registry_snapshot() -> dict:

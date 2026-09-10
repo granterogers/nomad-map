@@ -43,8 +43,9 @@ function renderRail(){
     const rows = list.filter(L => L.momentum_ratio != null && L.evidence_count >= 4)
       .sort((a,b) => b.momentum_ratio-a.momentum_ratio).slice(0,90);
     html = head("Fastest rising", rows.length) + rows.map((L,i) =>
-      rowHTML(i+1, L.name, `<span class="chip">${esc(L.cc)}</span><span class="chip rise">×${L.momentum_ratio.toFixed(2)}</span><span>score ${L.live_score}</span>`,
-              Math.round(L.momentum_ratio*100)/1|0 ? L.live_score : L.live_score, L.gid)).join("");
+      rowHTML(i+1, L.name,
+        `<span class="chip">${esc(L.cc)}</span><span class="chip rise">×${L.momentum_ratio.toFixed(2)} attention</span><span>${L.confidence}% conf</span>`,
+        L.live_score, L.gid)).join("");
     const cooling = list.filter(L => L.momentum_ratio != null && L.momentum_ratio < 0.85 && L.evidence_count >= 6)
       .sort((a,b) => a.momentum_ratio-b.momentum_ratio).slice(0,25);
     if (cooling.length) html += `<div class="listhead"><h3>Fastest cooling</h3><span class="n num">${cooling.length}</span></div>` +

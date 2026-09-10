@@ -127,6 +127,9 @@ function level(res){
 /* ---------- view ---------- */
 const cv = document.getElementById("cv"), ctx = cv.getContext("2d", {alpha:false});
 let VW = 0, VH = 0, DPR = 1;
+/* MAX_K is set so the finest H3 resolution is actually reachable: a res-8
+   cell is ~1.5 world px across, so ~40 screen px needs k around 26. */
+const MAX_K = 64;
 const view = {cx: WORLD_W*0.5, cy: WORLD_H*0.46, k: 0.008};
 let minK = 0.004;
 
@@ -150,7 +153,7 @@ function clampView(){
   const hw = VW/(2*view.k), hh = VH/(2*view.k);
   view.cx = Math.max(Math.min(view.cx, WORLD_W-hw*0.15), hw*0.15);
   view.cy = Math.max(Math.min(view.cy, WORLD_H-hh*0.3), hh*0.3);
-  view.k = Math.max(minK*0.85, Math.min(view.k, 0.9));
+  view.k = Math.max(minK*0.85, Math.min(view.k, MAX_K));
 }
 const toScreenX = wx => (wx - view.cx)*view.k + VW/2;
 const toScreenY = wy => (wy - view.cy)*view.k + VH/2;

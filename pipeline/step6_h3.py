@@ -19,7 +19,13 @@ from common import read_json, write_json
 
 FINE_RES = 8          # ~0.46 km edge - neighbourhood/street scale
 RES_CHAIN = [8, 7, 6, 5, 4, 3, 2]
-HOT_CELL_MIN = 0.9    # weighted evidence needed before a cell counts as "active"
+# A cell is "hot" relative to the global fine-cell weight distribution, not
+# against a fixed number. With a fixed floor every urban cell qualifies and the
+# flood fill merges an entire metropolitan area into one 60 km2 "cluster",
+# which answers the wrong question - the product exists to say *which part* of
+# a city is active. The percentile is fitted in cluster().
+HOT_CELL_PCT = 0.93
+MAX_CLUSTER_CELLS = 60   # beyond this the component is re-cut at a stricter floor
 
 # Scoring weights (spec §19) - configurable, not baked into the maths.
 WEIGHTS = {
@@ -269,11 +275,9 @@ def rollup(cells):
 
 # ---------------------------------------------------------------- clusters
 
-def cluster(cells, place_by_gid):
-    """Contiguous hotspot clusters from neighbouring hot cells (§13)."""
-    hot = {k: v for k, v in cells.items() if sum(v["w"].values()) >= HOT_CELL_MIN}
-    seen, clusters = set(), []
-    for start in hot:
+def _components(cells, hot_keys):
+    seen, comps = set(), []
+    for start in hot_keys:
         if start in seen:
             continue
         stack, members = [start], []
@@ -282,9 +286,36 @@ def cluster(cells, place_by_gid):
             cur = stack.pop()
             members.append(cur)
             for nb in h3.grid_disk(cur, 1):
-                if nb in hot and nb not in seen:
+                if nb in hot_keys and nb not in seen:
                     seen.add(nb)
                     stack.append(nb)
+        comps.append(members)
+    return comps
+
+
+def cluster(cells, place_by_gid):
+    """Contiguous hotspot clusters from neighbouring hot cells (§13).
+
+    Two passes: a global percentile picks the hot cells, then any component
+    that has swallowed a whole metro is re-cut against its own internal
+    distribution so the genuinely concentrated cores separate out."""
+    weights = sorted(sum(v["w"].values()) for v in cells.values())
+    floor = weights[int(len(weights) * HOT_CELL_PCT)] if len(weights) > 100 else 0.9
+    hot_keys = {k for k, v in cells.items() if sum(v["w"].values()) >= floor}
+
+    comps = []
+    for members in _components(cells, hot_keys):
+        if len(members) <= MAX_CLUSTER_CELLS:
+            comps.append(members)
+            continue
+        inner = sorted(sum(cells[m]["w"].values()) for m in members)
+        cut = inner[int(len(inner) * 0.55)]
+        sub = {m for m in members if sum(cells[m]["w"].values()) >= cut}
+        parts = _components(cells, sub)
+        comps.extend(parts if parts else [members])
+
+    clusters = []
+    for members in comps:
         if len(members) < 2:
             continue
         w = defaultdict(float)
@@ -588,8 +619,7 @@ def main():
     # else is real data but not a destination. Keep places that carry a hotspot,
     # meaningful evidence, or a score worth looking at.
     keep_ids = {L["gid"] for L in localities
-                if (L["n_clusters"] > 0 and L["evidence_count"] >= 8)
-                or L["evidence_count"] >= 22 or L["live_score"] >= 30}
+                if L["n_clusters"] > 0 or L["evidence_count"] >= 20 or L["live_score"] >= 30}
     ship_loc = [L for L in localities if L["gid"] in keep_ids]
     top_ids = {L["gid"] for L in sorted(ship_loc, key=lambda x: -x["live_score"])[:1900]}
     for L in ship_loc:
