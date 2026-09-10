@@ -53,6 +53,34 @@ TikTok, WhatsApp, X, LinkedIn, InterNations, Couchsurfing, Nomads.com, AirDNA,
 Coworker.com. All listed in the audit and surfaced in the UI as contributing
 zero, per place.
 
+## Validity — read this before trusting a ranking
+
+A measured audit (`audit/`, report linked in `audit/README.md`) found the index
+is sound at the top and not a nomad ranking in the tail:
+
+- **Trustworthy:** within-city hotspot geometry (every hexagon is named,
+  verifiable OSM objects) and the top ~300, where 100/100 of the top 100 carry
+  live event evidence and 97/100 carry community evidence.
+- **Not trustworthy:** the remaining ~4,500 localities. 93.4% rest on a single
+  source (OSM venue counts) with no nomad-specific evidence. None of them score
+  above 55, so the confidence model contains the damage — but they are still
+  listed under "hottest right now".
+- **The dominant confound is OSM mapping completeness**, not city size
+  (live_score vs population is only rho=+0.31). France records 4.06 mapped
+  coworking spaces per 100k people; Indonesia records 0.06. Bali is effectively
+  invisible for that reason alone.
+- **The discovery claim does not hold as built.** Event targets were chosen from
+  the OSM-derived score, so 53% were already top-400 before any event was
+  fetched. It confirms its own ranking rather than testing it.
+- Known concrete errors: 19.3% ambiguous Wikipedia titles, 39% name-guessed
+  rather than crosswalked, and a 5-character rule that silences 196 place names
+  including Ubud, Goa, Lima and Rome.
+
+Fixes, in priority order, are listed in the audit report. The first two —
+normalising OSM signals against a mapping-density baseline, and sampling event
+coverage randomly rather than by rank — are both low effort and would change
+the answer materially.
+
 ## Known limitations
 
 1. **Event coverage is a few hundred localities, not all of them.** Public event
