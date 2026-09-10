@@ -1,0 +1,77 @@
+<div id="app">
+  <header id="bar">
+    <div class="brand"><span class="pulse" aria-hidden="true"></span><b>Nomad Radar</b>
+      <span>Where is actually active right now</span></div>
+    <div id="searchwrap">
+      <input id="search" type="search" placeholder="Jump to a place…" autocomplete="off"
+             aria-label="Move the map to a place. Search does not change the analysis.">
+      <div id="results" role="listbox" style="display:none"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="layerbar" id="layerbar" role="group" aria-label="Heat map layer"></div>
+    <button class="iconbtn" id="mrail" title="Rankings" aria-label="Show rankings">☰</button>
+    <button class="iconbtn" id="theme" title="Theme: follow system" aria-pressed="false"
+            aria-label="Switch theme">◐</button>
+  </header>
+
+  <nav id="rail" aria-label="Rankings">
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div id="railbody"></div>
+    <details id="filters">
+      <summary>Filters <span class="muted">optional</span></summary>
+      <div class="fgrid">
+        <label>Continent<select id="f-cont"></select></label>
+        <div class="frow">
+          <label>Trend<select id="f-trend">
+            <option value="">Any</option><option>HOT</option><option>RISING</option>
+            <option>STABLE</option><option>COOLING</option><option>QUIET</option></select></label>
+          <label>City size<select id="f-size">
+            <option value="">Any</option><option value="small">Under 250k</option>
+            <option value="mid">250k – 1.2M</option><option value="large">Over 1.2M</option></select></label>
+        </div>
+        <div class="frow">
+          <label>Terrain<select id="f-terrain">
+            <option value="">Any</option><option value="coast">Coastal</option>
+            <option value="mountain">Above 700 m</option></select></label>
+          <label>Presence<select id="f-presence">
+            <option value="">Any</option><option>VERY HIGH</option><option>HIGH</option>
+            <option>MODERATE</option><option>LOW</option><option>VERY LOW</option></select></label>
+        </div>
+        <label>Minimum confidence <span class="fval" id="f-conf-v">0%</span>
+          <input id="f-conf" type="range" min="0" max="90" step="5" value="0"></label>
+        <button id="reset" type="button">Reset filters</button>
+      </div>
+    </details>
+  </nav>
+
+  <main id="mapwrap">
+    <canvas id="cv" aria-label="World heat map of current digital-nomad activity"></canvas>
+    <div id="resbadge" class="mono"></div>
+    <div class="mapctl zoom">
+      <button id="zin" title="Zoom in" aria-label="Zoom in">+</button>
+      <button id="zout" title="Zoom out" aria-label="Zoom out">−</button>
+      <button id="zworld" title="Whole world" aria-label="Zoom to whole world">◍</button>
+    </div>
+    <div id="tip" role="status"></div>
+    <div id="emptynote"></div>
+  </main>
+
+  <footer id="foot">
+    <div class="ramp">
+      <span id="ramplabel" class="mono">Live score</span>
+      <div><div class="bar"></div><div class="lab mono"><span>0</span><span>55</span><span>80</span><span>100</span></div></div>
+    </div>
+    <span id="stamp" class="mono"></span>
+    <span class="spacer"></span>
+    <span>Venues © OpenStreetMap contributors (ODbL) · attention from Wikimedia dumps (CC0) ·
+      places from GeoNames (CC-BY) · events from public schema.org listings</span>
+  </footer>
+
+  <aside id="drawer" aria-label="Detail">
+    <div class="dhead">
+      <div class="eyebrow"></div><h2></h2><div class="where"></div>
+      <button id="dclose" aria-label="Close detail">✕</button>
+    </div>
+    <div class="dbody"></div>
+  </aside>
+</div>
