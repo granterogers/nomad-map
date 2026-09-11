@@ -17,3 +17,8 @@ dist/
 node_modules/
 __pycache__/
 *.pyc
+
+# credentials (never commit)
+nomad-radar.env
+secrets/
+*.env
