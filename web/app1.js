@@ -18,6 +18,10 @@ function decodeLocalities(){
     const ppc = L.parts_pc || [];
     L.parts_pc = {}; PK.forEach((k, i) => L.parts_pc[k] = ppc[i] || 0);
     L.live_score_pc = L.live_score_pc || 0;
+    L.nomad_fit = L.nomad_fit || 0;
+    const vb = L.viab || [];
+    L.viability = {cost: vb[0] || 0, climate: vb[1] || 0, visa: vb[2] || 0,
+                   gdp_ppp: (vb[3] || 0) * 1000};
     L.band_pc = bandOf(L.live_score_pc);
     const mask = L.sources || 0;
     L.sources = SK.filter((_, i) => mask & (1 << i));
@@ -181,8 +185,10 @@ buildLand();
 /* Absolute counts favour big cities by construction. The per-capita view
    divides every count-based term by population (shrunk, so a village with three
    events cannot beat Lisbon) and leaves the scale-free terms alone. */
-const scoreOf = L => S.scale === "pc" ? L.live_score_pc : L.live_score;
+const scoreOf = L => S.scale === "pc" ? L.live_score_pc
+                   : S.scale === "fit" ? L.nomad_fit : L.live_score;
 const partsOf = L => S.scale === "pc" ? L.parts_pc : L.parts;
+const SCALE_NAME = {abs: "Live score", pc: "Per-capita score", fit: "Nomad fit"};
 const bandLabel = L => bandOf(scoreOf(L));
 
 const S = {

@@ -110,6 +110,24 @@
   "success_count": 1237,
   "terms_notes": "public indexable structured data only; robots.txt respected"
  },
+ "nasa_power": {
+  "access_method": "anonymous REST",
+  "adapter_version": "1.0",
+  "coverage": 2712,
+  "credential_required": false,
+  "domain": "power.larc.nasa.gov",
+  "failure_count": 0,
+  "freshness": "annual / climatological",
+  "geographic_scope": "global",
+  "last_checked": "2026-09-11T03:17:47Z",
+  "last_success": "2026-09-11T03:17:47Z",
+  "reliability": 1.0,
+  "source_id": "nasa_power",
+  "source_name": "NASA POWER climatology API",
+  "source_type": "structural viability",
+  "success_count": 2711,
+  "terms_notes": "public open data"
+ },
  "qlever_osm": {
   "access_method": "anonymous SPARQL",
   "adapter_version": "1.0",
@@ -221,5 +239,23 @@
   "source_type": "attention/momentum",
   "success_count": 335,
   "terms_notes": "CC0; REST pageviews API is 429-blocked for this egress IP"
+ },
+ "worldbank": {
+  "access_method": "anonymous REST",
+  "adapter_version": "1.0",
+  "coverage": 199,
+  "credential_required": false,
+  "domain": "api.worldbank.org",
+  "failure_count": 0,
+  "freshness": "annual / climatological",
+  "geographic_scope": "global",
+  "last_checked": "2026-09-11T03:15:03Z",
+  "last_success": "2026-09-11T03:15:03Z",
+  "reliability": 1.0,
+  "source_id": "worldbank",
+  "source_name": "World Bank Open Data API",
+  "source_type": "structural viability",
+  "success_count": 3,
+  "terms_notes": "public open data"
  }
 }

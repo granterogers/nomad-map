@@ -1296,6 +1296,12 @@
    "srcs": 3
   }
  ],
+ "nomad_fit": {
+  "spearman_tier_vs_score": 0.738,
+  "auc_hub_vs_control": 0.976,
+  "precision_at_30": 0.9,
+  "negative_controls_in_top_30": 0
+ },
  "per_capita": {
   "spearman_tier_vs_score": 0.091,
   "auc_hub_vs_control": 0.631,

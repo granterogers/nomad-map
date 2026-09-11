@@ -156,7 +156,7 @@ function hoverAt(e){
   const pin = pickPin(sx, sy);
   if (pin){
     showTip(sx, sy, `<div class="tt">${esc(pin.name)}<span class="muted"> ${esc(pin.country)}</span></div>
-      <div class="tr"><span>${S.scale === "pc" ? "Per-capita score" : "Live score"}</span><b>${scoreOf(pin)}</b></div>
+      <div class="tr"><span>${SCALE_NAME[S.scale]}</span><b>${scoreOf(pin)}</b></div>
       <div class="tr"><span>Confidence</span><b>${pin.confidence}%</b></div>
       <div class="tr"><span>Trend</span><b>${pin.momentum}</b></div>
       <div class="tr muted" style="margin-top:3px">Click for evidence</div>`);

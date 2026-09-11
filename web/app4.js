@@ -57,9 +57,9 @@ function selectLocality(gid){
 
 function renderLocality(L){
   const P = partsOf(L);
-  const other = S.scale === "pc"
-    ? {label: "absolute", val: L.live_score}
-    : {label: "per capita", val: L.live_score_pc};
+  const others = [["Live score", L.live_score], ["Per capita", L.live_score_pc],
+                  ["Nomad fit", L.nomad_fit]].filter(o => o[0] !== SCALE_NAME[S.scale]);
+  const V = L.viability || {};
   const clusters = CLUSTERS.filter(c => Number(c.gid) === L.gid).slice(0,6);
   const ev = decodeEvidence(D.evidence[String(L.gid)]);
   const events = ev.filter(e => e.type === "event").sort((a,b) => (a.age_hours??999)-(b.age_hours??999));
@@ -77,9 +77,8 @@ function renderLocality(L){
   <div class="bigrow">
     <div class="bigscore num" style="color:${L.ranked ? heatCss(scoreOf(L),1) : "var(--muted)"}">${scoreOf(L)}</div>
     <div class="bigmeta">
-      <div>${L.ranked ? (S.scale === "pc" ? "Per-capita score" : "Nomad Live Score")
-                      : "Observed activity · not ranked"}</div>
-      <div>${esc(other.label)} score <b class="num">${other.val}</b> ·
+      <div>${L.ranked ? SCALE_NAME[S.scale] : "Observed activity · not ranked"}</div>
+      <div>${others.map(o => `${o[0]} <b class="num">${o[1]}</b>`).join(" · ")} ·
         ${(L.pop/1000).toFixed(0)}k people</div>
       <div>Confidence <b class="num">${L.confidence}%</b> · Freshness <b>${L.freshness}</b></div>
       <div>${pill(L.momentum, /RISING/.test(L.momentum) ? "rise" : /COOL/.test(L.momentum) ? "cool" : "")}</div>
@@ -98,6 +97,18 @@ function renderLocality(L){
       : "A place is only ranked with two or more independent evidence families, at least one nomad-targeted (events or community). Infrastructure plus general pageviews shows a town exists, not that nomads are there."}</div>
   </div>
 
+  <div class="sec"><h4>Structural viability</h4>
+    ${metric("Affordability", Math.round(V.cost*100), "var(--accent)")}
+    ${metric("Climate comfort", Math.round(V.climate*100), "var(--accent)")}
+    <div class="rsub" style="margin-top:8px">
+      <span class="chip"${V.visa ? ` style="color:var(--rise);border-color:color-mix(in srgb,var(--rise) 45%,transparent)"` : ""}>${V.visa ? "remote-work visa route ✓" : "no remote-work visa route"}</span>
+      ${V.gdp_ppp ? `<span class="chip">GDP/capita PPP $${(V.gdp_ppp/1000).toFixed(0)}k</span>` : ""}
+    </div>
+    <div class="tiny" style="margin-top:8px">Cost from World Bank data and visa status are
+      <b>country-level</b>, so two cities in the same country score identically on them —
+      a real limitation. Climate is this locality's own 12-month NASA climatology.
+      These feed the <b>Nomad fit</b> score only; the Live score stays pure activity.</div>
+  </div>
   ${L.warnings.length ? `<div class="sec"><h4>Read this first</h4>
     ${L.warnings.map(w => `<div class="warnbox"><div class="wt">${esc(w.code)}</div>
       <div class="wd">${esc(w.detail)}</div></div>`).join("")}</div>` : ""}

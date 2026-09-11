@@ -12,7 +12,7 @@ def main():
     parts = [open(os.path.join(WEB, f), encoding="utf-8").read()
              for f in ("head.html", "body.html")]
     js = "\n".join(open(os.path.join(WEB, f), encoding="utf-8").read()
-                   for f in ("app1.js", "app2.js", "app3.js", "app4.js", "app5.js"))
+                   for f in ("app1.js", "app2.js", "app3.js", "app4.js", "app6.js", "app5.js"))
     bundle = open(os.path.join(ROOT, "data", "bundle.json"), encoding="utf-8").read()
     # </script> can only appear inside the JSON string, so escaping the slash is safe
     bundle = bundle.replace("</", "<\\/")

@@ -88,7 +88,15 @@ reference set stops measuring anything.
    5-character rule that silenced 196 place names including Ubud, Lima and Rome,
    and produced errors like crediting a post about Goa to Las Vegas.
 
-### Two scales
+### Three scores
+
+**Live score** — activity only, unchanged. **Per capita** — the same activity divided by
+population. **Nomad fit** — activity blended with cost, climate and visa access, which is the
+score that actually correlates with human judgement (0.656 held out vs 0.315 for activity
+alone, AUC 0.955 vs 0.762). See `docs/REACHING_STRONG_CORRELATION.md` for the research, and
+for the ranked list of things that need your credentials to go further.
+
+### Two activity scales
 
 The app toggles between an **absolute** score and a **per-capita** score
 (`fit_per_capita` in `step6_h3.py`). Per capita answers the "big cities win by

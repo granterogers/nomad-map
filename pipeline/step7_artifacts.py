@@ -146,7 +146,7 @@ LOC_SCHEMA = ["gid","name","cc","country","admin1","continent","px","py","pop","
               "parts","sources","event_categories","venue_families","warnings",
               "att_series","att_recent_views","att_prior_views",
               "ranked","evidence_families","mapping_baseline","coworking_share",
-              "live_score_pc","parts_pc"]
+              "live_score_pc","parts_pc","nomad_fit","viab","temps"]
 PART_KEYS = ["nomad_presence","event_activity","community_activity","coworking_infra",
              "international_social","momentum","confidence"]
 SOURCE_KEYS = ["qlever_osm","meetup_public","luma_public","venue_feeds","reddit_rss",
@@ -246,6 +246,8 @@ def main():
     world = build_world_paths()
     audit = read_json("source_audit.json", {"results": []})
     val = read_json("validation_result.json", {})
+    audit_stats = read_json("audit_stats.json", {})
+    fit_meta = read_json("nomadfit_meta.json", {})
     if val:
         val = {k: v for k, v in val.items() if k != "rows"}
     registry = read_json("source_registry.json", {})
@@ -278,7 +280,7 @@ def main():
         "region_rollup": sc["regions"],
         "evidence": ev,
         "sources": {"audit": audit["results"], "registry": registry},
-        "validation": val,
+        "validation": val, "audit": audit_stats, "nomadfit": fit_meta,
     }
     p = write_json("bundle.json", bundle)
     print(f"wrote {p} ({os.path.getsize(p)/1e6:.2f} MB)")

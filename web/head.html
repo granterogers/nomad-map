@@ -254,3 +254,56 @@ button{cursor:pointer;background:none;border:none;padding:0}
   #foot>span:last-child{display:none}
 }
 </style>
+<style>
+/* ---------- validity report overlay ---------- */
+#validity{position:fixed;inset:0;z-index:60;background:var(--ground);overflow:auto;display:none}
+#app.validity-open ~ #validity,#validity.open{display:block}
+.vwrap{max-width:860px;margin:0 auto;padding:0 22px 72px}
+.vhead{position:sticky;top:0;background:var(--ground);padding:20px 0 14px;
+  border-bottom:2px solid var(--ink);margin-bottom:26px;z-index:2}
+.vhead .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.vhead h1{font-size:clamp(25px,5vw,36px);font-weight:700;line-height:1.05;margin-top:9px;
+  letter-spacing:-.015em}
+.vhead .dek{font-size:15px;color:var(--ink2);margin-top:10px;max-width:62ch}
+#vclose{position:absolute;top:20px;right:0;width:30px;height:30px;border-radius:6px;
+  border:1px solid var(--line);display:grid;place-items:center;font-size:15px;color:var(--muted);
+  background:var(--panel)}
+#validity h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  padding-bottom:7px;border-bottom:1px solid var(--line);margin:34px 0 16px}
+#validity h3{font-size:19px;font-weight:600;margin:22px 0 8px}
+#validity p{margin:0 0 13px;font-size:14.5px;line-height:1.6;color:var(--ink2)}
+#validity p b,#validity li b{color:var(--ink)}
+#validity ul{margin:0 0 13px;padding-left:20px;font-size:14.5px;color:var(--ink2);line-height:1.6}
+#validity table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+#validity th{text-align:left;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);padding:6px 10px 6px 0;border-bottom:1px solid var(--line)}
+#validity td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line2);vertical-align:top}
+#validity td:last-child,#validity th:last-child{padding-right:0}
+.vfig{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:17px 17px 13px;margin:18px 0;box-shadow:var(--shadow)}
+.vfig .t{font-size:14.5px;font-weight:600;margin-bottom:2px}
+.vfig .s{font-size:11.5px;color:var(--faint);margin-bottom:13px}
+.vfig .cap{font-size:12px;color:var(--muted);margin-top:11px;line-height:1.5}
+.vbar{display:flex;height:34px;border-radius:5px;overflow:hidden;gap:2px;background:var(--line2)}
+.vbar div{position:relative}
+.vlab{display:flex;gap:2px;margin-top:7px;font-size:11px;font-weight:600}
+.vhb{display:grid;grid-template-columns:120px 1fr 48px;gap:7px 10px;align-items:center;font-size:12px}
+.vhb .l{color:var(--ink2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vhb .tr{background:var(--line2);border-radius:3px;height:13px}
+.vhb .f{height:100%;border-radius:3px}
+.vhb .v{text-align:right;font-weight:600}
+.vnote{border-left:3px solid var(--warn);background:var(--panel);border:1px solid var(--line);
+  border-left-width:3px;border-radius:0 8px 8px 0;padding:14px 17px;margin:18px 0}
+.vnote.good{border-left-color:var(--rise)}
+.vnote .h{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-bottom:5px}
+.vnote p:last-child{margin-bottom:0}
+.vmetric{display:grid;grid-template-columns:1fr 52px;gap:7px;align-items:center;font-size:13px;
+  padding:5px 0}
+.vmetric .tk{grid-column:1/-1;height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
+.vmetric .fl{height:100%;border-radius:3px}
+.vmetric .vv{text-align:right;font-weight:600}
+#openvalidity{font-size:11px;color:var(--accent);text-decoration:underline;cursor:pointer;
+  background:none;border:none;padding:0}
+@media (max-width:620px){ .vwrap{padding:0 16px 60px} .vhb{grid-template-columns:88px 1fr 42px} }
+</style>

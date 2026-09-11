@@ -50,7 +50,7 @@ def evaluate(scored_path=None, quiet=False, scale="abs"):
     by = {}
     for x in L:
         by.setdefault((x["name"], x["cc"]), x)
-    key = "live_score_pc" if scale == "pc" else "live_score"
+    key = {"pc": "live_score_pc", "fit": "nomad_fit"}.get(scale, "live_score")
     ranked = sorted(L, key=lambda z: -z.get(key, 0))
     rank_of = {(x["name"], x["cc"]): i + 1 for i, x in enumerate(ranked)}
 
@@ -142,6 +142,13 @@ if __name__ == "__main__":
     label = sys.argv[1] if len(sys.argv) > 1 else ""
     r = evaluate()
     pc = evaluate(scale="pc", quiet=True)
+    ft = evaluate(scale="fit", quiet=True)
+    keys = ("spearman_tier_vs_score", "auc_hub_vs_control",
+            "precision_at_30", "negative_controls_in_top_30")
+    r["nomad_fit"] = {k: ft[k] for k in keys}
+    print(f"\n  nomad-fit scale : Spearman {ft['spearman_tier_vs_score']:+.3f}, "
+          f"AUC {ft['auc_hub_vs_control']:.3f}, "
+          f"{ft['negative_controls_in_top_30']} controls in top 30")
     r["per_capita"] = {k: pc[k] for k in
                        ("spearman_tier_vs_score", "auc_hub_vs_control",
                         "precision_at_30", "negative_controls_in_top_30")}

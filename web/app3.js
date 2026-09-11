@@ -37,7 +37,8 @@ function renderRail(){
 
   if (S.tab === "hot"){
     const rows = list.slice().sort((a,b) => scoreOf(b)-scoreOf(a)).slice(0,120);
-    html = head(S.scale === "pc" ? "Hottest per head" : "Hottest right now", rows.length)
+    html = head(S.scale === "pc" ? "Hottest per head"
+               : S.scale === "fit" ? "Best overall fit" : "Hottest right now", rows.length)
       + rows.map((L,i) => rowHTML(i+1, L.name,
           `<span class="chip">${esc(L.cc)}</span>${trendChip(L)}` +
           (S.scale === "pc" ? `<span>${(L.pop/1000).toFixed(0)}k people</span>`
@@ -116,6 +117,7 @@ function methodHTML(){
     <span class="track"><span class="fill" style="width:${Math.max(2,Math.min(100,val*100))}%;
       background:${val >= good ? "var(--rise)" : "var(--warn)"}"></span></span></div>`;
   return `<div class="fgrid" style="gap:10px;padding-bottom:14px">
+    <div class="tiny"><button id="openvalidity" type="button">Read the full validity report →</button></div>
     <div class="tiny">Nothing in the pipeline observes a digital nomad directly — no
       credential-free source does. Every signal is a proxy, so the index is measured against a
       <b style="color:var(--ink)">held-out reference set</b> of ${v.n_evaluated || 0} hand-labelled

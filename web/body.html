@@ -11,9 +11,12 @@
     <div class="layerbar" id="scalebar" role="group" aria-label="Score scale">
       <button data-scale="abs" aria-pressed="true" title="Absolute activity">Absolute</button>
       <button data-scale="pc" aria-pressed="false" title="Activity per head of population">Per capita</button>
+      <button data-scale="fit" aria-pressed="false" title="Activity combined with cost, climate and visa access">Nomad fit</button>
     </div>
     <div class="layerbar" id="layerbar" role="group" aria-label="Heat map layer"></div>
     <button class="iconbtn" id="mrail" title="Rankings" aria-label="Show rankings">☰</button>
+    <button class="iconbtn" id="vopen" title="Validity report — what this map actually measures"
+            aria-label="Open validity report">?</button>
     <button class="iconbtn" id="theme" title="Theme: follow system" aria-pressed="false"
             aria-label="Switch theme">◐</button>
   </header>
@@ -79,4 +82,17 @@
     </div>
     <div class="dbody"></div>
   </aside>
+</div>
+<div id="validity" role="dialog" aria-label="Validity report" aria-modal="true">
+  <div class="vwrap">
+    <div class="vhead">
+      <div class="eyebrow">Validity report · generated from this build</div>
+      <h1>What this map actually measures</h1>
+      <div class="dek">Nothing in the pipeline observes a digital nomad. Every signal is a
+        proxy, and this page is the honest account of how good those proxies are — measured,
+        not asserted.</div>
+      <button id="vclose" aria-label="Close validity report">✕</button>
+    </div>
+    <div id="vbody"></div>
+  </div>
 </div>
