@@ -3,7 +3,8 @@
 Nomad Radar's default build requires zero secrets and that stays true: every
 adapter that needs a credential is OFF unless one is present, and a missing
 credential degrades that source to "contributing zero" rather than failing the
-build. See docs/CREDENTIALS_REQUEST.md for how to obtain them.
+build. See docs/CREDENTIALS_HOW_TO_GET.md for where each one comes from, and
+docs/CREDENTIALS_TO_COLLECT.md for the sheet that gets filled in and returned.
 
 Looks for, in order:
   $NOMAD_RADAR_ENV
