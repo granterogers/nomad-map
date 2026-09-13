@@ -44,7 +44,6 @@ SERVICES = {
     # silently adopt whatever GitHub credential happened to be lying around.
     "github":     (["NOMAD_GITHUB_TOKEN"], "experimental: developer density by profile location"),
     "amadeus":    (["AMADEUS_CLIENT_ID", "AMADEUS_CLIENT_SECRET"], "experimental: air travel demand"),
-    "facebook":   (["FACEBOOK_ACCESS_TOKEN"], "communities outside Europe and North America"),
 }
 
 _loaded = None

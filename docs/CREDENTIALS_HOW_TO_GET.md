@@ -20,9 +20,11 @@ charging is a useful thing for you to tell me; it is not a problem for you to so
 
 **Work top to bottom.** The first five matter most. The rest are genuinely optional.
 
-**Create accounts in your own name** where the service allows it, and tell me which account
-each key belongs to. Where a service demands identity verification of the project owner, stop
-and mark `NEEDS_OWNER`.
+**Do not use your own personal accounts for any of this, and do not register anything in your
+own name.** Everything goes under one dedicated project identity, described in Step 0 below.
+That matters to both of us: you should not still be attached to my project after the work is
+finished, and I should not be depending on accounts I cannot recover. Where a service demands
+identity verification of the project owner, stop and mark `NEEDS_OWNER`.
 
 **When you create a key:**
 - Use **read-only** permissions wherever the service offers a choice.
@@ -36,6 +38,58 @@ tightly and I will rotate it. Just don't create anything with broad account acce
 
 ---
 
+# Step 0 — the project account (do this before anything else)
+
+**Every account you create must belong to one dedicated project identity, not to you.**
+
+The reason is simple. If these accounts are registered to your email and your phone, then when
+this job finishes I am left depending on accounts I cannot get back into, and you are left
+permanently attached to a project you no longer work on. Neither of us wants that. One shared
+project identity fixes it.
+
+### Which identity to use
+
+**Look at the message this document came with.** I should have supplied a project email address
+and password — probably a Google/Gmail account created for this purpose. **Use that account for
+everything below.**
+
+If I did *not* supply one, create it yourself as your first task, and hand it back in the sheet:
+
+1. Create a new Google account at <https://accounts.google.com/signup> using a name that
+   describes the project, not you — something like `nomadradar.data@gmail.com`.
+2. Set a long random password. Put it in the sheet.
+3. **Do not turn on two-factor authentication.** I will enable it myself after handover, on my
+   own device. If you switch it on, the account becomes unrecoverable for me the moment you
+   stop answering messages.
+4. If Google demands a phone number for verification, use one — but **tell me whose number it
+   was** in `PROJECT_PHONE_USED` so I know to replace it. This is the one part of the handover
+   that cannot be made clean, and I would rather know about it than discover it later.
+5. Fill in `PROJECT_EMAIL`, `PROJECT_EMAIL_PASSWORD`, `PROJECT_EMAIL_RECOVERY_ADDRESS`,
+   `PROJECT_2FA_ENABLED` (should be `no`) and `PROJECT_ACCOUNT_STATUS` at the top of the sheet.
+   **If I supplied the account, still repeat `PROJECT_EMAIL` back** so I can confirm you used it
+   and did not quietly register things elsewhere.
+
+### How to use it for each service
+
+- Where a service offers **"Sign in with Google"** (or Continue with Google), use it with the
+  project account. That gives everything a single recovery path and is the least work for you.
+- Where a service wants its own username and password — Reddit, Wikimedia, Bluesky, GitHub —
+  register it **with the project email address**, set a password, and **write that username and
+  password into the sheet.** These accounts are part of the deliverable, not just the API keys
+  they produce. An API key without the account behind it cannot be regenerated when it expires.
+- Never link any of these to your personal Google, Facebook, Apple or GitHub identity.
+
+### On sending me passwords
+
+For these accounts, yes — send them, in the sheet. They are purpose-made throwaways with
+nothing personal in them, and I will change every password the moment I receive the file. That
+is normal handover, not carelessness.
+
+**Your own passwords are a different matter: never send me one, for any reason.** If a step
+seems to require your personal credentials, it means something has gone wrong — stop and ask.
+
+---
+
 # The core five
 
 ## 1. Eventbrite
@@ -45,7 +99,7 @@ weak.*
 
 | | |
 |---|---|
-| Account | Free Eventbrite account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | No |
 | Time | ~5 minutes |
 
@@ -73,7 +127,7 @@ public RSS. An app key removes that ceiling.*
 
 | | |
 |---|---|
-| Account | Reddit account — **please make a throwaway, not your personal one** (see below) |
+| Account | A **new Reddit account** registered to the project email (see Step 0) |
 | Card needed | No |
 | Time | ~5 minutes |
 
@@ -87,8 +141,11 @@ public RSS. An app key removes that ceiling.*
    - The value labelled **`secret`** is the client secret.
 
 A Reddit `script` app is tied to the account that created it, so I also need that account's
-username and password. **That is exactly why I'm asking you to make a throwaway account for
-this** — please don't send me the password to your real Reddit account.
+username and password — which is fine, because per Step 0 this is a fresh account registered to
+the project email, not yours. Put both in the sheet.
+
+**Never send me the password to your own Reddit account.** If you find yourself about to, stop:
+it means you signed in with the wrong account.
 
 - Docs: <https://www.reddit.com/dev/api/> · <https://www.reddit.com/wiki/api>
 
@@ -103,7 +160,7 @@ this** — please don't send me the password to your real Reddit account.
 
 | | |
 |---|---|
-| Account | Free Wikimedia account — **make your own** |
+| Account | A **new Wikimedia account** registered to the project email |
 | Card needed | No |
 | Time | ~5 minutes |
 
@@ -112,6 +169,8 @@ this** — please don't send me the password to your real Reddit account.
 2. Go to **<https://api.wikimedia.org/wiki/Special:AppManagement>**
 3. Choose **"Personal API token"** — the simple option, and the one I want. Only use the OAuth
    client option if the personal token isn't available.
+   Also record the account's own `WIKIMEDIA_USERNAME` and `WIKIMEDIA_PASSWORD` — Wikimedia
+   accounts are username-based, so without them I cannot reissue the token when it expires.
 4. Copy the token **immediately**. Wikimedia shows it once and will not show it again.
 
 - Docs: <https://api.wikimedia.org/wiki/Documentation>
@@ -128,7 +187,7 @@ and it's a genuine factor in where someone can actually work.*
 
 | | |
 |---|---|
-| Account | Free Cloudflare account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | No — and no domain either |
 | Time | ~10 minutes |
 
@@ -157,7 +216,7 @@ That's Cloudflare's bot protection — the links are correct.
 
 | | |
 |---|---|
-| Account | Free Ticketmaster developer account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | No |
 | Time | ~5 minutes |
 
@@ -184,7 +243,7 @@ not Chiang Mai in December. My model has nothing on this.*
 
 | | |
 |---|---|
-| Account | Free OpenAQ account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | No |
 | Time | ~5 minutes |
 
@@ -206,15 +265,17 @@ set of people.*
 
 | | |
 |---|---|
-| Account | Bluesky account — **a throwaway is fine and preferred** |
+| Account | A **new Bluesky account** registered to the project email |
 | Card needed | No |
 | Time | ~5 minutes |
 
-1. Create an account at <https://bsky.app/> if you don't have a spare one.
+1. Create a new account at <https://bsky.app/> using the project email address.
 2. Go to **<https://bsky.app/settings/app-passwords>**
 3. Create an **app password**. This is Bluesky's purpose-built revocable credential — it is
-   **not** your account password, and it can be revoked without touching the account.
+   **not** the account password, and it can be revoked without touching the account.
 4. Send me the **handle** (e.g. `something.bsky.social`) and the app password.
+5. Also put the account's own login password in `BLUESKY_ACCOUNT_PASSWORD`, so I can issue a
+   fresh app password myself when this one is revoked or expires.
 
 - Docs: <https://docs.bsky.app/docs/get-started>
 
@@ -231,7 +292,7 @@ An independent venue source attacks that at the root.*
 
 | | |
 |---|---|
-| Account | Free Foursquare developer account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | **Possibly.** If it asks, stop — `WANTS_PAYMENT`. |
 | Time | ~15 minutes |
 
@@ -265,12 +326,13 @@ why it's down here.*
 
 | | |
 |---|---|
-| Account | GitHub account — **your own is fine**, the token is read-only and revocable |
+| Account | A **new GitHub account** registered to the project email |
 | Card needed | No |
 | Time | ~5 minutes |
 
-1. Go to **<https://github.com/settings/tokens>** (sign in first — the page returns an error
-   to anyone not logged in, which is expected)
+1. Create a GitHub account with the project email address, then go to
+   **<https://github.com/settings/tokens>** (the page returns an error to anyone not logged in,
+   which is expected). Put `GITHUB_USERNAME` and `GITHUB_PASSWORD` in the sheet too.
 2. Create a **fine-grained** or classic token with **public read access only**. No repo write,
    no account scopes, no organisation access.
 3. Set an expiry of 90 days or less.
@@ -289,7 +351,7 @@ the core list.*
 
 | | |
 |---|---|
-| Account | Free Amadeus self-service account — **make your own** |
+| Account | **The project account** (see Step 0) |
 | Card needed | No for the **Test** environment. **Do not enable Production** — that bills. |
 | Time | ~10 minutes |
 
@@ -315,16 +377,23 @@ verification.*
 
 | | |
 |---|---|
-| Account | Facebook account + developer registration |
+| Account | A Facebook account — see the note below, this one is awkward |
 | Card needed | No |
 | Time | Days, mostly waiting |
 
-1. App dashboard: **<https://developers.facebook.com/apps/>**
-2. Create an app; register as a developer if prompted.
-3. Add the Graph API and submit for review if you get that far.
+**A warning specific to this one.** Meta ties developer accounts to a *real* Facebook profile
+and will not accept a throwaway — they actively remove accounts that look synthetic, and they
+may ask for government ID. That means this is the one item on the list that cannot be handed
+over cleanly, and **you should not attach your own Facebook profile to my project.**
 
-**Submit and stop.** Report `PENDING_REVIEW` with the date. If Meta asks for identity or
-business verification, that's me — mark `NEEDS_OWNER` and stop there.
+So: **look, report, and stop.** Tell me what Meta requires today, and I will do it under my own
+profile if I decide it is worth it. Mark `FACEBOOK_STATUS=NEEDS_OWNER`.
+
+1. App dashboard: **<https://developers.facebook.com/apps/>**
+2. Look at what creating an app actually demands now — profile age, ID, business verification.
+3. Do not create one under your personal profile.
+
+Report what you found. Do not submit anything.
 
 - Docs: <https://developers.facebook.com/docs/graph-api/>
 
@@ -350,9 +419,11 @@ the page exists or not. Open them in a normal browser; if a path has moved, tell
 | 8 | Foursquare | Probably; may have started asking for a card |
 | 9 | GitHub | Easy, but I'm unsure it's useful |
 | 10 | Amadeus | Easy, but the free tier may be too limited |
-| 11 | Meta | Review submitted at best |
+| 11 | Meta | Report only — cannot be handed over, see the section |
 
-**Getting items 1–7 is a good result.** Everything below that is a bonus.
+**Getting items 1–7, all registered to the project account, is a good result.** Everything
+below that is a bonus. A key I cannot renew because the account behind it belongs to someone
+else is worth less than no key at all, so Step 0 matters more than any individual item here.
 
 If a page has moved or an instruction here is wrong, say so — the links were checked on
 13 September 2026 and developer portals change often. A corrected link is worth as much to me
