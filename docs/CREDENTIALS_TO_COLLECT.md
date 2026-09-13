@@ -2,6 +2,10 @@
 
 **Fill this file in and send it back. Do not send anything else.**
 
+**Every service on this list is free.** Nothing here should ever ask you for a payment card.
+If any of them does, **stop immediately**, set that service's status to `WANTS_PAYMENT`, and
+move on to the next one. Do not enter a card — not mine, and definitely not yours.
+
 Fill in the value after each equals sign. Leave a value blank if you could not get it, and
 set the matching `_STATUS` line so I know why. **Keep every line, even the blank ones** —
 a blank line with a status is useful information; a missing line is not.
@@ -13,9 +17,9 @@ Companion document: `CREDENTIALS_HOW_TO_GET.md` tells you where each one comes f
 | Value | Means |
 |---|---|
 | `OK` | Got it, it's in the file above this line |
-| `SKIPPED_PAID` | It costs money — I did not buy it. Price noted. |
+| `WANTS_PAYMENT` | It asked for a card or a paid plan — I stopped, as instructed |
 | `PENDING_REVIEW` | Application submitted, waiting on their approval |
-| `NEEDS_OWNER` | Blocked because it needs the owner's own account, card, or ID |
+| `NEEDS_OWNER` | Blocked because it needs the owner's own account or ID verification |
 | `FAILED` | Tried, could not complete. Say why in your message. |
 
 ### Rules
@@ -33,7 +37,7 @@ Companion document: `CREDENTIALS_HOW_TO_GET.md` tells you where each one comes f
 # Collected by:
 # Date collected:
 
-# ---------- FREE — expected to be obtainable ----------
+# ---------- CORE FIVE — these are the ones that matter most ----------
 
 EVENTBRITE_PRIVATE_TOKEN=
 EVENTBRITE_STATUS=
@@ -52,37 +56,37 @@ WIKIMEDIA_STATUS=
 CLOUDFLARE_RADAR_API_TOKEN=
 CLOUDFLARE_STATUS=
 
+TICKETMASTER_API_KEY=
+TICKETMASTER_STATUS=
+
+# ---------- ALSO WORTH HAVING ----------
+
+OPENAQ_API_KEY=
+OPENAQ_STATUS=
+
+BLUESKY_HANDLE=
+BLUESKY_APP_PASSWORD=
+BLUESKY_STATUS=
+
 FOURSQUARE_API_KEY=
 FOURSQUARE_STATUS=
 FOURSQUARE_FREE_ALLOWANCE_SEEN=
 
-# ---------- PAID OR APPROVAL-GATED — do not purchase, just report ----------
+# ---------- ONLY IF YOU HAVE TIME — experimental, low priority ----------
 
-NUMBEO_API_KEY=
-NUMBEO_STATUS=
-NUMBEO_PRICE_SEEN=
-NUMBEO_ACADEMIC_APPLIED=
+NOMAD_GITHUB_TOKEN=
+GITHUB_STATUS=
 
-MEETUP_CLIENT_ID=
-MEETUP_CLIENT_SECRET=
-MEETUP_REDIRECT_URI=
-MEETUP_STATUS=
-MEETUP_PRICE_SEEN=
+AMADEUS_CLIENT_ID=
+AMADEUS_CLIENT_SECRET=
+AMADEUS_STATUS=
 
-GOOGLE_MAPS_API_KEY=
-GOOGLE_MAPS_STATUS=
-GOOGLE_MAPS_QUOTA_CAP_SET=
+# ---------- FREE, BUT SLOW AND MAY NEED ME — attempt last ----------
 
 FACEBOOK_APP_ID=
 FACEBOOK_APP_SECRET=
 FACEBOOK_ACCESS_TOKEN=
 FACEBOOK_STATUS=
-
-INSTAGRAM_ACCESS_TOKEN=
-INSTAGRAM_STATUS=
-
-NOMADS_API_KEY=
-NOMADS_STATUS=
 ```
 
 ---
@@ -90,7 +94,9 @@ NOMADS_STATUS=
 ## Also tell me, in your message (not in the file)
 
 - Which account each credential sits under (a new one you made, or one of mine).
-- Anything you had to agree to — terms, a plan, a trial that will start billing.
-- Anything that needs **me** to finish it: an ID check, a card, a business verification,
-  an approval that only the account owner can click.
+- **Anything that asked you for a payment card**, even if you backed out. I want to know which
+  ones have started charging for what used to be free.
+- Anything you had to agree to — terms, a plan, a trial that would start billing later.
+- Anything that needs **me** to finish it: an ID check, a business verification, an approval
+  only the account owner can click.
 - Anything you think is wrong or out of date in the instructions document, so I can fix it.

@@ -4,60 +4,63 @@
 This document tells you where each value comes from.
 
 **Every link below was opened and checked on 13 September 2026.** Where a page is behind a
-login or blocks automated checks, that is stated explicitly rather than hidden.
+login or blocks automated checks, that is stated explicitly rather than left to look broken.
 
 ---
 
 ## Read this first
 
-**Work top to bottom. Items 1–5 are free and are the ones that matter most to me.**
-Items 6–11 are paid or need approval — for those I mostly want an answer, not a purchase.
+**Everything on this list is free.** There is nothing to buy, and no paid service is being
+asked for. If any service asks you for a payment card or pushes you to a paid plan:
 
-**Do not spend any money.** If something requires payment, write down the price, set the status
-to `SKIPPED_PAID`, and move on. I will decide.
+> **Stop. Set that service's status to `WANTS_PAYMENT`. Move to the next one.**
 
-**Create new accounts in your own name where a service allows it**, and tell me which account
-each key belongs to. Where a service needs *my* identity, my card, or my business details, stop
-and mark it `NEEDS_OWNER` — do not attempt to work around an identity or billing check.
+Do not enter a card — not mine, not yours, not "just to verify". A service that has started
+charging is a useful thing for you to tell me; it is not a problem for you to solve.
+
+**Work top to bottom.** The first five matter most. The rest are genuinely optional.
+
+**Create accounts in your own name** where the service allows it, and tell me which account
+each key belongs to. Where a service demands identity verification of the project owner, stop
+and mark `NEEDS_OWNER`.
 
 **When you create a key:**
 - Use **read-only** permissions wherever the service offers a choice.
-- Set a **spending cap or quota limit** on anything that could bill. Google especially.
 - Restrict the key **by API or service**, never by IP address or HTTP referrer. This project
   runs from a server whose IP changes, so an IP or referrer restriction will break the key
   and it will look like you gave me a bad one.
+- Several of these show the secret **once only**. Copy it into the sheet before closing the tab.
 
 **Assume every key you send is burned.** It travels through a chat transcript, so scope it
-tightly and I will rotate it. That is my problem, not yours — just don't create anything with
-broad account access.
+tightly and I will rotate it. Just don't create anything with broad account access.
 
 ---
 
-# FREE — do these five first
+# The core five
 
-## 1. Eventbrite — the biggest free win
+## 1. Eventbrite
 
 *Why I want it: event coverage in Latin America and Southeast Asia, where my current source is
 weak.*
 
 | | |
 |---|---|
-| Account needed | Free Eventbrite account — **make your own**, no card |
-| Cost | Free |
-| Difficulty | Easy, about 5 minutes |
+| Account | Free Eventbrite account — **make your own** |
+| Card needed | No |
+| Time | ~5 minutes |
 
 1. Sign in or create an account: <https://www.eventbrite.com/signin/>
 2. Go to the API keys page: **<https://www.eventbrite.com/account-settings/apps>**
    (also reachable at <https://www.eventbrite.com/platform/api-keys>)
-3. Create an API key. You will be asked for an application name and description — anything
+3. Create an API key. You'll be asked for an application name and description — anything
    honest is fine, e.g. "Nomad Radar, research map of event activity by city".
-4. Once created, open the key and copy the **private token**. It is the private token I need,
-   not the "API key" / client ID shown next to it.
+4. Open the key and copy the **private token**. It is the private token I need, not the
+   "API key" / client ID shown next to it.
 
-- Docs, if you need them: <https://www.eventbrite.com/platform/docs/introduction>
+- Docs: <https://www.eventbrite.com/platform/docs/introduction>
 - Auth docs: <https://www.eventbrite.com/platform/docs/authentication>
-- Note: <https://www.eventbrite.com/platform/api> requires you to be signed in first — it
-  returns an error to anyone not logged in. That is expected, not a broken link.
+- Note: <https://www.eventbrite.com/platform/api> requires you to be signed in first and
+  returns an error otherwise. Expected, not a broken link.
 
 **Fill in:** `EVENTBRITE_PRIVATE_TOKEN`, `EVENTBRITE_STATUS`
 
@@ -70,22 +73,22 @@ public RSS. An app key removes that ceiling.*
 
 | | |
 |---|---|
-| Account needed | Reddit account — **your own is fine**; a fresh one works |
-| Cost | Free |
-| Difficulty | Easy, about 5 minutes |
+| Account | Reddit account — **please make a throwaway, not your personal one** (see below) |
+| Card needed | No |
+| Time | ~5 minutes |
 
 1. Go to **<https://www.reddit.com/prefs/apps>** (sign in first).
 2. Scroll to the bottom, click **"are you a developer? create an app"**.
 3. Choose type **`script`**.
 4. Name: anything, e.g. `nomad-radar`. Description optional.
 5. Redirect URI: `http://localhost:8080` — required by the form, not actually used.
-6. Click create. You now see two values:
+6. After creating, you'll see two values:
    - The string **directly under the app name at the top left** is the **client ID**.
    - The value labelled **`secret`** is the client secret.
 
-Reddit `script` apps are tied to the account that made them, so I also need the username and
-password of that account. **If that account is your personal Reddit account, do not send me
-the password** — make a throwaway account for this instead and send me that one's details.
+A Reddit `script` app is tied to the account that created it, so I also need that account's
+username and password. **That is exactly why I'm asking you to make a throwaway account for
+this** — please don't send me the password to your real Reddit account.
 
 - Docs: <https://www.reddit.com/dev/api/> · <https://www.reddit.com/wiki/api>
 
@@ -100,15 +103,15 @@ the password** — make a throwaway account for this instead and send me that on
 
 | | |
 |---|---|
-| Account needed | Free Wikimedia account — **make your own** |
-| Cost | Free |
-| Difficulty | Easy, about 5 minutes |
+| Account | Free Wikimedia account — **make your own** |
+| Card needed | No |
+| Time | ~5 minutes |
 
 1. Create an account or sign in: <https://api.wikimedia.org/wiki/Special:CreateAccount>
    (main page: <https://api.wikimedia.org/wiki/Main_Page>)
 2. Go to **<https://api.wikimedia.org/wiki/Special:AppManagement>**
-3. Choose **"Personal API token"** — that is the simple option and it is what I want. Only use
-   the OAuth client option if the personal token is unavailable.
+3. Choose **"Personal API token"** — the simple option, and the one I want. Only use the OAuth
+   client option if the personal token isn't available.
 4. Copy the token **immediately**. Wikimedia shows it once and will not show it again.
 
 - Docs: <https://api.wikimedia.org/wiki/Documentation>
@@ -120,233 +123,247 @@ the password** — make a throwaway account for this instead and send me that on
 
 ## 4. Cloudflare Radar token
 
-*Why I want it: real internet speed and quality per city. My model has nothing on this today.*
+*Why I want it: real internet speed and quality per city. My model has nothing on this today,
+and it's a genuine factor in where someone can actually work.*
 
 | | |
 |---|---|
-| Account needed | Free Cloudflare account — **make your own**, no card, no domain needed |
-| Cost | Free |
-| Difficulty | Easy, about 10 minutes |
+| Account | Free Cloudflare account — **make your own** |
+| Card needed | No — and no domain either |
+| Time | ~10 minutes |
 
 1. Create a free account: <https://dash.cloudflare.com/sign-up>
    You do **not** need to add a domain or a payment card. Skip any upsell.
 2. Go to **<https://dash.cloudflare.com/profile/api-tokens>**
 3. **Create Token** → **Create Custom Token**
-4. Permission: **Account · Radar · Read**. Add nothing else — Radar Read only.
-5. Leave IP filtering **empty**. Do not restrict by IP.
-6. Create, then copy the token. It is shown once only.
+4. Permission: **Account · Radar · Read**. Nothing else — Radar Read only.
+5. Leave IP filtering **empty**.
+6. Create, then copy the token. Shown once only.
 
 - Token guide: <https://developers.cloudflare.com/fundamentals/api/get-started/create-token/>
 - Radar docs: <https://developers.cloudflare.com/radar/get-started/first-request/>
 
-Note: the two `dash.cloudflare.com` links refuse automated tools and load only in a real
-browser. That is Cloudflare's bot protection — the links are correct.
+Note: both `dash.cloudflare.com` links refuse automated tools and load only in a real browser.
+That's Cloudflare's bot protection — the links are correct.
 
 **Fill in:** `CLOUDFLARE_RADAR_API_TOKEN`, `CLOUDFLARE_STATUS`
 
 ---
 
-## 5. Foursquare Places
+## 5. Ticketmaster Discovery API
 
-*Why I want it: venue data that does not come from OpenStreetMap. My single biggest measured
-bias is that OpenStreetMap is mapped far more thoroughly in Europe than elsewhere — France
-records 4.06 coworking spaces per 100,000 people, Indonesia 0.06. Nobody believes that is
-real. An independent venue source attacks that at the root.*
+*Why I want it: a second global event source, independent of the one I have. Free quota is
+5,000 calls a day, which is plenty.*
 
 | | |
 |---|---|
-| Account needed | Free Foursquare developer account — **make your own** |
-| Cost | Free tier available; **card may be requested — if so, stop and mark `NEEDS_OWNER`** |
-| Difficulty | Medium, about 15 minutes |
+| Account | Free Ticketmaster developer account — **make your own** |
+| Card needed | No |
+| Time | ~5 minutes |
+
+1. Register: **<https://developer.ticketmaster.com/user/register>**
+2. Once signed in, an app is created for you with a **Consumer Key**. That key is the value
+   I need.
+3. You can confirm it works in their browser tool: <https://developer.ticketmaster.com/api-explorer/v2/>
+
+- Getting started: <https://developer.ticketmaster.com/products-and-docs/apis/getting-started/>
+- Discovery API docs: <https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/>
+- Their published free limit, as of today: **5,000 calls/day, 5 requests/second.**
+
+**Fill in:** `TICKETMASTER_API_KEY`, `TICKETMASTER_STATUS`
+
+---
+
+# Also worth having
+
+## 6. OpenAQ — air quality
+
+*Why I want it: air quality is a real factor in whether somewhere is liveable for months at a
+time, and it separates places that otherwise look identical — Chiang Mai in burning season is
+not Chiang Mai in December. My model has nothing on this.*
+
+| | |
+|---|---|
+| Account | Free OpenAQ account — **make your own** |
+| Card needed | No |
+| Time | ~5 minutes |
+
+1. Register: **<https://explore.openaq.org/register>** (sign in: <https://explore.openaq.org/login>)
+2. The API key appears in your account page after you verify your email.
+3. Key docs: <https://docs.openaq.org/using-the-api/api-key>
+
+- Docs home: <https://docs.openaq.org/>
+
+**Fill in:** `OPENAQ_API_KEY`, `OPENAQ_STATUS`
+
+---
+
+## 7. Bluesky app password
+
+*Why I want it: Bluesky's public API refuses my server, but an app password gets me in. It
+feeds the same community-post analysis I already run on Mastodon, and it reaches a different
+set of people.*
+
+| | |
+|---|---|
+| Account | Bluesky account — **a throwaway is fine and preferred** |
+| Card needed | No |
+| Time | ~5 minutes |
+
+1. Create an account at <https://bsky.app/> if you don't have a spare one.
+2. Go to **<https://bsky.app/settings/app-passwords>**
+3. Create an **app password**. This is Bluesky's purpose-built revocable credential — it is
+   **not** your account password, and it can be revoked without touching the account.
+4. Send me the **handle** (e.g. `something.bsky.social`) and the app password.
+
+- Docs: <https://docs.bsky.app/docs/get-started>
+
+**Fill in:** `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD`, `BLUESKY_STATUS`
+
+---
+
+## 8. Foursquare Places
+
+*Why I want it: venue data that doesn't come from OpenStreetMap. My single biggest measured
+bias is that OpenStreetMap is mapped far more thoroughly in Europe than elsewhere — France
+records 4.06 coworking spaces per 100,000 people, Indonesia 0.06. Nobody believes that's real.
+An independent venue source attacks that at the root.*
+
+| | |
+|---|---|
+| Account | Free Foursquare developer account — **make your own** |
+| Card needed | **Possibly.** If it asks, stop — `WANTS_PAYMENT`. |
+| Time | ~15 minutes |
 
 1. Sign up: <https://foursquare.com/developers/signup>
    (console: <https://foursquare.com/developers/home>)
 2. Create a **project**.
 3. Generate a **Service API Key** for that project.
-4. Before you finish: note what the free monthly allowance is shown as, and write it into
+4. Note what free monthly allowance is displayed, and put it in
    `FOURSQUARE_FREE_ALLOWANCE_SEEN`.
 
 - Product page: <https://location.foursquare.com/products/places-api/>
 - Docs: <https://docs.foursquare.com/fsq-developers-places/reference/places-api-overview>
 
+This is the one on the free list I'm least certain stays free. If it wants a card at any point,
+that's a genuinely useful finding — tell me.
+
 **Fill in:** `FOURSQUARE_API_KEY`, `FOURSQUARE_STATUS`, `FOURSQUARE_FREE_ALLOWANCE_SEEN`
 
 ---
 
-# PAID OR APPROVAL-GATED — report, do not buy
+# Only if you have time — experimental
 
-## 6. Numbeo — most valuable item here, and expensive
+These two are ideas I haven't validated. Don't spend long on them, and don't worry if they
+don't work out.
 
-*Why I want it: city-level cost of living. Right now I only have country-level data, so Chiang
-Mai and Bangkok score identically on affordability, which is obviously wrong. This is the
-single biggest limitation in the whole project.*
+## 9. GitHub personal access token
 
-**I have already checked the price, so you do not need to.** As of 13 September 2026:
-
-| Plan | Monthly | Yearly |
-|---|---|---|
-| Basic — 200,000 queries/month | $260 USD | $3,000 USD |
-| Professional — 1,000,000 queries/month | $480 USD | $5,600 USD |
-| Enterprise — 5,000,000 queries/month | $1,250 USD | $14,500 USD |
-
-**Do not buy any of these.** Set `NUMBEO_STATUS=SKIPPED_PAID` and `NUMBEO_PRICE_SEEN` to the
-prices you actually see (tell me if they differ from the table above — that is genuinely
-useful).
-
-**There is one thing worth doing here.** Numbeo grants free academic licences at their
-discretion for university research. The application form is at
-<https://www.numbeo.com/common/apply_academic_api.jsp>. **Read it and tell me whether this
-project could plausibly qualify — but do not submit it.** I will decide and submit it myself
-if so, because it has to be truthful about who I am. Record what you found in
-`NUMBEO_ACADEMIC_APPLIED`.
-
-- Pricing: <https://www.numbeo.com/common/api.jsp> (yearly: append `?billing=yearly`)
-- Docs: <https://www.numbeo.com/api/doc.jsp>
-- Overview: <https://www.numbeo.com/api/cost-of-living-api>
-- Their contact address is `contact@numbeo.com`
-
-**Fill in:** `NUMBEO_STATUS`, `NUMBEO_PRICE_SEEN`, `NUMBEO_ACADEMIC_APPLIED`
-(`NUMBEO_API_KEY` stays blank unless a free academic licence is actually granted.)
-
----
-
-## 7. Meetup API
-
-*Why I want it: real group and RSVP data. I currently read public event pages, which biases the
-sample towards whatever I searched for.*
-
-**Heads up: Meetup moved to a GraphQL API and it requires a paid Meetup Pro subscription.**
-`https://www.meetup.com/api/general/` now redirects to <https://www.meetup.com/graphql/>.
+*Why: developers publish a location on their profile, which might indicate where remote workers
+actually are. It might also just measure where tech companies are — I don't know yet, which is
+why it's down here.*
 
 | | |
 |---|---|
-| Account needed | Meetup account, and **Pro** for API access |
-| Cost | Paid — **do not buy** |
-| Difficulty | Medium |
+| Account | GitHub account — **your own is fine**, the token is read-only and revocable |
+| Card needed | No |
+| Time | ~5 minutes |
 
-What I want from you: **find and report the current Meetup Pro price**, and confirm whether API
-access is still Pro-only. That's it.
+1. Go to **<https://github.com/settings/tokens>** (sign in first — the page returns an error
+   to anyone not logged in, which is expected)
+2. Create a **fine-grained** or classic token with **public read access only**. No repo write,
+   no account scopes, no organisation access.
+3. Set an expiry of 90 days or less.
 
-1. API overview: <https://www.meetup.com/api/> · <https://www.meetup.com/api/guide/>
-2. Auth: <https://www.meetup.com/api/authentication/>
-3. OAuth clients (if you can reach it): <https://www.meetup.com/api/oauth/list/>
+- Docs: <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>
 
-If — and only if — you find that a free tier now exists, create an OAuth client with redirect
-URI `http://localhost:8080` and send the client ID and secret.
-
-**Fill in:** `MEETUP_STATUS`, `MEETUP_PRICE_SEEN` — and `MEETUP_CLIENT_ID`,
-`MEETUP_CLIENT_SECRET`, `MEETUP_REDIRECT_URI` **only** if you found a genuinely free route.
+**Fill in:** `NOMAD_GITHUB_TOKEN`, `GITHUB_STATUS`
 
 ---
 
-## 8. Google Places / Maps Platform
+## 10. Amadeus for Developers (self-service)
 
-*Why I want it: a second non-OpenStreetMap venue source, same reason as Foursquare.*
+*Why: their travel-analytics endpoints show which cities people actually fly to. The free test
+tier may only return a limited sample, which is the reason this is experimental rather than in
+the core list.*
 
 | | |
 |---|---|
-| Account needed | Google Cloud project **with billing enabled — this needs my card** |
-| Cost | Billable, with a monthly free credit |
-| Difficulty | Medium — **likely blocked for you** |
+| Account | Free Amadeus self-service account — **make your own** |
+| Card needed | No for the **Test** environment. **Do not enable Production** — that bills. |
+| Time | ~10 minutes |
 
-**This one probably needs me.** Google requires a billing account with a real payment card
-before it will issue a Maps key. Do **not** put your own card on it. If you hit the billing
-wall, set `GOOGLE_MAPS_STATUS=NEEDS_OWNER` and tell me exactly which step stopped you — I will
-do the billing part and you can finish the rest if I hand you access.
+1. Register: **<https://developers.amadeus.com/register>**
+2. Create an app in the **Test** environment. Copy the **API Key** and **API Secret**.
+3. Stay on Test. Do not move the app to Production.
 
-If you do get through:
-1. Console: <https://console.cloud.google.com/>
-2. Create a project.
-3. Enable **Places API (New)**.
-4. Credentials: **<https://console.cloud.google.com/google/maps-apis/credentials>**
-   (generic version: <https://console.cloud.google.com/apis/credentials>)
-5. Create an API key.
-6. **Restrict it by API** — Places only. **Do not** add an IP or HTTP-referrer restriction.
-7. **Set a daily quota cap** so a mistake cannot run up a bill. Confirm you did this in
-   `GOOGLE_MAPS_QUOTA_CAP_SET`.
+- Self-service home: <https://developers.amadeus.com/self-service>
+- Auth guide: <https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/API-Keys/authorization/>
 
-- Guide: <https://developers.google.com/maps/documentation/places/web-service/get-api-key>
-- Overview: <https://developers.google.com/maps/documentation/places/web-service/overview>
-
-**Fill in:** `GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_STATUS`, `GOOGLE_MAPS_QUOTA_CAP_SET`
+**Fill in:** `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`, `AMADEUS_STATUS`
 
 ---
 
-## 9. Meta / Facebook Graph API
+# Attempt last — free, but slow and may need me
 
-*Why I want it: the largest coverage gap in the system. Nomad communities in Bali, Thailand and
-Latin America organise on Facebook, not Meetup.*
+## 11. Meta / Facebook Graph API
+
+*Why I want it: this is the largest coverage gap in the whole system. Nomad communities in
+Bali, Thailand and Latin America organise on Facebook, not Meetup. It costs nothing — but the
+permissions that matter need app review, which takes days and can require identity or business
+verification.*
 
 | | |
 |---|---|
-| Account needed | Facebook account + developer registration |
-| Cost | Free, but group and event data needs **app review** |
-| Difficulty | Hard — slow, and may need my ID |
+| Account | Facebook account + developer registration |
+| Card needed | No |
+| Time | Days, mostly waiting |
 
 1. App dashboard: **<https://developers.facebook.com/apps/>**
-2. Create an app. Register as a developer if prompted.
-3. Add the Graph API. Getting the permissions that actually matter requires **app review**,
-   which takes days and can require business verification.
+2. Create an app; register as a developer if prompted.
+3. Add the Graph API and submit for review if you get that far.
 
-**Submit the review if you can get that far, then stop and report `PENDING_REVIEW` with the
-date.** If Meta asks for identity or business verification, that is me — mark `NEEDS_OWNER`.
+**Submit and stop.** Report `PENDING_REVIEW` with the date. If Meta asks for identity or
+business verification, that's me — mark `NEEDS_OWNER` and stop there.
 
 - Docs: <https://developers.facebook.com/docs/graph-api/>
 
-*Honest note: I could not machine-verify these two Meta links — Meta rejects automated requests
-outright, so an automated check returns an error for every page on that domain including the
-homepage. Open them in a normal browser. If a path has moved, tell me the correct one.*
+*Honest note: I could not machine-verify these two links. Meta rejects automated requests to
+every path on that domain, homepage included, so an automated check returns an error whether
+the page exists or not. Open them in a normal browser; if a path has moved, tell me.*
 
 **Fill in:** `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_ACCESS_TOKEN`, `FACEBOOK_STATUS`
 
 ---
 
-## 10. Instagram Platform
-
-*Why I want it: geotagged activity as a presence proxy. Lowest priority on this list.*
-
-Same dashboard and same app-review process as item 9: <https://developers.facebook.com/apps/>
-Docs: <https://developers.facebook.com/docs/instagram-platform/>
-
-**Only attempt this if item 9 succeeded.** Otherwise mark it `PENDING_REVIEW` or `FAILED` and
-move on — I am not expecting this one.
-
-**Fill in:** `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_STATUS`
-
----
-
-## 11. Nomads.com / NomadList — skip unless trivial
-
-Paid membership. This is roughly the thing my project is trying to predict, so it is only
-useful to me for checking my own accuracy, not as an input.
-
-<https://nomads.com/>
-
-**Do not buy a membership.** Mark `NOMADS_STATUS=SKIPPED_PAID` and note the price.
-
-**Fill in:** `NOMADS_STATUS` (leave `NOMADS_API_KEY` blank)
-
----
-
-# Summary of what I actually expect
+# What I actually expect
 
 | # | Service | Realistic outcome |
 |---|---|---|
-| 1 | Eventbrite | Should work — free, quick |
-| 2 | Reddit | Should work — free, quick |
-| 3 | Wikimedia | Should work — free, quick |
-| 4 | Cloudflare Radar | Should work — free, no card |
-| 5 | Foursquare | Probably works; may ask for a card |
-| 6 | Numbeo | Price report + academic-licence assessment only |
-| 7 | Meetup | Price report only |
-| 8 | Google Places | Probably blocked on billing — tell me where |
-| 9 | Meta | App review submitted at best |
-| 10 | Instagram | Likely not achievable |
-| 11 | Nomads.com | Price report only |
+| 1 | Eventbrite | Should work |
+| 2 | Reddit | Should work |
+| 3 | Wikimedia | Should work |
+| 4 | Cloudflare Radar | Should work |
+| 5 | Ticketmaster | Should work |
+| 6 | OpenAQ | Should work |
+| 7 | Bluesky | Should work |
+| 8 | Foursquare | Probably; may have started asking for a card |
+| 9 | GitHub | Easy, but I'm unsure it's useful |
+| 10 | Amadeus | Easy, but the free tier may be too limited |
+| 11 | Meta | Review submitted at best |
 
-**Getting items 1–5 is a good result.** Items 6–11 are mostly questions I want answered, not
-things I expect you to obtain.
+**Getting items 1–7 is a good result.** Everything below that is a bonus.
 
 If a page has moved or an instruction here is wrong, say so — the links were checked on
-13 September 2026 and these services change their developer portals often. A corrected link is
-worth as much to me as a key.
+13 September 2026 and developer portals change often. A corrected link is worth as much to me
+as a key.
+
+---
+
+## A note on what is deliberately *not* on this list
+
+Numbeo, the Meetup API, Google Places and Nomads.com would all help this project, and three of
+them would help a lot. **They are all paid, so they are not being asked for.** They are
+recorded in `REACHING_STRONG_CORRELATION.md` as a separate decision for me to make, not work
+for anyone else. If you find yourself on a payment page for anything, you have wandered off
+this list.

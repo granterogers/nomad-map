@@ -23,18 +23,28 @@ CANDIDATES = [
 ]
 
 # key -> (env var names required, what it unlocks)
+#
+# Free services only. The paid ones that would also help - Numbeo, the Meetup
+# API, Google Places, Nomads.com - are deliberately absent: they are a spending
+# decision for the project owner, not something to ask a contractor to collect,
+# and listing them here would imply the build is waiting on them. It is not.
+# docs/REACHING_STRONG_CORRELATION.md keeps the record of what they would add.
 SERVICES = {
-    "numbeo":     (["NUMBEO_API_KEY"], "city-level cost of living"),
     "eventbrite": (["EVENTBRITE_PRIVATE_TOKEN"], "events in Latin America and SE Asia"),
-    "foursquare": (["FOURSQUARE_API_KEY"], "venues independent of OpenStreetMap"),
-    "google_places": (["GOOGLE_MAPS_API_KEY"], "venues independent of OpenStreetMap"),
-    "meetup":     (["MEETUP_CLIENT_ID", "MEETUP_CLIENT_SECRET"], "unbiased group and RSVP data"),
-    "facebook":   (["FACEBOOK_ACCESS_TOKEN"], "communities outside Europe and North America"),
-    "instagram":  (["INSTAGRAM_ACCESS_TOKEN"], "geotagged activity volume"),
-    "cloudflare_radar": (["CLOUDFLARE_RADAR_API_TOKEN"], "internet quality per location"),
     "reddit":     (["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"], "community beyond the RSS cap"),
     "wikimedia":  (["WIKIMEDIA_ACCESS_TOKEN"], "live per-language attention"),
-    "nomads":     (["NOMADS_API_KEY"], "calibration reference"),
+    "cloudflare_radar": (["CLOUDFLARE_RADAR_API_TOKEN"], "internet quality per location"),
+    "ticketmaster": (["TICKETMASTER_API_KEY"], "a second, independent global event source"),
+    "openaq":     (["OPENAQ_API_KEY"], "air quality as a liveability factor"),
+    "bluesky":    (["BLUESKY_HANDLE", "BLUESKY_APP_PASSWORD"], "community posts beyond Mastodon"),
+    "foursquare": (["FOURSQUARE_API_KEY"], "venues independent of OpenStreetMap"),
+        # Deliberately NOT "GITHUB_TOKEN": that name is set in almost every CI and
+    # agent environment, and the loader reads service keys from the process
+    # environment as well as the file. Left unnamespaced, this project would
+    # silently adopt whatever GitHub credential happened to be lying around.
+    "github":     (["NOMAD_GITHUB_TOKEN"], "experimental: developer density by profile location"),
+    "amadeus":    (["AMADEUS_CLIENT_ID", "AMADEUS_CLIENT_SECRET"], "experimental: air travel demand"),
+    "facebook":   (["FACEBOOK_ACCESS_TOKEN"], "communities outside Europe and North America"),
 }
 
 _loaded = None
