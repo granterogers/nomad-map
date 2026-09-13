@@ -160,19 +160,19 @@
  "qlever_osm_baseline": {
   "access_method": "anonymous SPARQL",
   "adapter_version": "1.0",
-  "coverage": 2269942,
+  "coverage": 4778061,
   "credential_required": false,
   "domain": "qlever.dev",
   "failure_count": 0,
   "freshness": "OSM planet snapshot",
   "geographic_scope": "global",
-  "last_checked": "2026-09-10T20:15:54Z",
-  "last_success": "2026-09-10T20:15:54Z",
+  "last_checked": "2026-09-13T16:16:43Z",
+  "last_success": "2026-09-13T16:16:43Z",
   "reliability": 1.0,
   "source_id": "qlever_osm_baseline",
   "source_name": "OSM mapping-density baseline (QLever)",
   "source_type": "normalisation",
-  "success_count": 6,
+  "success_count": 17,
   "terms_notes": "ODbL; used only to correct for mapping completeness"
  },
  "qlever_wikidata": {
