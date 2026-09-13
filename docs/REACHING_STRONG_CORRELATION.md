@@ -115,3 +115,51 @@ much to the next person as one that worked.
 | **OSM evidence tags widened** — added `amenity=library`, `amenity=university`, `tourism=apartment`, `tourism=guest_house` | Coworking tags are mapped overwhelmingly by European mappers; these four are mapped everywhere, so they corroborate in the regions where the coworking tags go quiet. Weights are deliberately low (0.4–0.6) — corroboration, not primary signal. `tourism=apartment` was specified in the scoring table at 1.5 but had never actually been pulled, so that weight had never been exercised; it was lowered to 0.5 before switching it on. |
 | **OSM mapping-density baseline widened 6 → 11 tags** | The baseline is the denominator of the mapping-bias correction, so noise in it propagates into every corrected score. Added `place_of_worship`, `school`, `bakery`, `kindergarten`, `doctors` — all things a town has because it is a town. |
 | **Community layer widened** — Mastodon 3 → 9 instances, 10 → 20 hashtags (including non-English), 3 pages each; Lemmy 1 → 2 instances, 5 → 13 communities, paged; HN Algolia 7 → 14 queries, 3 pages each | The community layer was the thinnest evidence family in the build and what it found skewed European. The English-only tag list was part of that, not incidental to it. |
+
+### What the widening actually changed — measured, not asserted
+
+**Coverage and corroboration went up substantially.**
+
+| | Before | After |
+|---|---|---|
+| Community posts scanned | 2,850 | **22,906** |
+| Localities with community evidence | 166 | **384** |
+| Local-language Wikipedia editions | 5 | **22** |
+| Places with a local-language title | 2,858 | **12,445** |
+| Mapping-baseline objects | 2,733,419 | **6,593,906** |
+| Ranked (corroborated) localities | 960 | **1,086** |
+| Places with four evidence families | 124 | **213** |
+| Places with three evidence families | 633 | **674** |
+
+**Accuracy against the reference set did not move.**
+
+| | Before | After |
+|---|---|---|
+| Live score, Spearman | +0.322 | +0.329 |
+| Live score, AUC hub vs control | 0.791 | 0.785 |
+| Live score, Precision@30 | 0.767 | **0.800** |
+| Negative controls in top 30 | 4 | 4 |
+| Nomad Fit, whole reference set | +0.738 | +0.733 |
+| **Nomad Fit, holdout** | **+0.656** | **+0.655** |
+| Nomad Fit, holdout AUC | 0.955 | 0.946 |
+| Activity-only on the same holdout | +0.315 | **+0.336** |
+
+Every movement in that second table is inside the noise of a 128-item reference set, with
+the arguable exception of Precision@30 and the activity-only holdout figure, both of which
+improved slightly.
+
+**This is the expected result, and it is worth being explicit about why.** The earlier work
+established that the reference labels are dominated by *viability* — cost alone scored +0.53
+and warmth alone +0.53, each beating the entire activity model at +0.32. Adding more evidence
+of the same kinds makes the activity measurement better supported without changing what it is
+a measurement *of*. More corroboration raises confidence in each detection; it does not change
+the ordering, because the ordering was never limited by evidence volume.
+
+So the honest summary of this pass is: **the detections are better corroborated and less
+geographically skewed, and the index is no more accurate than it was.** Reaching ρ ≥ 0.80
+still requires the items at the top of the credentials list — city-level cost data above all,
+and a larger labelled reference set — not more of what is already free.
+
+One caveat on the geography: ranked localities are now 42% Europe, 22% Asia, 19% North
+America, 10% Africa, 5% South America, 2% Oceania. Europe is still over-represented relative
+to where nomads actually are. The widening narrowed that gap; it did not close it.

@@ -831,7 +831,7 @@ def main():
     # but a fine cell holding one low-signal object is noise on the map and bulk
     # in the payload. Keep cells that carry real weight or corroboration.
     SHIP_MIN_W = {8: 1.0, 7: 1.0, 6: 0.9, 5: 0.8, 4: 0.6, 3: 0.0, 2: 0.0}
-    SHIP_CAP = {8: 19000, 7: 14500, 6: 10500, 5: 7500, 4: 5000, 3: 3000, 2: 1200}
+    SHIP_CAP = {8: 17000, 7: 13000, 6: 10500, 5: 7500, 4: 5000, 3: 3000, 2: 1200}
     LABEL_CAP = 1200   # only the strongest cells carry names/kind lists
     shipped = {}
     for r in RES_CHAIN:
@@ -926,9 +926,14 @@ def main():
         if int(g) not in ev_ids:
             continue
         ranked = sorted(items, key=_rank)
+        # 15 + 6 rather than 20 + 9. The widened sources pushed the assembled
+        # page past the 16MB artifact ceiling, and drill-down depth is the
+        # cheapest thing to give back: it costs a few extra rows at the bottom
+        # of a place's evidence list, where the map's granularity and the
+        # scoring inputs cost real information.
         ev_out[g] = [_keep(i) for i in
-                     [x for x in ranked if x["type"] != "venue"][:20] +
-                     [x for x in ranked if x["type"] == "venue" and x.get("title")][:9]]
+                     [x for x in ranked if x["type"] != "venue"][:15] +
+                     [x for x in ranked if x["type"] == "venue" and x.get("title")][:6]]
     write_json("evidence.json", {"generated_at": common.iso(), "places": ev_out})
     print("wrote data/scored.json + data/evidence.json")
     print("top 20:", ", ".join(f'{l["name"]} {l["live_score"]}' for l in localities[:20]))
