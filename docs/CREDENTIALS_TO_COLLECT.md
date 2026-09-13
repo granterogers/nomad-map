@@ -1,42 +1,37 @@
 # Nomad Radar — credential collection sheet
 
-**Fill this file in and send it back. Do not send anything else.**
+**Fill this file in and send it back. Send nothing else.**
 
-**Everything must be registered to one dedicated project account, not to you.** Step 0 of the
-how-to explains this. If that account's details are missing from what you send back, the API
-keys below are worth very little to me — I would not be able to renew a single one of them.
+There are 11 tasks. Do all 11, in order. `CREDENTIALS_HOW_TO_GET.md` tells you exactly how.
 
-**Every service on this list is free.** Nothing here should ever ask you for a payment card.
-If any of them does, **stop immediately**, set that service's status to `WANTS_PAYMENT`, and
-move on to the next one. Do not enter a card — not mine, and definitely not yours.
+Fill in the value after each equals sign. Set the `_STATUS` line for every task. Keep every
+line, including the blank ones.
 
-Fill in the value after each equals sign. Leave a value blank if you could not get it, and
-set the matching `_STATUS` line so I know why. **Keep every line, even the blank ones** —
-a blank line with a status is useful information; a missing line is not.
+### Two hard rules
 
-Companion document: `CREDENTIALS_HOW_TO_GET.md` tells you where each one comes from.
+1. **Register everything to the project account, not to yourself.** Step 0 of the how-to.
+2. **No service on this list charges anything. If one asks for a payment card, stop that task,
+   set its status to `WANTS_PAYMENT`, and go to the next one.** Never enter a card.
 
-### Status values — set one for every service
+### Status values
 
 | Value | Means |
 |---|---|
-| `OK` | Got it, it's in the file above this line |
-| `WANTS_PAYMENT` | It asked for a card or a paid plan — I stopped, as instructed |
-| `PENDING_REVIEW` | Application submitted, waiting on their approval |
-| `NEEDS_OWNER` | Blocked because it needs the owner's own account or ID verification |
-| `FAILED` | Tried, could not complete. Say why in your message. |
-| `REPORTED` | Look-and-report item — I answered the question instead of making an account |
+| `OK` | Done, value is in the file |
+| `WANTS_PAYMENT` | Asked for a card, so I stopped |
+| `REPORTED` | Task 11 only — questions answered in my message |
+| `NEEDS_OWNER` | Requires the owner's ID verification |
+| `FAILED` | Could not complete. Reason in my message. |
 
-### Rules
+### Rules for the file
 
-1. **Never invent or guess a value.** A blank with a status is correct; a made-up key is worse
-   than nothing because it will look real and fail silently.
-2. **Passwords for the project accounts belong in this file** — they are purpose-made throwaways
-   and I will change every one on receipt. **Your own passwords never belong here, or anywhere
-   else in this job.**
-3. **Put secrets in this file, not in the chat message.**
-4. Do not reformat, reorder, or delete lines. Just fill in values.
-5. Send back **one file**.
+1. Never invent or guess a value. A blank with a status is correct. A made-up key looks real
+   and fails silently, which is worse than nothing.
+2. Passwords for the project accounts go in this file. They are purpose-made and will all be
+   changed on receipt. **Your own passwords go nowhere.**
+3. Put secrets in the file, not in the chat message.
+4. Do not reformat, reorder or delete lines. Fill in values.
+5. Send back one file.
 
 ---
 
@@ -45,11 +40,7 @@ Companion document: `CREDENTIALS_HOW_TO_GET.md` tells you where each one comes f
 # Collected by:
 # Date collected:
 
-# ---------- THE PROJECT ACCOUNT — see Step 0 of the how-to ----------
-# Every service below must be registered to this one identity, not to you.
-# If I supplied the account, repeat it back here so I know you used it.
-# If you created it, these lines ARE the handover - without them the API keys
-# below cannot be renewed when they expire.
+# ---------- STEP 0 — THE PROJECT ACCOUNT ----------
 
 PROJECT_EMAIL=
 PROJECT_EMAIL_PASSWORD=
@@ -58,16 +49,20 @@ PROJECT_PHONE_USED=
 PROJECT_2FA_ENABLED=
 PROJECT_ACCOUNT_STATUS=
 
-# ---------- CORE FIVE — these are the ones that matter most ----------
+# ---------- TASK 1 — EVENTBRITE ----------
 
 EVENTBRITE_PRIVATE_TOKEN=
 EVENTBRITE_STATUS=
+
+# ---------- TASK 2 — REDDIT ----------
 
 REDDIT_CLIENT_ID=
 REDDIT_CLIENT_SECRET=
 REDDIT_USERNAME=
 REDDIT_PASSWORD=
 REDDIT_STATUS=
+
+# ---------- TASK 3 — WIKIMEDIA ----------
 
 WIKIMEDIA_ACCESS_TOKEN=
 WIKIMEDIA_CLIENT_ID=
@@ -76,53 +71,57 @@ WIKIMEDIA_USERNAME=
 WIKIMEDIA_PASSWORD=
 WIKIMEDIA_STATUS=
 
+# ---------- TASK 4 — CLOUDFLARE RADAR ----------
+
 CLOUDFLARE_RADAR_API_TOKEN=
 CLOUDFLARE_STATUS=
+
+# ---------- TASK 5 — TICKETMASTER ----------
 
 TICKETMASTER_API_KEY=
 TICKETMASTER_STATUS=
 
-# ---------- ALSO WORTH HAVING ----------
+# ---------- TASK 6 — OPENAQ ----------
 
 OPENAQ_API_KEY=
 OPENAQ_STATUS=
+
+# ---------- TASK 7 — BLUESKY ----------
 
 BLUESKY_HANDLE=
 BLUESKY_APP_PASSWORD=
 BLUESKY_ACCOUNT_PASSWORD=
 BLUESKY_STATUS=
 
-FOURSQUARE_API_KEY=
-FOURSQUARE_STATUS=
-FOURSQUARE_FREE_ALLOWANCE_SEEN=
+# ---------- TASK 8 — FOURSQUARE ----------
 
-# ---------- ONLY IF YOU HAVE TIME — experimental, low priority ----------
+FOURSQUARE_API_KEY=
+FOURSQUARE_FREE_ALLOWANCE_SEEN=
+FOURSQUARE_STATUS=
+
+# ---------- TASK 9 — GITHUB ----------
 
 NOMAD_GITHUB_TOKEN=
 GITHUB_USERNAME=
 GITHUB_PASSWORD=
 GITHUB_STATUS=
 
+# ---------- TASK 10 — AMADEUS ----------
+
 AMADEUS_CLIENT_ID=
 AMADEUS_CLIENT_SECRET=
 AMADEUS_STATUS=
 
-# ---------- FREE, BUT SLOW AND MAY NEED ME — attempt last ----------
+# ---------- TASK 11 — META (report only, create nothing) ----------
 
-# Report only - do not create a Facebook app under your own profile.
 FACEBOOK_STATUS=
 ```
 
 ---
 
-## Also tell me, in your message (not in the file)
+## In your message, tell me
 
-- **Any service you could not register under the project account**, and what it insisted on
-  instead. This is the thing most likely to go wrong, and I would much rather hear it than
-  find out in six months.
-- **Anything that asked you for a payment card**, even if you backed out. I want to know which
-  ones have started charging for what used to be free.
-- Anything you had to agree to — terms, a plan, a trial that would start billing later.
-- Anything that needs **me** to finish it: an ID check, a business verification, an approval
-  only the account owner can click.
-- Anything you think is wrong or out of date in the instructions document, so I can fix it.
+1. Any task where you could not use the project account, and what the service demanded instead.
+2. Any service that asked for a payment card.
+3. Any link in the how-to that was wrong, and the correct one.
+4. Your answers to the three Task 11 questions.

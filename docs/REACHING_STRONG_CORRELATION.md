@@ -93,6 +93,26 @@ Ranked by expected gain per unit of effort.
 - **Meetup group search pages** — client-rendered, no structured data. Group *pages* reached
   via organiser URLs do expose member counts, which is how feature 2 above was tested.
 
+### Free credentialed sources requested (Sept 2026)
+
+`docs/CREDENTIALS_TO_COLLECT.md` and `docs/CREDENTIALS_HOW_TO_GET.md` request eleven free
+credentials. Those documents are written as flat instructions for a paid contractor and
+deliberately carry none of the hedging below, because a task list is not the place to publish
+the commissioner's doubts. The doubts are real, though, and belong here:
+
+- **Ticketmaster, OpenAQ, Bluesky, Eventbrite, Reddit, Wikimedia, Cloudflare Radar** — each has
+  a defined slot in an existing layer (events, viability, community, attention), so the work to
+  use them is understood.
+- **Foursquare** — the intended use is clear; what is unclear is whether it is still free.
+- **GitHub** — profile locations may measure where remote workers are, or may just measure
+  where tech employers are, which would reproduce the OSM bias rather than counter it. Test it
+  against the reference set before it is allowed near a score, exactly as OurAirports and
+  Wikivoyage were.
+- **Amadeus** — the free Test environment may return too limited a sample to be usable at all.
+
+The rule from `validation/README.md` applies to every one of them: measured against the
+held-out set, and dropped with the number recorded if it does not help.
+
 ### Credential-free sources probed in the widening pass (Sept 2026)
 
 Reachable without any key, built as a feature, measured against the reference set, and
