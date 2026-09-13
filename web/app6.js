@@ -138,6 +138,17 @@ function validityHTML(){
   </div>
 
   <h2>How the model protects itself</h2>
+  <h3>Attention is not measured in English only</h3>
+  <p>Measuring English Wikipedia alone structurally under-counts every place whose readers do
+    not read English Wikipedia — which is most of the world, and disproportionately the
+    regions where this index was weakest. Attention is read from
+    <b>${(AUD.attention_languages||{}).editions || 0}</b> local-language Wikipedia editions
+    alongside English, covering
+    <b>${((AUD.attention_languages||{}).places_with_local_title||0).toLocaleString()}</b>
+    places${(AUD.attention_languages||{}).title_pairs ? ` across
+    <b>${AUD.attention_languages.title_pairs.toLocaleString()}</b> project/title pairs` : ""}.
+    That is a fix for the bias rather than a normalisation over the top of it.</p>
+
   <h3>Corroboration before ranking</h3>
   <p>A place is ranked only with two or more independent evidence families, at least one of
     them nomad-targeted (events or community discussion). Infrastructure plus general

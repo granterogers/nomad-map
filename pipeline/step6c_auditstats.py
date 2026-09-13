@@ -45,6 +45,8 @@ def main():
     base = (read_json("mapping_baseline.json", {}) or {})
     comm = (read_json("community.json", {}) or {})
     gb = read_json("geobase.json")
+    lang = read_json("locallang.json", {}) or {}
+    att = read_json("attention.json", {}) or {}
     L = sc["localities"]
     ranked = [x for x in L if x.get("ranked")]
 
@@ -120,6 +122,16 @@ def main():
         "baseline_tags": base.get("tags", []),
         "community": {"posts": comm.get("posts_scanned", 0),
                       "localities": len(comm.get("places", {}))},
+        # How wide the attention layer's language coverage actually is. An
+        # English-only attention layer under-counts every place whose readers
+        # do not read English Wikipedia, so this is the honest measure of how
+        # far that bias has been closed rather than merely normalised away.
+        "attention_languages": {
+            "editions": len(lang.get("wikis_queried", [])),
+            "places_with_local_title": len(lang.get("places", {})),
+            "projects_tracked": att.get("projects_tracked") or 0,
+            "title_pairs": att.get("title_pairs") or 0,
+        },
         "corroboration": {"scanned": len(L), "ranked": len(ranked),
                           "by_family_count": dict(sorted(fam.items()))},
     }

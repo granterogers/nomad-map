@@ -200,6 +200,9 @@ def main():
         "sample_hours_utc": HOURS, "recent_window_days": RECENT_DAYS,
         "prior_window_days": PRIOR_DAYS,
         "files_ok": ok, "files_attempted": len(jobs),
+        # Recorded so the in-app validity report can state how wide the
+        # language coverage actually is rather than asserting it.
+        "projects_tracked": len(projects), "title_pairs": len(keys),
         "window_end": days[0], "window_start": days[-1],
         "places": out,
     })

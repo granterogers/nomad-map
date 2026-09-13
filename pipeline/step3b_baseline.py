@@ -33,6 +33,18 @@ BASELINE_TAGS = [
     ("amenity", "bank"),
     ("shop", "hairdresser"),
     ("amenity", "post_box"),
+    # Widened from six tags to eleven. The baseline is the denominator of the
+    # mapping-bias correction, so noise in it propagates straight into every
+    # corrected score; five more globally ubiquitous, nomad-irrelevant tags take
+    # it from 2.3M to roughly 6M objects and steady the correction in the places
+    # where it matters most - the thinly mapped ones, where six tags could mean
+    # a handful of objects. Every added tag is something a town has because it
+    # is a town, not because nomads go there.
+    ("amenity", "place_of_worship"),
+    ("amenity", "school"),
+    ("shop", "bakery"),
+    ("amenity", "kindergarten"),
+    ("amenity", "doctors"),
 ]
 
 
@@ -41,7 +53,10 @@ def pull_points(key, value):
     doubling the payload for them would be wasteful."""
     q = PREFIX + f"""SELECT (geof:centroid(?g) AS ?c) WHERE {{
   ?o osmkey:{key} "{value}" ; geo:hasGeometry/geo:asWKT ?g .
-}} LIMIT 900000"""
+}} LIMIT 2000000"""   # amenity=place_of_worship and amenity=school both exceed
+                   # 900k worldwide; a truncated pull would silently bias the
+                   # denominator of the mapping correction by whatever order
+                   # the endpoint happens to return rows in.
     res = fetch(QLEVER, source_id="qlever_osm_baseline", data=q.encode(),
                 headers={"Content-Type": "application/sparql-query",
                          "Accept": "application/qlever-results+json"},

@@ -43,7 +43,12 @@ KIND_SPEC = {
     "coworking_space": (3.0, "coworking"),
     "coworking":       (3.0, "coworking"),
     "coliving":        (3.0, "coworking"),
-    "apartment":       (1.5, "coworking"),
+    # tourism=apartment was specified here but never actually pulled, so this
+    # weight had never been exercised. Now that it is pulled (90k objects
+    # worldwide) 1.5 would outweigh a hostel and a university combined, which a
+    # serviced apartment does not warrant: it is corroboration that a place
+    # hosts medium-stay visitors, nothing stronger.
+    "apartment":       (0.5, "international"),
     "hackerspace":     (2.0, "community"),
     "internet_cafe":   (1.0, "community"),
     "language_school": (1.2, "international"),
@@ -54,6 +59,11 @@ KIND_SPEC = {
     "arts_centre":     (0.25, "social"),
     "community_centre":(0.05, "community"),
     "sports_centre":   (0.0,  "social"),
+    # Added with the wider OSM pull. Mapped evenly worldwide rather than
+    # concentrated in Europe, so they corroborate in exactly the regions where
+    # the coworking tags go quiet.
+    "library":         (0.6, "community"),
+    "guest_house":     (0.4, "international"),
 }
 
 # Evidence families that can corroborate one another. A place may only enter the

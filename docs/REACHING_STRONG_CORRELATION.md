@@ -92,3 +92,26 @@ Ranked by expected gain per unit of effort.
   egress IP. NASA POWER was used instead and is better suited anyway.
 - **Meetup group search pages** — client-rendered, no structured data. Group *pages* reached
   via organiser URLs do expose member counts, which is how feature 2 above was tested.
+
+### Credential-free sources probed in the widening pass (Sept 2026)
+
+Reachable without any key, built as a feature, measured against the reference set, and
+**not shipped**. Recorded here because a source that was tested and failed is worth as
+much to the next person as one that worked.
+
+| Source | Reachable | Measured | Verdict |
+|---|---|---|---|
+| **OurAirports** (`airports.csv`, 86k rows, 4,335 with scheduled service) | yes | air-connectivity feature ρ **+0.010** against the labels | Rejected. Every reference place, negative controls included, has a large airport within range: the feature has almost no variance where it matters. |
+| **Wikivoyage** (MediaWiki API, 103 of 128 reference places have an article) | yes, with a User-Agent | article length ρ **+0.243**, "digital nomad" mentions ρ **+0.218**, coworking mentions ρ **+0.061** | Rejected. Length is a notability proxy, not activity, and the coworking signal is near zero — tier-3 places average 0.27 coworking mentions against 0.09 for the negative controls. |
+| **Telegram public channel previews** (`t.me/<handle>`) | yes — real channels are distinguishable from missing ones by their `og:title` | guessed city handles resolved to channels of 3 to 128 members | Rejected. Telegram has no keyless search, so coverage depends on guessing handles; the real communities have unguessable names and the guessable ones are empty. Shipping it would have added noise wearing the clothes of evidence. |
+| **Eventbrite public pages** | no — HTTP 429 even following redirects | — | Still blocked from this egress IP. Remains item 5 on the credentials list. |
+
+### Credential-free sources that were shipped in that pass
+
+| Change | Effect |
+|---|---|
+| **QLever's Wikidata index** in place of the public Query Service for sitelinks | The reason only 5 of 22 local-language Wikipedia editions had landed was that WDQS timed out on the large ones. QLever answers the same query in ~6 seconds. All 22 editions now land. |
+| **Local-language Wikipedia widened 5 → 22 editions** | Places carrying a local-language title went from 2,858 to 12,445 (4.4×); the attention layer now tracks 129,212 project/title pairs across 46 Wikipedia projects. This is the direct fix for anglophone bias in attention, not a normalisation patch over it. |
+| **OSM evidence tags widened** — added `amenity=library`, `amenity=university`, `tourism=apartment`, `tourism=guest_house` | Coworking tags are mapped overwhelmingly by European mappers; these four are mapped everywhere, so they corroborate in the regions where the coworking tags go quiet. Weights are deliberately low (0.4–0.6) — corroboration, not primary signal. `tourism=apartment` was specified in the scoring table at 1.5 but had never actually been pulled, so that weight had never been exercised; it was lowered to 0.5 before switching it on. |
+| **OSM mapping-density baseline widened 6 → 11 tags** | The baseline is the denominator of the mapping-bias correction, so noise in it propagates into every corrected score. Added `place_of_worship`, `school`, `bakery`, `kindergarten`, `doctors` — all things a town has because it is a town. |
+| **Community layer widened** — Mastodon 3 → 9 instances, 10 → 20 hashtags (including non-English), 3 pages each; Lemmy 1 → 2 instances, 5 → 13 communities, paged; HN Algolia 7 → 14 queries, 3 pages each | The community layer was the thinnest evidence family in the build and what it found skewed European. The English-only tag list was part of that, not incidental to it. |

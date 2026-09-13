@@ -30,7 +30,17 @@ BRK = CircuitBreaker(6, 45)
 TAGS = [
     ("amenity", "coworking_space", "coworking", 3.0, None),
     ("office", "coworking", "coworking", 3.0, None),
-    ("residential", "coliving", "coworking", 3.0, None),
+    ("residential", "coliving", "coworking", 3.0, None),   # rare: ~0 objects worldwide
+    # Added to widen evidence outside Europe and North America, which the audit
+    # named as the largest remaining source of error. Coworking tags are mapped
+    # overwhelmingly by European mappers; libraries, universities, guest houses
+    # and serviced apartments are mapped everywhere, and all four are places a
+    # remote worker actually uses. Weights are deliberately low - these are
+    # corroboration, not the primary signal.
+    ("amenity", "library", "community", 0.6, None),
+    ("amenity", "university", "international", 0.6, None),
+    ("tourism", "apartment", "international", 0.5, None),
+    ("tourism", "guest_house", "international", 0.4, None),
     ("leisure", "hackerspace", "community", 2.5, None),
     ("amenity", "internet_cafe", "community", 1.2, None),
     ("amenity", "language_school", "international", 1.6, None),

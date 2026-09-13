@@ -28,12 +28,31 @@ SUBREDDITS = ["digitalnomad", "expats", "solotravel", "remotework", "IWantOut",
 REDDIT_SORTS = ["", "top/?t=week", "hot"]
 REDDIT_SEARCHES = ["digital nomad", "coworking city", "best place remote work",
                    "moving to", "expat community", "nomad visa"]
+# Hashtags include non-English ones deliberately. The community layer was the
+# thinnest evidence family in the build (2,850 posts scanned, 166 attributions)
+# and what it did find skewed European, so the English-only tag list was part of
+# the problem rather than incidental to it.
 MASTODON_TAGS = ["digitalnomad", "remotework", "nomadlife", "coworking", "expat",
-                 "travel", "expatlife", "workfromanywhere", "remotelife", "slowtravel"]
-MASTODON_HOSTS = ["mastodon.social", "mastodon.world", "fosstodon.org"]
-LEMMY_COMMUNITIES = ["digitalnomad", "travel", "europe", "asia", "worldnews"]
+                 "travel", "expatlife", "workfromanywhere", "remotelife", "slowtravel",
+                 "nomadadigital", "nomadedigital", "trabajoremoto", "teletrabajo",
+                 "teletravail", "homeoffice", "backpacking", "vanlife",
+                 "livingabroad", "wanderlust"]
+# Each instance shows its own federated view of a hashtag, so more instances
+# means genuinely more posts rather than the same posts again - and instances
+# outside the anglophone default reach different corners of the fediverse.
+MASTODON_HOSTS = ["mastodon.social", "mastodon.world", "fosstodon.org",
+                  "mastodon.online", "mstdn.social", "mas.to",
+                  "universeodon.com", "mastodonapp.uk", "hachyderm.io"]
+MASTODON_PAGES = 3              # 40 posts a page, paged back with max_id
+LEMMY_HOSTS = ["lemmy.world", "lemmy.ml"]
+LEMMY_COMMUNITIES = ["digitalnomad", "travel", "europe", "asia", "worldnews",
+                     "latinamerica", "africa", "expats", "remotework",
+                     "backpacking", "solotravel", "nomad", "citylife"]
 HN_QUERIES = ["digital nomad", "remote work city", "coworking", "moving abroad",
-              "expat", "living in", "best city for developers"]
+              "expat", "living in", "best city for developers",
+              "relocating to", "working remotely from", "visa remote work",
+              "cost of living", "moved to", "living abroad", "nomad visa"]
+HN_PAGES = 3                    # Algolia pages 100 hits at a time
 
 # Words that are also city names. A bare occurrence of these is almost never a
 # place reference, so they always require an explicit country/region qualifier.
@@ -172,40 +191,58 @@ def mastodon():
     posts = []
     for host in MASTODON_HOSTS:
       for tag in MASTODON_TAGS:
-        j = fetch(f"https://{host}/api/v1/timelines/tag/{tag}?limit=40",
-                  source_id="mastodon_public", as_json=True, timeout=35, retries=2,
-                  limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
-        for s in (j or []):
-            posts.append({"source": "mastodon_public", "channel": f"#{tag}",
-                          "title": re.sub(r"<[^>]+>", " ", s.get("content", ""))[:220],
-                          "text": re.sub(r"<[^>]+>", " ", s.get("content", ""))[:800],
-                          "url": s.get("url", ""), "at": (s.get("created_at") or "")[:19]})
+        max_id = None
+        for _ in range(MASTODON_PAGES):
+            url = f"https://{host}/api/v1/timelines/tag/{tag}?limit=40"
+            if max_id:
+                url += f"&max_id={max_id}"
+            j = fetch(url, source_id="mastodon_public", as_json=True, timeout=35,
+                      retries=2, limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
+            if not isinstance(j, list) or not j:
+                break
+            for s in j:
+                posts.append({"source": "mastodon_public", "channel": f"#{tag}",
+                              "title": re.sub(r"<[^>]+>", " ", s.get("content", ""))[:220],
+                              "text": re.sub(r"<[^>]+>", " ", s.get("content", ""))[:800],
+                              "url": s.get("url", ""), "at": (s.get("created_at") or "")[:19]})
+            max_id = j[-1].get("id")
+            if not max_id:
+                break
     return posts
 
 
 def lemmy():
     posts = []
-    for c in LEMMY_COMMUNITIES:
-        j = fetch(f"https://lemmy.world/api/v3/post/list?community_name={c}&limit=40&sort=New",
-                  source_id="lemmy_public", as_json=True, timeout=35, retries=1,
-                  limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
-        for p in ((j or {}).get("posts") or []):
-            pv = p.get("post", {})
-            posts.append({"source": "lemmy_public", "channel": f"!{c}",
-                          "title": (pv.get("name") or "")[:220],
-                          "text": (pv.get("body") or "")[:800],
-                          "url": pv.get("ap_id", ""), "at": (pv.get("published") or "")[:19]})
+    for host in LEMMY_HOSTS:
+      for c in LEMMY_COMMUNITIES:
+        for page in (1, 2):
+            j = fetch(f"https://{host}/api/v3/post/list?community_name={c}"
+                      f"&limit=50&page={page}&sort=New",
+                      source_id="lemmy_public", as_json=True, timeout=35, retries=1,
+                      limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
+            got = ((j or {}).get("posts") or [])
+            for p in got:
+                pv = p.get("post", {})
+                posts.append({"source": "lemmy_public", "channel": f"!{c}@{host}",
+                              "title": (pv.get("name") or "")[:220],
+                              "text": (pv.get("body") or "")[:800],
+                              "url": pv.get("ap_id", ""),
+                              "at": (pv.get("published") or "")[:19]})
+            if len(got) < 50:
+                break                 # community absent here, or exhausted
     return posts
 
 
 def hackernews():
     posts = []
     for q in HN_QUERIES:
+      for page in range(HN_PAGES):
         j = fetch("https://hn.algolia.com/api/v1/search_by_date?query="
-                  + urllib.parse.quote(q) + "&tags=(story,comment)&hitsPerPage=100",
+                  + urllib.parse.quote(q) + f"&tags=(story,comment)&hitsPerPage=100&page={page}",
                   source_id="hn_algolia", as_json=True, timeout=35, retries=2,
                   limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
-        for h in ((j or {}).get("hits") or []):
+        hits = ((j or {}).get("hits") or [])
+        for h in hits:
             posts.append({"source": "hn_algolia", "channel": "hn:" + q,
                           "title": (h.get("title") or h.get("story_title") or "")[:220],
                           "text": (h.get("comment_text") or h.get("story_text") or "")[:800],

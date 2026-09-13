@@ -28,11 +28,35 @@ WD = RateLimiter(1.2)
 WIKIS = ["es","pt","id","th","vi","tr","de","fr","it","ru","ja","pl",
          "ko","nl","cs","el","hu","bg","hr","ro","ka","uk"]
 
-SPARQL = """SELECT ?gn ?article WHERE {
+SPARQL = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX schema: <http://schema.org/>
+SELECT ?gn ?article WHERE {
   ?city wdt:P1566 ?gn ; wdt:P1082 ?pop .
   FILTER(?pop >= 4000)
   ?article schema:about ?city ; schema:isPartOf <https://%s.wikipedia.org/> .
 }"""
+
+# The public Wikidata Query Service times out on the large editions (es, ru, ja,
+# it, pl, ko all failed there), which is why only five editions had landed. The
+# same query against QLever's Wikidata index returns 100k rows in six seconds,
+# so it is tried first and WDQS is kept only as a fallback.
+QLEVER_WD = "https://qlever.dev/api/wikidata"
+
+
+def _sitelinks(w):
+    res = fetch(QLEVER_WD, source_id="qlever_wikidata", data=(SPARQL % w).encode(),
+                headers={"Accept": "application/sparql-results+json",
+                         "Content-type": "application/sparql-query"},
+                timeout=240, retries=2, limiter=WD, as_json=True,
+                cache_ttl=14 * 86400, cache_key=f"qlwd_lang_{w}")
+    if res and "results" in res:
+        return res["results"]["bindings"]
+    res = fetch("https://query.wikidata.org/sparql", source_id="wikidata_sparql",
+                data=urllib.parse.urlencode({"query": SPARQL % w}),
+                headers={"Accept": "application/sparql-results+json"},
+                timeout=240, retries=2, limiter=WD, as_json=True,
+                cache_ttl=14 * 86400, cache_key=f"wd_lang_{w}")
+    return res["results"]["bindings"] if res and "results" in res else None
 
 
 def main():
@@ -48,16 +72,12 @@ def main():
     print(f"{len(wikis)} language editions cover the countries in the universe")
 
     by_gid = defaultdict(list)
+    landed = []          # only editions that actually returned are claimed
     for w in wikis:
-        res = fetch("https://query.wikidata.org/sparql", source_id="wikidata_sparql",
-                    data=urllib.parse.urlencode({"query": SPARQL % w}),
-                    headers={"Accept": "application/sparql-results+json"},
-                    timeout=240, retries=2, limiter=WD, as_json=True,
-                    cache_ttl=14 * 86400, cache_key=f"wd_lang_{w}")
-        if not res:
+        rows = _sitelinks(w)
+        if rows is None:
             print(f"  {w:4} FAILED - skipped")
             continue
-        rows = res["results"]["bindings"]
         n = 0
         for b in rows:
             try:
@@ -68,8 +88,10 @@ def main():
             by_gid[gid].append([w, title.replace(" ", "_")])
             n += 1
         print(f"  {w:4} {n:>7,} sitelinks (total places {len(by_gid):,})", flush=True)
+        landed.append(w)
+        _save(gb, lang_of_cc, by_gid, landed)     # partial runs stay useful
 
-    _save(gb, lang_of_cc, by_gid, wikis)
+    _save(gb, lang_of_cc, by_gid, landed)
     common.save_registry()
     print(f"local-language titles attached to "
           f"{len(read_json('locallang.json', {'places': {}})['places']):,} places")
