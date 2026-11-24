@@ -16,8 +16,9 @@ step "3b/9 OSM mapping-density baseline";  python3 pipeline/step3b_baseline.py
 step "4/9  public event listings";         python3 pipeline/step4_events.py
 step "4b/9 coworking venue feeds";         python3 pipeline/step4b_venuefeeds.py
 step "5/9  community velocity";            python3 pipeline/step5_community.py
-step "5b/9 structural viability";          python3 pipeline/step5b_viability.py
 step "6/9  H3 model + scoring";            python3 pipeline/step6_h3.py
+# viability needs step6's locality list; Nomad Fit (6d) then needs viability.
+step "5b/9 structural viability";          python3 pipeline/step5b_viability.py
 step "6c/9 audit statistics";              python3 pipeline/step6c_auditstats.py
 step "6d/9 Nomad Fit";                     python3 pipeline/step6d_nomadfit.py
 step "6b/9 validation against reference set"; python3 validation/evaluate.py build | head -12

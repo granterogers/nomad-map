@@ -85,6 +85,13 @@ def climate_for(place, sink, lock, prog):
 def main():
     gb = read_json("geobase.json")
     sc = read_json("scored.json")
+    if not sc:
+        # This step needs the locality list that step6_h3 produces, so it has to
+        # run AFTER it - step6d_nomadfit then consumes what this writes. On a
+        # cold build the old ordering silently produced an empty climate layer,
+        # which is the kind of failure that shows up as a slightly worse score
+        # rather than an error.
+        raise SystemExit("step5b needs data/scored.json - run step6_h3.py first")
     iso3 = {cc: c.get("iso3") for cc, c in gb["countries"].items()}
 
     gdp3 = cost_index()
@@ -93,9 +100,16 @@ def main():
 
     # climate for every locality the page can show
     want = {str(L["gid"]) for L in sc["localities"]}
-    places = [p for p in gb["places"] if str(p["gid"]) in want]
-    climate, lock, prog = {}, threading.Lock(), [0, len(places)]
-    print(f"climate: {len(places)} localities")
+    # NASA POWER returns a 30-year climatology: it does not change between
+    # builds, and fetching it is ~0.8s per locality, which was 35 minutes of
+    # every rebuild. Keep what a previous run already resolved and ask only for
+    # localities that are new.
+    have = (read_json("viability.json", {}) or {}).get("climate_monthly_c", {})
+    climate = {g: v for g, v in have.items() if g in want and v}
+    places = [p for p in gb["places"]
+              if str(p["gid"]) in want and str(p["gid"]) not in climate]
+    lock, prog = threading.Lock(), [0, len(places)]
+    print(f"climate: {len(climate)} reused, {len(places)} to fetch")
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=12) as ex:
         list(ex.map(lambda p: climate_for(p, climate, lock, prog), places))

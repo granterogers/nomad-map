@@ -151,19 +151,19 @@
  "qlever_osm": {
   "access_method": "anonymous SPARQL",
   "adapter_version": "1.0",
-  "coverage": 1153589,
+  "coverage": 1160671,
   "credential_required": false,
   "domain": "qlever.dev",
   "failure_count": 0,
   "freshness": "OSM planet snapshot",
   "geographic_scope": "global (entire OSM planet)",
-  "last_checked": "2026-09-13T15:52:30Z",
-  "last_success": "2026-09-13T15:52:30Z",
+  "last_checked": "2026-11-24T19:49:39Z",
+  "last_success": "2026-11-24T19:49:39Z",
   "reliability": 1.0,
   "source_id": "qlever_osm",
   "source_name": "QLever OSM-planet SPARQL endpoint",
   "source_type": "physical ecosystem",
-  "success_count": 5,
+  "success_count": 21,
   "terms_notes": "ODbL; replaced Overpass after 504s + relay timeouts"
  },
  "qlever_osm_baseline": {
