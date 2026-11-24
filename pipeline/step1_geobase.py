@@ -15,6 +15,36 @@ from common import fetch, write_json, read_json, RateLimiter, register
 RAW = os.path.join(common.DATA, "raw")
 WD = RateLimiter(1.2)
 
+# GeoNames bulk dumps. These used to be expected to already exist on disk,
+# which meant the build could not run from a clean checkout - data/raw is
+# git-ignored, so a fresh container had no geography at all and step 1 died on
+# a missing countryInfo.txt. Fetching them here makes the pipeline
+# self-bootstrapping, which is what every other step already assumed.
+GEONAMES = "https://download.geonames.org/export/dump/"
+GEONAMES_FILES = ["countryInfo.txt", "admin1CodesASCII.txt", "cities5000.zip"]
+
+
+def ensure_raw():
+    """Download any missing GeoNames dump. Idempotent: present files are left
+    alone, so this costs nothing on a warm checkout."""
+    os.makedirs(RAW, exist_ok=True)
+    for name in GEONAMES_FILES:
+        member = name[:-4] + ".txt" if name.endswith(".zip") else name
+        if os.path.exists(os.path.join(RAW, member)):
+            continue
+        print(f"  fetching {name} ...", flush=True)
+        blob = fetch(GEONAMES + name, source_id="geonames_dump", timeout=180,
+                     retries=3, backoff=3.0)      # uncached: the cache stores str
+        if not blob:
+            raise SystemExit(f"could not download {GEONAMES + name}")
+        if name.endswith(".zip"):
+            with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                z.extract(member, RAW)
+        else:
+            with open(os.path.join(RAW, member), "wb") as f:
+                f.write(blob)
+        print(f"  {member}: {os.path.getsize(os.path.join(RAW, member)):,} bytes", flush=True)
+
 GEONAMES_COLS = ["geonameid","name","asciiname","alternatenames","lat","lon","fclass","fcode",
                  "country","cc2","admin1","admin2","admin3","admin4","population","elevation",
                  "dem","timezone","moddate"]
@@ -108,6 +138,7 @@ def wikidata_crosswalk():
 
 
 def main():
+    ensure_raw()
     countries, admin1 = load_countries(), load_admin1()
     places = load_places()
     print(f"GeoNames places >=5k: {len(places)} across "

@@ -16,7 +16,10 @@ step "3b/9 OSM mapping-density baseline";  python3 pipeline/step3b_baseline.py
 step "4/9  public event listings";         python3 pipeline/step4_events.py
 step "4b/9 coworking venue feeds";         python3 pipeline/step4b_venuefeeds.py
 step "5/9  community velocity";            python3 pipeline/step5_community.py
+step "5b/9 structural viability";          python3 pipeline/step5b_viability.py
 step "6/9  H3 model + scoring";            python3 pipeline/step6_h3.py
+step "6c/9 audit statistics";              python3 pipeline/step6c_auditstats.py
+step "6d/9 Nomad Fit";                     python3 pipeline/step6d_nomadfit.py
 step "6b/9 validation against reference set"; python3 validation/evaluate.py build | head -12
 step "7/9  web artifacts";                 python3 pipeline/step7_artifacts.py
 step "8/9  self-contained page";           python3 pipeline/step8_build.py
@@ -30,4 +33,6 @@ python3 audit/audit.py  2>/dev/null | sed -n '/nomad-specific weight/,+3p'
 python3 audit/audit2.py 2>/dev/null | sed -n '/CIRCULARITY/,+5p'
 
 echo
-echo "Build complete. Publish dist/nomad-radar.html as the Artifact."
+echo "Build complete: dist/nomad-radar.html"
+echo "  Artifact (16MB ceiling): publish dist/nomad-radar.html"
+echo "  GitHub Pages (100MB):    NOMAD_SHIP_SCALE=2 ./build.sh && ./deploy-pages.sh"

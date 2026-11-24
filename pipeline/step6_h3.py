@@ -72,6 +72,11 @@ KIND_SPEC = {
 # that nomads are there (validity audit fix #6).
 NOMAD_TARGETED = {"events", "community"}
 
+# Payload budget multiplier. 1.0 fits the 16MB Artifact ceiling; the GitHub
+# Pages build raises it because Pages allows 100MB per file. It changes only how
+# much of the model is shipped to the browser, never how anything is scored.
+SHIP_SCALE = float(os.environ.get("NOMAD_SHIP_SCALE", "1"))
+
 NOMAD_CATEGORIES = {"digital nomad", "coworking", "expat / international",
                     "language exchange", "networking", "startup"}
 SOCIAL_CATEGORIES = {"social", "nightlife", "music / festival", "wellness",
@@ -830,9 +835,18 @@ def main():
     # Ship-time pruning (spec §54, §65): roll-ups above already used every cell,
     # but a fine cell holding one low-signal object is noise on the map and bulk
     # in the payload. Keep cells that carry real weight or corroboration.
+    # These caps are a payload budget, not a limit on the model: data/scored.json
+    # keeps every cell either way. There are now two publishing targets with very
+    # different ceilings - the Artifact host enforces 16MB per page, GitHub Pages
+    # allows 100MB - so rather than keep two forks of the numbers, scale them.
+    # NOMAD_SHIP_SCALE=1 (the default) is the Artifact-safe build.
     SHIP_MIN_W = {8: 1.0, 7: 1.0, 6: 0.9, 5: 0.8, 4: 0.6, 3: 0.0, 2: 0.0}
     SHIP_CAP = {8: 17000, 7: 13000, 6: 10500, 5: 7500, 4: 5000, 3: 3000, 2: 1200}
     LABEL_CAP = 1200   # only the strongest cells carry names/kind lists
+    if SHIP_SCALE != 1.0:
+        SHIP_CAP = {r: int(n * SHIP_SCALE) for r, n in SHIP_CAP.items()}
+        LABEL_CAP = int(LABEL_CAP * SHIP_SCALE)
+        print(f"ship scale {SHIP_SCALE}x -> caps {SHIP_CAP}, labels {LABEL_CAP}")
     shipped = {}
     for r in RES_CHAIN:
         keep = [c for c in levels[r].values()
@@ -931,9 +945,11 @@ def main():
         # cheapest thing to give back: it costs a few extra rows at the bottom
         # of a place's evidence list, where the map's granularity and the
         # scoring inputs cost real information.
+        n_post = int(15 * SHIP_SCALE)
+        n_venue = int(6 * SHIP_SCALE)
         ev_out[g] = [_keep(i) for i in
-                     [x for x in ranked if x["type"] != "venue"][:15] +
-                     [x for x in ranked if x["type"] == "venue" and x.get("title")][:6]]
+                     [x for x in ranked if x["type"] != "venue"][:n_post] +
+                     [x for x in ranked if x["type"] == "venue" and x.get("title")][:n_venue]]
     write_json("evidence.json", {"generated_at": common.iso(), "places": ev_out})
     print("wrote data/scored.json + data/evidence.json")
     print("top 20:", ", ".join(f'{l["name"]} {l["live_score"]}' for l in localities[:20]))
