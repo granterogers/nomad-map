@@ -220,9 +220,17 @@ def fetch(url: str, *, source_id: str, data: bytes | str | None = None,
 
 
 def write_json(relpath: str, obj, indent=None):
+    """Write atomically. Steps are routinely run concurrently and several read
+    each other's outputs, so writing in place let a reader catch a half-written
+    file - rare, silent, and indistinguishable from corrupt data when it hit."""
     p = os.path.join(DATA, relpath)
     os.makedirs(os.path.dirname(p), exist_ok=True)
-    json.dump(obj, open(p, "w"), indent=indent, separators=(",", ":") if indent is None else None)
+    tmp = f"{p}.tmp{os.getpid()}"
+    with open(tmp, "w") as f:
+        json.dump(obj, f, indent=indent, separators=(",", ":") if indent is None else None)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, p)          # atomic on POSIX
     return p
 
 

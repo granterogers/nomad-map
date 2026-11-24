@@ -96,6 +96,23 @@ def load_places():
     return places
 
 
+# The public Wikidata Query Service times out on this query at scale: on a
+# clean rebuild two population bands failed outright and the crosswalk came
+# back with 23,385 rows against the 85,695 the same step once produced,
+# dropping English Wikipedia coverage to 9.4% of places and gutting the
+# attention layer. QLever's Wikidata index answers the whole thing unbanded in
+# under three seconds and returns 139,153 rows, so it is tried first and the
+# banded WDQS walk is kept only as a fallback. (step1b_locallang.py was moved
+# the same way in September; step 1 was missed.)
+QLEVER_WD = "https://qlever.dev/api/wikidata"
+QL_SPARQL = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX schema: <http://schema.org/>
+SELECT ?gn ?article WHERE {
+  ?city wdt:P1566 ?gn ; wdt:P1082 ?pop .
+  FILTER(?pop >= 5000)
+  ?article schema:about ?city ; schema:isPartOf <https://en.wikipedia.org/> .
+}"""
+
 SPARQL = """SELECT ?gn ?article WHERE {
   ?city wdt:P1566 ?gn ; wdt:P1082 ?pop .
   FILTER(?pop >= %d && ?pop < %d)
@@ -111,6 +128,22 @@ def wikidata_crosswalk():
     """GeoNames id -> en.wikipedia title, pulled in population bands to stay
     inside the public SPARQL endpoint's time budget."""
     mapping = {}
+    res = fetch(QLEVER_WD, source_id="qlever_wikidata", data=QL_SPARQL.encode(),
+                headers={"Accept": "application/sparql-results+json",
+                         "Content-type": "application/sparql-query"},
+                timeout=240, retries=2, as_json=True,
+                cache_ttl=14 * 86400, cache_key="qlwd_en_crosswalk")
+    if res and "results" in res:
+        for b in res["results"]["bindings"]:
+            try:
+                gid = int(b["gn"]["value"])
+            except ValueError:
+                continue
+            mapping[gid] = urllib.parse.unquote(
+                b["article"]["value"].rsplit("/", 1)[-1]).replace(" ", "_")
+        print(f"  QLever Wikidata: {len(mapping):,} GeoNames->en.wikipedia pairs")
+        return mapping
+    print("  QLever Wikidata unavailable - falling back to banded WDQS")
     for lo, hi in BANDS:
         q = SPARQL % (lo, hi)
         res = fetch("https://query.wikidata.org/sparql", source_id="wikidata_sparql",
