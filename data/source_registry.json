@@ -185,12 +185,14 @@
   "terms_notes": "ODbL; used only to correct for mapping completeness"
  },
  "qlever_wikidata": {
-  "failure_count": 0,
-  "last_checked": "2026-11-24T19:45:06Z",
-  "last_success": "2026-11-24T19:45:06Z",
-  "reliability": 1.0,
+  "failure_count": 1,
+  "last_checked": "2026-11-24T19:47:23Z",
+  "last_error": "HTTPError: HTTP Error 429: Too Many Requests",
+  "last_failure": "2026-11-24T19:45:19Z",
+  "last_success": "2026-11-24T19:47:23Z",
+  "reliability": 0.977,
   "source_id": "qlever_wikidata",
-  "success_count": 23
+  "success_count": 43
  },
  "reddit_rss": {
   "access_method": "anonymous",
@@ -234,21 +236,21 @@
  "wikidata_sparql": {
   "access_method": "anonymous SPARQL",
   "adapter_version": "1.0",
-  "coverage": 86090,
+  "coverage": 23385,
   "credential_required": false,
   "domain": "query.wikidata.org",
   "failure_count": 5,
   "freshness": "live",
   "geographic_scope": "global",
-  "last_checked": "2026-11-24T19:43:33Z",
+  "last_checked": "2026-11-24T19:46:59Z",
   "last_error": "HTTPError: HTTP Error 500: Internal Server Error",
   "last_failure": "2026-11-24T19:38:08Z",
-  "last_success": "2026-11-24T19:43:33Z",
-  "reliability": 0.773,
+  "last_success": "2026-11-24T19:46:59Z",
+  "reliability": 0.783,
   "source_id": "wikidata_sparql",
   "source_name": "Wikidata Query Service",
   "source_type": "geography/crosswalk",
-  "success_count": 17,
+  "success_count": 18,
   "terms_notes": "CC0"
  },
  "wikimedia_pageview_dumps": {

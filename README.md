@@ -12,7 +12,10 @@ supports that precision, and no finer.
 It runs on zero credentials. There is no API key, no login, no database to
 provision, and no ongoing cost.
 
-**Live:** https://claude.ai/code/artifact/dac9fc4c-ac07-4b44-bcbc-da2fe2efaf5c
+**Live:** https://granterogers.github.io/nomad-map/
+
+Also published as a Claude Artifact (private link):
+https://claude.ai/artifact/U1zBkXMyuS5yJx6gF6HnKd
 
 ## What it answers
 
@@ -29,21 +32,42 @@ provision, and no ongoing cost.
 
 ```bash
 pip install h3
-python3 pipeline/probe_sources.py     # source feasibility audit
-python3 pipeline/step1_geobase.py     # world place universe + Wikipedia crosswalk
-python3 pipeline/step2_attention.py   # live attention from Wikimedia dumps  (~14 min)
-python3 pipeline/step2b_tier0.py      # coarse global pass + scan allocation
-python3 pipeline/step3_ecosystem.py   # global OSM ecosystem via QLever       (~2.5 min)
-python3 pipeline/step4_events.py      # live public event listings            (~10 min)
-python3 pipeline/step5_community.py   # community velocity feeds
-python3 pipeline/step6_h3.py          # H3 indexing, clustering, scoring
-python3 pipeline/step7_artifacts.py   # precomputed web artifacts
-python3 pipeline/step8_build.py       # single self-contained HTML page
-python3 tests/test_pipeline.py        # test suite
+./build.sh                            # the whole pipeline, ~45 min cold
 ```
 
-Every step is independently re-runnable and cached; a failing source degrades
-that source's contribution and nothing else.
+To publish:
+
+```bash
+NOMAD_SHIP_SCALE=2 ./build.sh         # Pages-sized build (100 MB ceiling)
+./deploy-pages.sh                     # force-push dist/ to the gh-pages branch
+```
+
+`build.sh` runs the steps below in order. Every one is independently
+re-runnable and cached, so a step can be run on its own; a failing source
+degrades that source's contribution and nothing else.
+
+| Step | What it does | Cold time |
+|---|---|---|
+| `probe_sources.py` | source feasibility audit | ~2 min |
+| `step1_geobase.py` | world place universe + Wikipedia crosswalk | ~4 min |
+| `step1b_locallang.py` | local-language Wikipedia crosswalk, 22 editions | ~4 min |
+| `step2_attention.py` | live attention from Wikimedia dumps | ~14 min |
+| `step2b_tier0.py` | coarse global pass + scan allocation | ~1 min |
+| `step3_ecosystem.py` | global OSM ecosystem via QLever | ~2.5 min |
+| `step3b_baseline.py` | OSM mapping-density baseline | ~5 min |
+| `step4_events.py` | live public event listings | ~10 min |
+| `step4b_venuefeeds.py` | coworking venue feeds | ~3 min |
+| `step5_community.py` | community velocity feeds | ~12 min |
+| `step5b_viability.py` | cost, climate and visa | ~35 min |
+| `step6_h3.py` | H3 indexing, clustering, scoring | ~2 min |
+| `step6c_auditstats.py` | validity statistics for the in-app report | <1 min |
+| `step6d_nomadfit.py` | Nomad Fit, fitted on a held-out split | <1 min |
+| `step7_artifacts.py` | precomputed web artifacts | ~1 min |
+| `step8_build.py` | single self-contained HTML page | <1 min |
+| `tests/test_pipeline.py` | test suite | <1 min |
+
+The GeoNames dumps `step1_geobase.py` needs are downloaded automatically, so a
+clean checkout builds without any manual setup.
 
 ## Documentation
 
