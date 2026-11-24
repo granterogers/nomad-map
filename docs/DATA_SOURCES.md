@@ -33,19 +33,19 @@ respected — Meetup's `/find/` path is not disallowed; its `/files/`, `/fb/`,
 | World Bank Open Data API | `api.worldbank.org` | structural viability | anonymous REST | 100% | 199 |
 | geonames_dump | `` |  |  | 100% | 0 |
 | Hacker News Algolia search API | `hn.algolia.com` | community | anonymous | 50% | 0 |
-| Lemmy public post API | `lemmy.world` | community | anonymous | 36% | 0 |
+| Lemmy public post API | `lemmy.world` | community | anonymous | 33% | 0 |
 | Luma public city pages (schema.org ItemList/Event) | `luma.com` | events | anonymous HTML + JSON-LD | 46% | 0 |
-| Mastodon public hashtag timelines | `mastodon.social` | community | anonymous | 61% | 0 |
+| Mastodon public hashtag timelines | `mastodon.social` | community | anonymous | 67% | 0 |
 | Meetup public /find pages (schema.org Event) | `meetup.com` | events | anonymous HTML + JSON-LD | 100% | 0 |
 | qlever_wikidata | `` |  |  | 98% | 0 |
-| Reddit public Atom feeds | `reddit.com` | community | anonymous | 14% | 0 |
+| Reddit public Atom feeds | `reddit.com` | community | anonymous | 12% | 0 |
 
 ### What each contributes
 
 - **OpenStreetMap planet via QLever** — 1,160,671 matching objects worldwide, 828,134 attributed to 38,783 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
 - **Wikimedia hourly pageview dumps** — dated daily series for 39,903 places over 28 days (111/112 hourly files streamed). Supplies current attention and real momentum.
 - **Meetup + Luma public listings** — 28,956 schema.org Event objects across 1,807 localities, with organiser and venue.
-- **Reddit / Mastodon / Lemmy / Hacker News** — 12,812 recent public posts scanned, attributed to 392 localities at city precision.
+- **Reddit / Mastodon / Lemmy / Hacker News** — 20,794 recent public posts scanned, attributed to 421 localities at city precision.
 - **Coworking-space event feeds** — 960 of 4,196 coworking websites recorded in OSM publish a machine-readable calendar (iCalendar, RSS/Atom or schema.org). 7,625 events across 561 localities. Unlike Meetup listings these carry the venue's exact coordinates, so they land in an H3 cell rather than at city precision.
 - **OSM mapping-density baseline** — 6,618,396 deliberately nomad-irrelevant civic objects (amenity=pharmacy, amenity=fuel, shop=supermarket, amenity=bank, shop=hairdresser, amenity=post_box, amenity=place_of_worship, amenity=school, shop=bakery, amenity=kindergarten, amenity=doctors) used to correct for how thoroughly each region has been mapped. Not a signal; a normaliser.
 - **GeoNames + Wikidata** — the place universe, the GeoNames↔Wikipedia crosswalk, and local-language sitelinks for 12,458 places so attention is not measured on English Wikipedia alone.
