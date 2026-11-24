@@ -20,6 +20,16 @@
    "negative_controls_in_top_30": 4,
    "ranked_localities": 1086,
    "notes": ""
+  },
+  {
+   "build": "2026-11-24T21:06Z",
+   "label": "v2.0.0-rebuild",
+   "spearman_tier_vs_score": 0.261,
+   "auc_hub_vs_control": 0.735,
+   "precision_at_30": 0.7,
+   "negative_controls_in_top_30": 6,
+   "ranked_localities": 1721,
+   "notes": ""
   }
  ]
 }
