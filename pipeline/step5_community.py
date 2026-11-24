@@ -202,7 +202,7 @@ def mastodon():
             if max_id:
                 url += f"&max_id={max_id}"
             j = fetch(url, source_id="mastodon_public", as_json=True, timeout=35,
-                      retries=2, limiter=LIM, breaker=breaker_for("mastodon_public"), cache_ttl=6 * 3600)
+                      retries=2, limiter=LIM, breaker=breaker_for(f"mastodon_public:{host}"), cache_ttl=6 * 3600)
             if not isinstance(j, list) or not j:
                 break
             for s in j:
@@ -224,7 +224,7 @@ def lemmy():
             j = fetch(f"https://{host}/api/v3/post/list?community_name={c}"
                       f"&limit=50&page={page}&sort=New",
                       source_id="lemmy_public", as_json=True, timeout=35, retries=1,
-                      limiter=LIM, breaker=breaker_for("lemmy_public"), cache_ttl=6 * 3600)
+                      limiter=LIM, breaker=breaker_for(f"lemmy_public:{host}"), cache_ttl=6 * 3600)
             got = ((j or {}).get("posts") or [])
             for p in got:
                 pv = p.get("post", {})

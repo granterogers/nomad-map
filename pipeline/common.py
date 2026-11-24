@@ -121,6 +121,12 @@ def breaker_for(source_id: str, threshold=20, cooldown=60):
 
     A per-source breaker keeps the documented contract: a failing source
     degrades its own contribution and nothing else.
+
+    "Source" here means the thing that can fail independently, which is usually
+    a HOST rather than an adapter. Nine Mastodon instances behind one
+    source_id still share a breaker, and one dead instance still silences the
+    other eight - that is exactly what happened on the first fix, costing ~9,700
+    posts. Pass a key that distinguishes hosts, e.g. f"mastodon_public:{host}".
     """
     with _BREAKERS_LOCK:
         b = _BREAKERS.get(source_id)

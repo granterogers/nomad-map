@@ -13,7 +13,7 @@ from collections import defaultdict
 sys.path.insert(0, os.path.dirname(__file__))
 import h3
 import common
-from common import read_json, write_json
+from common import read_json, write_json, fetch
 
 W = 65536.0                     # world pixel width at max detail
 LAT_MAX = 82.0
@@ -70,6 +70,28 @@ def encode_world(paths_file):
         # re-project from the generator's 1000-wide space into ours
         feats.append({"n": f["n"], "d": f["d"]})
     return src, feats
+
+
+# Country outlines. data/raw is git-ignored, so this file - like the GeoNames
+# dumps in step 1 - existed only because it had been fetched by hand once. A
+# clean rebuild got None here and step 7 died after every expensive step had
+# already finished. Fetch it if it is missing.
+NE_WORLD = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
+            "master/geojson/ne_110m_admin_0_countries.geojson")
+
+
+def ensure_world():
+    path = os.path.join(common.DATA, "raw", "world_countries.json")
+    if os.path.exists(path):
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    print("  fetching world_countries.json (Natural Earth 110m) ...", flush=True)
+    blob = fetch(NE_WORLD, source_id="natural_earth", timeout=180, retries=3, backoff=3.0)
+    if not blob:
+        raise SystemExit(f"could not download {NE_WORLD}")
+    with open(path, "wb") as f:
+        f.write(blob)
+    print(f"  world_countries.json: {os.path.getsize(path):,} bytes", flush=True)
 
 
 def build_world_paths():
@@ -227,6 +249,7 @@ def main():
         }
         print(f"  res {r}: {len(meta)} cells, {len(flat)} ints")
 
+    ensure_world()
     raw_world = read_json("raw/world_countries.json")
     cgrid = coastal_index(raw_world)
     dem = {p["gid"]: p.get("dem", 0) for p in gb["places"]}
