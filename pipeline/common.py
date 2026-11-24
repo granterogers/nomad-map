@@ -106,6 +106,29 @@ def registry_snapshot() -> dict:
         return json.loads(json.dumps(_registry))
 
 
+_BREAKERS, _BREAKERS_LOCK = {}, threading.Lock()
+
+
+def breaker_for(source_id: str, threshold=20, cooldown=60):
+    """One circuit breaker per source, memoised.
+
+    Sharing a single breaker across the sources of a step looks tidy and is a
+    trap: one dead source trips it and then silences every healthy source
+    behind it. That is how a whole evidence layer went to zero - Reddit's RSS
+    feeds started returning 404, 20 of them tripped the breaker step 5 shared,
+    and Mastodon, Lemmy and Hacker News were never actually asked. The step
+    reported no error, because from its point of view nothing failed.
+
+    A per-source breaker keeps the documented contract: a failing source
+    degrades its own contribution and nothing else.
+    """
+    with _BREAKERS_LOCK:
+        b = _BREAKERS.get(source_id)
+        if b is None:
+            b = _BREAKERS[source_id] = CircuitBreaker(threshold, cooldown)
+        return b
+
+
 class CircuitBreaker:
     """Trip after N consecutive failures; recover after a cool-down."""
 

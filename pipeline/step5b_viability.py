@@ -25,10 +25,12 @@ import json, math, os, sys, threading, time
 from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, os.path.dirname(__file__))
 import common
-from common import fetch, read_json, write_json, RateLimiter, CircuitBreaker, register
+from common import (fetch, read_json, write_json, RateLimiter, CircuitBreaker,
+                    breaker_for, register)
 
 LIM = RateLimiter(0.06)
-BRK = CircuitBreaker(25, 60)
+# Per source: World Bank and NASA POWER must not be able to trip each other.
+BRK = CircuitBreaker(25, 60)          # kept for callers that still pass it
 
 VISA_AS_OF = "2026-09"
 # Countries operating a digital-nomad, remote-work or comparable freelance
@@ -67,7 +69,7 @@ def cost_index():
 def climate_for(place, sink, lock, prog):
     res = fetch(POWER.format(lat=place["lat"], lon=place["lon"]),
                 source_id="nasa_power", as_json=True, timeout=40, retries=1,
-                limiter=LIM, breaker=BRK, cache_ttl=180 * 86400,
+                limiter=LIM, breaker=breaker_for("nasa_power"), cache_ttl=180 * 86400,
                 cache_key=f"power_{round(place['lat'],2)}_{round(place['lon'],2)}")
     t = None
     try:

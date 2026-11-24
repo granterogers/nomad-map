@@ -15,10 +15,15 @@ from collections import defaultdict, Counter
 from datetime import datetime, timezone
 sys.path.insert(0, os.path.dirname(__file__))
 import common
-from common import fetch, read_json, write_json, RateLimiter, CircuitBreaker, register
+from common import (fetch, read_json, write_json, RateLimiter, CircuitBreaker,
+                    breaker_for, register)
 
 LIM = RateLimiter(1.1)
-BRK = CircuitBreaker(20, 60)
+# One breaker PER SOURCE, not one for the step. A single shared breaker meant
+# Reddit - whose public RSS feeds began returning 404 some time after September
+# 2026 - tripped it on its first 20 URLs and silenced Mastodon, Lemmy and
+# Hacker News behind it. The step then reported "0 posts" with no error at all.
+BRK = CircuitBreaker(20, 60)          # kept for callers that still pass it
 
 SUBREDDITS = ["digitalnomad", "expats", "solotravel", "remotework", "IWantOut",
               "travel", "backpacking", "coworking", "nomadlifestyle", "Shoestring",
@@ -175,7 +180,7 @@ def reddit_feeds():
             for q in REDDIT_SEARCHES]
     for u, ch in urls:
         raw = fetch(u, source_id="reddit_rss", timeout=35, retries=2, limiter=LIM,
-                    breaker=BRK, cache_ttl=6 * 3600)
+                    breaker=breaker_for("reddit_rss"), cache_ttl=6 * 3600)
         if not raw:
             continue
         _reddit_parse(raw.decode("utf-8", "replace"), ch, posts)
@@ -197,7 +202,7 @@ def mastodon():
             if max_id:
                 url += f"&max_id={max_id}"
             j = fetch(url, source_id="mastodon_public", as_json=True, timeout=35,
-                      retries=2, limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
+                      retries=2, limiter=LIM, breaker=breaker_for("mastodon_public"), cache_ttl=6 * 3600)
             if not isinstance(j, list) or not j:
                 break
             for s in j:
@@ -219,7 +224,7 @@ def lemmy():
             j = fetch(f"https://{host}/api/v3/post/list?community_name={c}"
                       f"&limit=50&page={page}&sort=New",
                       source_id="lemmy_public", as_json=True, timeout=35, retries=1,
-                      limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
+                      limiter=LIM, breaker=breaker_for("lemmy_public"), cache_ttl=6 * 3600)
             got = ((j or {}).get("posts") or [])
             for p in got:
                 pv = p.get("post", {})
@@ -240,7 +245,7 @@ def hackernews():
         j = fetch("https://hn.algolia.com/api/v1/search_by_date?query="
                   + urllib.parse.quote(q) + f"&tags=(story,comment)&hitsPerPage=100&page={page}",
                   source_id="hn_algolia", as_json=True, timeout=35, retries=2,
-                  limiter=LIM, breaker=BRK, cache_ttl=6 * 3600)
+                  limiter=LIM, breaker=breaker_for("hn_algolia"), cache_ttl=6 * 3600)
         hits = ((j or {}).get("hits") or [])
         for h in hits:
             posts.append({"source": "hn_algolia", "channel": "hn:" + q,
