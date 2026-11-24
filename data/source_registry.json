@@ -80,6 +80,7 @@
  },
  "luma_public": {
   "access_method": "anonymous HTML + JSON-LD",
+  "adapter_version": "1.0",
   "credential_required": false,
   "domain": "luma.com",
   "failure_count": 195,
@@ -115,19 +116,20 @@
  },
  "meetup_public": {
   "access_method": "anonymous HTML + JSON-LD",
+  "adapter_version": "1.0",
   "credential_required": false,
   "domain": "meetup.com",
   "failure_count": 0,
   "freshness": "live listings",
   "geographic_scope": "global (coverage varies)",
-  "last_checked": "2026-09-10T19:35:42Z",
+  "last_checked": "2026-11-24T20:31:25Z",
   "last_failure": null,
-  "last_success": "2026-09-10T19:35:42Z",
+  "last_success": "2026-11-24T20:31:25Z",
   "reliability": 1.0,
   "source_id": "meetup_public",
   "source_name": "Meetup public /find pages (schema.org Event)",
   "source_type": "events",
-  "success_count": 1237,
+  "success_count": 4844,
   "terms_notes": "public indexable structured data only; robots.txt respected"
  },
  "nasa_power": {
