@@ -78,15 +78,20 @@ downloads itself.
 
 ### How Pages is served
 
-`deploy-pages.sh` force-pushes an orphan `gh-pages` branch containing only
-`index.html` and a `.nojekyll`. Orphan and force-pushed deliberately: the page
-is a ~20 MB build artifact, so committing it to the source branch would add
-another 20 MB blob to the history of every clone on every rebuild. An orphan
-branch that is replaced each time keeps that out of the repository people
-actually work in.
+Pages serves the **`main` branch at its root**, so `deploy-pages.sh` copies the
+built page to `index.html`, adds a `.nojekyll` so Pages does not run it through
+Jekyll, and pushes.
 
-Enabling Pages is a one-off manual step: **Settings → Pages → Source: Deploy
-from a branch → `gh-pages` / root**.
+**The cost of serving from `main`:** the page is a ~20 MB build artifact, so
+every publish adds another ~20 MB blob to `main`'s history permanently, for
+everyone who clones. A year of monthly rebuilds is roughly a quarter of a
+gigabyte of dead weight in a repository whose source is under 40 MB. An orphan
+`gh-pages` branch, replaced on each publish, would let old builds fall out of
+the repository instead; that was the original design and it is the cheaper one.
+Serving from `main` was chosen for simplicity, with that tradeoff understood.
+
+If the history does become a problem, the fix is to move the Pages source to an
+orphan `gh-pages` branch and strip `index.html` from `main`'s history.
 
 ## Cost
 

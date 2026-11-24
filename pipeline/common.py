@@ -11,6 +11,17 @@ import urllib.error, urllib.parse, urllib.request
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DATA = os.path.join(ROOT, "data")
+
+
+def version() -> str:
+    """The release this build is. Read from the VERSION file so there is one
+    place to change it, and shipped into the page so any published build can be
+    identified from the page itself rather than from a commit hash."""
+    try:
+        with open(os.path.join(ROOT, "VERSION"), encoding="utf-8") as f:
+            return f.read().strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 CACHE = os.path.join(DATA, "cache")
 REGISTRY_PATH = os.path.join(DATA, "source_registry.json")
 UA = "NomadRadar/1.0 (open-data research bot; +https://github.com/granterogers/nomad-map)"

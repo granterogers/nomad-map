@@ -114,6 +114,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => draw
 /* ---------- boot ---------- */
 const gen = new Date(D.generated_at.replace(" ", "T"));
 document.getElementById("stamp").textContent =
+  `v${D.meta.version || "?"} · ` +
   `${D.meta.scanned_localities.toLocaleString()} localities scanned of ${D.meta.universe_places.toLocaleString()} · ` +
   `${D.meta.universe_countries} countries · built ${D.generated_at.slice(0,16).replace("T"," ")} UTC`;
 document.getElementById("ramplabel").textContent = labelFor(S.layer);

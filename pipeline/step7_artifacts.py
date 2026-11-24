@@ -257,6 +257,7 @@ def main():
         "generated_at": common.iso(),
         "world_px": {"w": W, "h": round(H, 1), "ref": 2048, "lat_max": LAT_MAX},
         "meta": {
+            "version": common.version(),
             "universe_places": len(gb["places"]),
             "universe_countries": len({p["cc"] for p in gb["places"]}),
             "scanned_localities": len(sc["localities"]),

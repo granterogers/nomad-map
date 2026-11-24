@@ -12,7 +12,7 @@ supports that precision, and no finer.
 It runs on zero credentials. There is no API key, no login, no database to
 provision, and no ongoing cost.
 
-**Live:** https://granterogers.github.io/nomad-map/
+**Live:** https://granterogers.github.io/nomad-map/ — **v2.0.0**
 
 Also published as a Claude Artifact (private link):
 https://claude.ai/artifact/U1zBkXMyuS5yJx6gF6HnKd
@@ -79,6 +79,7 @@ clean checkout builds without any manual setup.
 | [GEOSPATIAL.md](docs/GEOSPATIAL.md) | Projection, attribution, precision handling |
 | [H3_MODEL.md](docs/H3_MODEL.md) | Resolutions, roll-ups, clustering, performance |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | How it is published and why |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each version |
 | [HANDOVER.md](docs/HANDOVER.md) | Current status, coverage, limitations, next steps |
 | [AGENTS.md](AGENTS.md) | Notes for the next agent working on this |
 
