@@ -6,6 +6,21 @@ cd "$(dirname "$0")"
 
 step() { echo; echo "=== $* ==="; }
 
+# Fail in the first second, not the sixtieth minute. A rebuild from a cold
+# container died on "No module named 'h3'" at step 6, AFTER an hour of
+# gathering had already completed - the data was fine and the run was still
+# wasted. Check what the build needs before it fetches anything.
+preflight() {
+  local bad=0
+  python3 -c "import h3" 2>/dev/null || {
+    echo "MISSING: python package h3  ->  pip install -r requirements.txt"; bad=1; }
+  python3 -c "import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)" || {
+    echo "MISSING: Python 3.10+ (found $(python3 -V 2>&1))"; bad=1; }
+  [ "$bad" -eq 0 ] || { echo; echo "Preflight failed. Nothing was fetched."; exit 1; }
+  echo "preflight ok: python $(python3 -V 2>&1 | cut -d' ' -f2), h3 $(python3 -c 'import h3;print(h3.__version__)')"
+}
+step "preflight"; preflight
+
 step "0/9  source feasibility audit";      python3 pipeline/probe_sources.py
 step "1/9  geographic baseline";           python3 pipeline/step1_geobase.py
 step "1b/9 local-language crosswalk";      python3 pipeline/step1b_locallang.py

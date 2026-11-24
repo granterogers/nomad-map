@@ -1,0 +1,3 @@
+# Nomad Radar's only third-party dependency. Everything else is stdlib, which
+# is deliberate: the pipeline has to run anywhere with a Python and a network.
+h3>=4.0,<5

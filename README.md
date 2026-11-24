@@ -31,9 +31,12 @@ https://claude.ai/artifact/U1zBkXMyuS5yJx6gF6HnKd
 ## Quick start
 
 ```bash
-pip install h3
-./build.sh                            # the whole pipeline, ~45 min cold
+pip install -r requirements.txt
+./build.sh                            # the whole pipeline, ~75 min cold
 ```
+
+`build.sh` preflights its dependencies before fetching anything, so a missing
+one costs a second rather than an hour.
 
 To publish:
 

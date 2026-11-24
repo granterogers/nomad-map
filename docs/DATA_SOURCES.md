@@ -22,32 +22,33 @@ respected — Meetup's `/find/` path is not disallowed; its `/files/`, `/fb/`,
 
 | Source | Domain | Type | Access | Reliability | Coverage |
 |---|---|---|---|---|---|
-| OSM mapping-density baseline (QLever) | `qlever.dev` | normalisation | anonymous SPARQL | 100% | 4,778,061 |
-| QLever OSM-planet SPARQL endpoint | `qlever.dev` | physical ecosystem | anonymous SPARQL | 100% | 1,153,589 |
-| Wikidata Query Service | `query.wikidata.org` | geography/crosswalk | anonymous SPARQL | 100% | 85,695 |
-| GeoNames cities5000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 69,058 |
-| Wikimedia hourly pageview dumps | `dumps.wikimedia.org` | attention/momentum | anonymous static file streaming | 100% | 38,331 |
+| OSM mapping-density baseline (QLever) | `qlever.dev` | normalisation | anonymous SPARQL | 100% | 4,797,663 |
+| QLever OSM-planet SPARQL endpoint | `qlever.dev` | physical ecosystem | anonymous SPARQL | 100% | 1,160,671 |
+| GeoNames cities5000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 69,455 |
+| Wikimedia hourly pageview dumps | `dumps.wikimedia.org` | attention/momentum | anonymous static file streaming | 100% | 39,903 |
 | GeoNames cities15000 dump | `download.geonames.org` | geography | anonymous bulk download | 100% | 34,090 |
+| Wikidata Query Service | `query.wikidata.org` | geography/crosswalk | anonymous SPARQL | 78% | 23,385 |
 | NASA POWER climatology API | `power.larc.nasa.gov` | structural viability | anonymous REST | 100% | 2,712 |
-| Coworking-space event feeds (ICS/RSS/schema.org) | `various (from OSM website tags)` | events | anonymous, one request per site | 82% | 1,011 |
+| Coworking-space event feeds (ICS/RSS/schema.org) | `various (from OSM website tags)` | events | anonymous, one request per site | 82% | 960 |
 | World Bank Open Data API | `api.worldbank.org` | structural viability | anonymous REST | 100% | 199 |
-| Hacker News Algolia search API | `hn.algolia.com` | community | anonymous | 100% | 0 |
-| Lemmy public post API | `lemmy.world` | community | anonymous | 67% | 0 |
+| geonames_dump | `` |  |  | 100% | 0 |
+| Hacker News Algolia search API | `hn.algolia.com` | community | anonymous | 50% | 0 |
+| Lemmy public post API | `lemmy.world` | community | anonymous | 36% | 0 |
 | Luma public city pages (schema.org ItemList/Event) | `luma.com` | events | anonymous HTML + JSON-LD | 46% | 0 |
-| Mastodon public hashtag timelines | `mastodon.social` | community | anonymous | 100% | 0 |
+| Mastodon public hashtag timelines | `mastodon.social` | community | anonymous | 74% | 0 |
 | Meetup public /find pages (schema.org Event) | `meetup.com` | events | anonymous HTML + JSON-LD | 100% | 0 |
-| qlever_wikidata | `` |  |  | 100% | 0 |
-| Reddit public Atom feeds | `reddit.com` | community | anonymous | 41% | 0 |
+| qlever_wikidata | `` |  |  | 98% | 0 |
+| Reddit public Atom feeds | `reddit.com` | community | anonymous | 25% | 0 |
 
 ### What each contributes
 
-- **OpenStreetMap planet via QLever** — 1,153,589 matching objects worldwide, 823,494 attributed to 38,645 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
-- **Wikimedia hourly pageview dumps** — dated daily series for 40,129 places over 28 days (112/112 hourly files streamed). Supplies current attention and real momentum.
-- **Meetup + Luma public listings** — 22,073 schema.org Event objects across 1,011 localities, with organiser and venue.
-- **Reddit / Mastodon / Lemmy / Hacker News** — 22,906 recent public posts scanned, attributed to 384 localities at city precision.
-- **Coworking-space event feeds** — 1,011 of 4,139 coworking websites recorded in OSM publish a machine-readable calendar (iCalendar, RSS/Atom or schema.org). 8,002 events across 588 localities. Unlike Meetup listings these carry the venue's exact coordinates, so they land in an H3 cell rather than at city precision.
-- **OSM mapping-density baseline** — 6,593,906 deliberately nomad-irrelevant civic objects (amenity=pharmacy, amenity=fuel, shop=supermarket, amenity=bank, shop=hairdresser, amenity=post_box, amenity=place_of_worship, amenity=school, shop=bakery, amenity=kindergarten, amenity=doctors) used to correct for how thoroughly each region has been mapped. Not a signal; a normaliser.
-- **GeoNames + Wikidata** — the place universe, the GeoNames↔Wikipedia crosswalk, and local-language sitelinks for 12,445 places so attention is not measured on English Wikipedia alone.
+- **OpenStreetMap planet via QLever** — 1,160,671 matching objects worldwide, 828,134 attributed to 38,783 localities. This is the only source with true point precision everywhere, so it is what makes sub-city hotspots possible.
+- **Wikimedia hourly pageview dumps** — dated daily series for 39,903 places over 28 days (111/112 hourly files streamed). Supplies current attention and real momentum.
+- **Meetup + Luma public listings** — 28,956 schema.org Event objects across 1,807 localities, with organiser and venue.
+- **Reddit / Mastodon / Lemmy / Hacker News** — 0 recent public posts scanned, attributed to 0 localities at city precision.
+- **Coworking-space event feeds** — 960 of 4,196 coworking websites recorded in OSM publish a machine-readable calendar (iCalendar, RSS/Atom or schema.org). 7,625 events across 561 localities. Unlike Meetup listings these carry the venue's exact coordinates, so they land in an H3 cell rather than at city precision.
+- **OSM mapping-density baseline** — 6,618,396 deliberately nomad-irrelevant civic objects (amenity=pharmacy, amenity=fuel, shop=supermarket, amenity=bank, shop=hairdresser, amenity=post_box, amenity=place_of_worship, amenity=school, shop=bakery, amenity=kindergarten, amenity=doctors) used to correct for how thoroughly each region has been mapped. Not a signal; a normaliser.
+- **GeoNames + Wikidata** — the place universe, the GeoNames↔Wikipedia crosswalk, and local-language sitelinks for 12,458 places so attention is not measured on English Wikipedia alone.
 
 ## Full audit
 
